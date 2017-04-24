@@ -1,0 +1,51 @@
+# --------------------- MagicBottle Configuration ---------------------
+# If you misspell a value the configuration will be incorrect and the plugin won't load.
+# If MagicBottle can't load, it is possible that something in this file is wrong. Please check that the indentation is correct and no TABs are used, only spaces.
+# For an explanation of how .yml (YAML) files work, visit https://github.com/Animosity/CraftIRC/wiki/Complete-idiot%27s-introduction-to-yaml
+# I don't think you're an idiot.
+# ------------------------------------------------------------------
+
+# Config:
+
+# Enable or disable sound and particle effects when an MagicBottle is used.
+effect:
+  sound: true
+  particles: true
+
+# Enable or disable the ability to fill or pour the bottle by using it in a crafting grid.
+recipe:
+  deposit: true
+  withdraw: true
+  # Enable the ability to craft new MagicBottles.
+  # If you disable this, players won't be able to craft new bottles but existing ones will remain.
+  bottle:
+    enabled: true
+    # The recipe to craft a new empty MagicBottle.
+    # Don't modify the numbers or the order, just the content.
+    # Each slot in the crafting table is numbered from left to right and top to bottom (1 to 9).
+    # You can see a complete list of possible item names here: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
+    # You can set AIR for an empty slot.
+    recipe:
+      1: BLAZE_ROD
+      2: BLAZE_ROD
+      3: BLAZE_ROD
+      4: CHEST
+      5: GLASS_BOTTLE
+      6: CHEST
+      7: DIAMOND_BLOCK
+      8: DIAMOND_BLOCK
+      9: DIAMOND_BLOCK
+
+# Set the maximum level a player can save in a single MagicBottle.
+# TIP: Set this depending on how difficult you made the recipe.
+max level:
+  # This will be applied when the player doesn't have any of the following permissions.
+  default: 30
+  permissions:
+    # Allow players to have bottles with more level than the default option.
+    # To remove the limit entirely, give people 'magicbottle.maxlevel.unlimited'; still, the maximum level a bottle can hold is 20,000.
+    # You need to grant people the permission 'magicbottle.maxlevel.<name>' from the list shown below.
+    # If a player has two or more of these permissions, the maximum value will be applied, including 'magicbottle.maxlevel.unlimited'.
+    user: 100
+    veteran: 150
+    vip: 200

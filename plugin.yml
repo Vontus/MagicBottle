@@ -1,0 +1,11 @@
+name: MagicBottle
+
+main: vontus.magicbottle.Plugin
+version: 1.0
+
+author: Vontus
+
+commands:
+    magicbottle:
+      description: 'Main plugin command'
+      aliases: [mb, magicb, mbottle]

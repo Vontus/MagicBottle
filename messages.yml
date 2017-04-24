@@ -1,0 +1,39 @@
+# --------------------- MagicBottle Messages ---------------------
+# Customize texts and colors MagicBottle uses when messaging players
+# Use & for formatting. To see how to use it visit http://minecraft.gamepedia.com/Formatting_codes
+# For an explanation of how to edit this file, see config.yml
+# -------------------------------------------------------------
+
+# Messages:
+
+# '[levels]' represents level number:
+# '[xpbar]' is a bar that shows the current xp progression to the next level
+bottle name: '&6 &7| &eLevel [level] &7| [xpbar]'
+
+bottle lore:
+  experience text: '&6Experience points:'
+  experience color: '&e'
+  filled bar color: '&6'
+  empty bar color: '&e'
+  lines:
+    - '&6Instructions:'
+    - '&6Deposit: &7(Shift +) Left Click.'
+    - '&6Withdraw: &7(Shift +) Right Click.'
+    - '&6You can also put the bottle in a crafting grid'
+    - '&6to deposit or withdraw all the experience.'
+
+messages:
+  # '%' represents the maximum level.
+  max level reached: '&cThe maximum level you can save in a MagicBottle is %'
+  unauthorized:
+    deposit: '&cYou do not have permission for that.'
+    withdraw: '&cYou do not have permission for that.'
+    command: '&cYou do not have permission for that.'
+    reload: '&cYou do not have permission for that.'
+    
+  commands:
+    # '%' represents command:
+    correct use: '&cCorrect use: %'
+    reload completed: '&eConfiguration reloaded.'
+    level not valid: '&cThe level must be a number between 0 and 20,000.'
+    given bottle: '&eGiven [amount] MagicBottle(s) to [player] with [level] levels.'

@@ -75,6 +75,8 @@ public class Commands implements CommandExecutor {
 					amount = Integer.parseInt(args[2]);
 				case 2:
 					level = Integer.parseInt(args[1]);
+					break;
+				case 1:
 					if (level < 0 || level > Config.maxLevel) {
 						sender.sendMessage(Messages.cmdMsgLevelNotValid);
 					} else if (player == null) {

@@ -26,15 +26,15 @@ recipe:
     # You can see a complete list of possible item names here: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
     # You can set AIR for an empty slot.
     recipe:
-      1: BLAZE_ROD
-      2: BLAZE_ROD
-      3: BLAZE_ROD
-      4: CHEST
+      1: BLAZE_POWDER
+      2: ENDER_CHEST
+      3: BLAZE_POWDER
+      4: GLOWSTONE_DUST
       5: GLASS_BOTTLE
-      6: CHEST
-      7: DIAMOND_BLOCK
-      8: DIAMOND_BLOCK
-      9: DIAMOND_BLOCK
+      6: GLOWSTONE_DUST
+      7: GOLD_BLOCK
+      8: GOLD_BLOCK
+      9: GOLD_BLOCK
 
 # Set the maximum level a player can save in a single MagicBottle.
 # TIP: Set this depending on how difficult you made the recipe.

@@ -108,7 +108,7 @@ public class Commands implements CommandExecutor {
 		sender.sendMessage(ChatColor.GOLD + "- MagicBottle Commands -");
 		sender.sendMessage(ChatColor.YELLOW + " /magicbottle about");
 		if (sender.hasPermission(Config.authorizationGive)) {
-			sender.sendMessage(ChatColor.YELLOW + " /magicbottle give [player] [level] [amount]");
+			sender.sendMessage(ChatColor.YELLOW + " /magicbottle give [level] [amount] [player]");
 		}
 		if (sender.hasPermission(Config.authorizationReload)) {
 			sender.sendMessage(ChatColor.YELLOW + " /magicbottle reload");

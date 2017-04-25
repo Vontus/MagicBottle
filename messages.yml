@@ -8,7 +8,7 @@
 
 # '[levels]' represents level number:
 # '[xpbar]' is a bar that shows the current xp progression to the next level
-bottle name: '&6 &7| &eLevel [level] &7| [xpbar]'
+bottle name: '&6MagicBottle &7| &eLevel [level] &7| [xpbar]'
 
 bottle lore:
   experience text: '&6Experience points:'

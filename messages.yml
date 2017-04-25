@@ -12,15 +12,15 @@ bottle name: '&6MagicBottle &7| &eLevel [level] &7| [xpbar]'
 
 bottle lore:
   experience text: '&6Experience points:'
-  experience color: '&e'
+  experience color: '&e' #If you put more than colors here, the plugin will not recognise MagicBottles
   filled bar color: '&6'
   empty bar color: '&e'
   lines:
     - '&6Instructions:'
-    - '&6Deposit: &7(Shift +) Left Click.'
-    - '&6Withdraw: &7(Shift +) Right Click.'
-    - '&6You can also put the bottle in a crafting grid'
-    - '&6to deposit or withdraw all the experience.'
+    - ' &eDeposit: &7(Shift +) Left Click.'
+    - ' &eWithdraw: &7(Shift +) Right Click.'
+    - ' &eYou can also put the bottle in a crafting grid'
+    - ' &eto deposit or withdraw all the experience.'
 
 messages:
   # '%' represents the maximum level.

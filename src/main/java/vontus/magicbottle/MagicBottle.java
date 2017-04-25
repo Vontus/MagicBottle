@@ -154,7 +154,7 @@ public class MagicBottle {
 
 	private void playEffectFill(Player player) {
 		if (Config.effectSound)
-			player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_TOUCH, 10, 1);
+			player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1);
 		if (Config.effectParticles) {
 			ParticleEffect.SPELL_WITCH.display(0.1f, 0.1f, 0.1f, 0.1f, 50, player.getLocation(), 50);
 		}

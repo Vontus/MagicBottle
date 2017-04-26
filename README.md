@@ -11,11 +11,30 @@ An easy-to-use Minecraft Bukkit plugin for storing player experience in glass bo
 	2. Deposit:
 		- Pressing Left click: deposits 1 level.
 		- Pressing Shift + Left click: deposits 10 levels.
-		- Placing an empty MagicBottle in a crafting grid: saves all your experience in the bottle
+		- Placing an empty MagicBottle in a crafting grid: saves all your experience in the bottle.
 ## Install
-1. Add the plugin jar in your plugins folder
-2. Start the server
+1. Add the plugin jar in your plugins folder.
+2. Start the server.
 3. TA-DA!
 ## Configuration
 You can find the default configuration [here](https://github.com/Vontus/MagicBottle/blob/master/config.yml).
 Everything you need to know is documented in it.
+## Permissions
+- **magicbottle.action.craft**
+	- Allows you to craft MagicBottles.
+- **magicbottle.action.deposit**
+	- Allows you to deposit experience in MagicBottles.
+- **magicbottle.action.withdraw**
+	- Allows you to withdraw experience from MagicBottles.
+- **magicbottle.command.give**
+	- Admin command. Gives you or another player a number of bottles of a certain level.
+- **magicbottle.command.reload**
+	- Admin command. Reloads the plugin config.
+- **magicbottle.maxlevel.(name)**
+	- This allows you to set different permissions for different maximum bottle levels. You must set the permissions in the plugin config.
+- **magicbottle.maxlevel.unlimited**
+	- A player that has this permission is allowed to save up to 20,000 levels in a MagicBottle.
+## Commands
+- **/magicbottle**
+	- Aliases: mb, magicb, mbottle
+	

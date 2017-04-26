@@ -50,18 +50,20 @@ public class Events implements Listener {
 
 	@EventHandler
 	public void onPrepareCraft(PrepareItemCraftEvent event) {
-		ItemStack r = event.getRecipe().getResult();
-		if (MagicBottle.isMagicBottle(r)) {
-			MagicBottle result = new MagicBottle(r);
-			if (MagicBottle.isMagicBottle(getFirstIngredient(event.getInventory()))) {
-				if (result.isEmpty()) {
-					onPrepareRecipePour(event);
+		if (event.getRecipe() != null) {
+			ItemStack r = event.getRecipe().getResult();
+			if (MagicBottle.isMagicBottle(r)) {
+				MagicBottle result = new MagicBottle(r);
+				if (MagicBottle.isMagicBottle(getFirstIngredient(event.getInventory()))) {
+					if (result.isEmpty()) {
+						onPrepareRecipePour(event);
+					} else {
+						onPrepareRecipeFill(event);
+					}
 				} else {
-					onPrepareRecipeFill(event);
-				}
-			} else {
-				if (!isEmptyBottleRecipe(event.getInventory())) {
-					event.getInventory().setResult(null);
+					if (!isEmptyBottleRecipe(event.getInventory())) {
+						event.getInventory().setResult(null);
+					}
 				}
 			}
 		}

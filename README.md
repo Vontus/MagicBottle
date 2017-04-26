@@ -22,10 +22,13 @@ Everything you need to know is documented in it.
 ## Permissions
 - **magicbottle.action.craft**
 	- Allows you to craft MagicBottles.
+	- Players have this permission by default.
 - **magicbottle.action.deposit**
 	- Allows you to deposit experience in MagicBottles.
+	- Players have this permission by default.
 - **magicbottle.action.withdraw**
 	- Allows you to withdraw experience from MagicBottles.
+	- Players have this permission by default.
 - **magicbottle.command.give**
 	- Admin command. Gives you or another player a number of bottles of a certain level.
 - **magicbottle.command.reload**

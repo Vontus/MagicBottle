@@ -3,6 +3,7 @@ package vontus.magicbottle;
 import java.util.HashSet;
 import java.util.UUID;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -57,6 +58,10 @@ public class Events implements Listener {
 					onPrepareRecipePour(event);
 				} else {
 					onPrepareRecipeFill(event);
+				}
+			} else {
+				if (!isEmptyBottleRecipe(event.getInventory())) {
+					event.getInventory().setResult(null);
 				}
 			}
 		}
@@ -162,7 +167,7 @@ public class Events implements Listener {
 
 	private ItemStack getFirstIngredient(CraftingInventory inv) {
 		for(ItemStack i : inv.getMatrix()) {
-			if (MagicBottle.isMagicBottle(i))
+			if (i.getType() != Material.AIR)
 				return i;
 		}
 		return null;
@@ -177,5 +182,14 @@ public class Events implements Listener {
 	        	wait.remove(p.getUniqueId());
 	        }
 	    }.runTaskLater(this.plugin, 2);
+	}
+	
+	private boolean isEmptyBottleRecipe(CraftingInventory inv) {
+		for (int i = 0; i < 9; i++) {
+			if (!inv.getMatrix()[i].getType().equals(Config.getBottleRecipeIngredient(i + 1))) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

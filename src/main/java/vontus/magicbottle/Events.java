@@ -3,6 +3,7 @@ package vontus.magicbottle;
 import java.util.HashSet;
 import java.util.UUID;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -49,14 +50,20 @@ public class Events implements Listener {
 
 	@EventHandler
 	public void onPrepareCraft(PrepareItemCraftEvent event) {
-		ItemStack r = event.getRecipe().getResult();
-		if (MagicBottle.isMagicBottle(r)) {
-			MagicBottle result = new MagicBottle(r);
-			if (MagicBottle.isMagicBottle(getFirstIngredient(event.getInventory()))) {
-				if (result.isEmpty()) {
-					onPrepareRecipePour(event);
+		if (event.getRecipe() != null) {
+			ItemStack r = event.getRecipe().getResult();
+			if (MagicBottle.isMagicBottle(r)) {
+				MagicBottle result = new MagicBottle(r);
+				if (MagicBottle.isMagicBottle(getFirstIngredient(event.getInventory()))) {
+					if (result.isEmpty()) {
+						onPrepareRecipePour(event);
+					} else {
+						onPrepareRecipeFill(event);
+					}
 				} else {
-					onPrepareRecipeFill(event);
+					if (!isEmptyBottleRecipe(event.getInventory())) {
+						event.getInventory().setResult(null);
+					}
 				}
 			}
 		}
@@ -162,7 +169,7 @@ public class Events implements Listener {
 
 	private ItemStack getFirstIngredient(CraftingInventory inv) {
 		for(ItemStack i : inv.getMatrix()) {
-			if (MagicBottle.isMagicBottle(i))
+			if (i.getType() != Material.AIR)
 				return i;
 		}
 		return null;
@@ -177,5 +184,14 @@ public class Events implements Listener {
 	        	wait.remove(p.getUniqueId());
 	        }
 	    }.runTaskLater(this.plugin, 2);
+	}
+	
+	private boolean isEmptyBottleRecipe(CraftingInventory inv) {
+		for (int i = 0; i < 9; i++) {
+			if (!inv.getMatrix()[i].getType().equals(Config.getBottleRecipeIngredient(i + 1))) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

@@ -1,7 +1,7 @@
 name: MagicBottle
 
 main: vontus.magicbottle.Plugin
-version: 1.0.1
+version: 1.0.2
 
 author: Vontus
 
@@ -22,10 +22,8 @@ permissions:
     default: true
   magicbottle.command.give:
     description: 'Admin command. Gives you or another player a number of bottles of a certain level'
-    default: false
   magicbottle.command.reload:
     description: 'Admin command. Reloads the plugin config'
-    default: false
   magicbottle.maxlevel.unlimited:
     description: 'Allows you to save up to 20,000 levels in a single MagicBottle'
     default: false

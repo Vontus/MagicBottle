@@ -91,15 +91,16 @@ public class Exp {
 	}
 	
 	public static int floorLevel(final Player player, int round) {
-		round = (int) Math.pow(10, round);
-		double level = getLevelFromExp(getPoints(player));
-		return (int) ((Math.ceil(level) - round) / round) * round;
+		return approxLevel(player, - (int) Math.pow(10, round));
 	}
 	
 	public static int ceilingLevel(final Player player, int round) {
-		round = (int) Math.pow(10, round);
+		return approxLevel(player, + (int) Math.pow(10, round));
+	}
+	
+	private static int approxLevel(final Player player, int round) {
 		double level = getLevelFromExp(getPoints(player));
-		return (int) ((Math.floor(level) + round) / round) * round;
+		return (int) Math.floor((level + round) / round) * round;
 	}
 
 	private static Double quadraticEquationGreatestRoot(double a, double b, double c) {

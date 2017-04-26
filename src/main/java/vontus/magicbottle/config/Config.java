@@ -14,11 +14,11 @@ public class Config {
 
 	private static Plugin plugin;
 
-	public static final String authorizationFill = "magicbottle.deposit";
-	public static final String authorizationPour = "magicbottle.withdraw";
-	public static final String authorizationGive = "magicbottle.give";
-	public static final String authorizationReload = "magicbottle.reload";
-	public static final String authorizationCraft = "magicbottle.craft";
+	public static final String authorizationFill = "magicbottle.action.deposit";
+	public static final String authorizationPour = "magicbottle.action.withdraw";
+	public static final String authorizationCraft = "magicbottle.action.craft";
+	public static final String authorizationGive = "magicbottle.command.give";
+	public static final String authorizationReload = "magicbottle.command.reload";
 
 	public static final String maxLevelsBasePermission = "magicbottle.maxlevel.";
 	public static final String maxLevelsUnlimitedPermission = "magicbottle.maxlevel.unlimited";

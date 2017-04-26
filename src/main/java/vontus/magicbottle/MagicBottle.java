@@ -107,7 +107,7 @@ public class MagicBottle {
 	}
 	
 	private String getXpBar() {
-		int barParts = 25;
+		int barParts = 18; //To match Minecraft's xp bar parts
 		double level = getLevel();
 		long integerPart = (long) level;
 		double decimalPart = level - integerPart;

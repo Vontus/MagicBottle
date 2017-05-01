@@ -169,7 +169,7 @@ public class Events implements Listener {
 
 	private ItemStack getFirstIngredient(CraftingInventory inv) {
 		for(ItemStack i : inv.getMatrix()) {
-			if (i.getType() != Material.AIR)
+			if (i != null && i.getType() != Material.AIR)
 				return i;
 		}
 		return null;
@@ -188,7 +188,8 @@ public class Events implements Listener {
 	
 	private boolean isEmptyBottleRecipe(CraftingInventory inv) {
 		for (int i = 0; i < 9; i++) {
-			if (!inv.getMatrix()[i].getType().equals(Config.getBottleRecipeIngredient(i + 1))) {
+			ItemStack item = inv.getMatrix()[i];
+			if (item != null && !item.getType().equals(Config.getBottleRecipeIngredient(i + 1))) {
 				return false;
 			}
 		}

@@ -33,6 +33,8 @@ public class Commands implements CommandExecutor {
 				case "give":
 					give(sender, argument);
 					break;
+				default:
+					sendMenu(sender);
 				}
 			} else {
 				sendMenu(sender);

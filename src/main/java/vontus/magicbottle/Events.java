@@ -31,7 +31,7 @@ public class Events implements Listener {
 	public void onInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		Action act = event.getAction();
-		ItemStack item = player.getInventory().getItemInMainHand();
+		ItemStack item = event.getItem();
 
 		if (MagicBottle.isMagicBottle(item)) {
 			if (item.getAmount() == 1 && !wait.contains(player.getUniqueId())) {
@@ -92,7 +92,7 @@ public class Events implements Listener {
 
 	private void onInteractFill(PlayerInteractEvent e) {
 		Player player = e.getPlayer();
-		MagicBottle bottle = new MagicBottle(player.getInventory().getItemInMainHand());
+		MagicBottle bottle = new MagicBottle(e.getItem());
 
 		if (Exp.getPoints(player) > 0) {
 			if (player.hasPermission(Config.authorizationFill)) {
@@ -108,7 +108,7 @@ public class Events implements Listener {
 
 	private void onInteractPour(PlayerInteractEvent e) {
 		Player player = e.getPlayer();
-		MagicBottle bottle = new MagicBottle(player.getInventory().getItemInMainHand());
+		MagicBottle bottle = new MagicBottle(e.getItem());
 		
 		if (bottle.getExp() > 0) {
 			if (player.hasPermission(Config.authorizationPour)) {

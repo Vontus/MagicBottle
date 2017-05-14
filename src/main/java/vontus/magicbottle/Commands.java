@@ -44,8 +44,8 @@ public class Commands implements CommandExecutor {
 	}
 
 	private void about(CommandSender sender) {
-		sender.sendMessage(plugin.getDescription().getFullName() + " by Vontus");
-		sender.sendMessage("https://www.spigotmc.org/resources/magicbottle.40039/");
+		sender.sendMessage(ChatColor.GOLD + plugin.getDescription().getFullName() + " by Vontus");
+		sender.sendMessage(ChatColor.YELLOW + "https://www.spigotmc.org/resources/magicbottle.40039/");
 		
 	}
 

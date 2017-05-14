@@ -12,7 +12,7 @@ bottle name: '&6MagicBottle &7| &eLevel [level] &7| [xpbar]'
 
 bottle lore:
   experience text: '&6Experience points:'
-  experience color: '&e' #If you put more than colors here, the plugin will not recognise MagicBottles
+  experience color: ' &e' #If you put more than colors and spaces here, the plugin will not recognise MagicBottles
   filled bar color: '&6'
   empty bar color: '&e'
   lines:

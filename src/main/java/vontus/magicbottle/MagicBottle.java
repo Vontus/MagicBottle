@@ -98,7 +98,7 @@ public class MagicBottle {
 		} else {
 			try {
 				exp = Integer
-						.valueOf(ChatColor.stripColor((item.getItemMeta().getLore().get(1))).replace(",", ""));
+						.valueOf(ChatColor.stripColor((item.getItemMeta().getLore().get(1).trim())).replace(",", ""));
 			} catch (Exception exception) {
 				exp = 0;
 			}

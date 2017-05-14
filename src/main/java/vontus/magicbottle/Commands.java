@@ -44,8 +44,9 @@ public class Commands implements CommandExecutor {
 	}
 
 	private void about(CommandSender sender) {
-		sender.sendMessage(
-				plugin.getDescription().getFullName() + " by Vontus");
+		sender.sendMessage(plugin.getDescription().getFullName() + " by Vontus");
+		sender.sendMessage("https://www.spigotmc.org/resources/magicbottle.40039/");
+		
 	}
 
 	private void reload(CommandSender sender) {

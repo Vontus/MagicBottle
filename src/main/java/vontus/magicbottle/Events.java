@@ -54,12 +54,15 @@ public class Events implements Listener {
 			ItemStack r = event.getRecipe().getResult();
 			if (MagicBottle.isMagicBottle(r)) {
 				MagicBottle result = new MagicBottle(r);
-				if (MagicBottle.isMagicBottle(getFirstIngredient(event.getInventory()))) {
+				ItemStack firstIngredient = getFirstIngredient(event.getInventory());
+				if (MagicBottle.isMagicBottle(firstIngredient)) {
 					if (result.isEmpty()) {
 						onPrepareRecipePour(event);
 					} else {
 						onPrepareRecipeFill(event);
 					}
+				} else if (MagicBottle.isWcBottle(firstIngredient)) {
+					prepareWcBottleCraft(event);
 				} else {
 					if (!isEmptyBottleRecipe(event.getInventory())) {
 						event.getInventory().setResult(null);
@@ -67,6 +70,12 @@ public class Events implements Listener {
 				}
 			}
 		}
+	}
+
+	private void prepareWcBottleCraft(PrepareItemCraftEvent event) {
+		ItemStack firstItem = getFirstIngredient(event.getInventory());
+		MagicBottle mb = MagicBottle.fromWcBottle(firstItem);
+		event.getInventory().setResult(mb.getItem());
 	}
 
 	@EventHandler

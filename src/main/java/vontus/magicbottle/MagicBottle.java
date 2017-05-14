@@ -1,6 +1,9 @@
 package vontus.magicbottle;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -180,6 +183,31 @@ public class MagicBottle {
 		return item != null && item.containsEnchantment(EnchantGlow.getGlow()) &&
 				(item.getType() == Material.EXP_BOTTLE || item.getType() == Material.GLASS_BOTTLE);
  	}
+	
+	public static MagicBottle fromWcBottle(ItemStack item) {
+		String lore = ChatColor.stripColor(item.getItemMeta().getLore().get(0));
+		Pattern patt = Pattern.compile("^(\\d+)/1000000 puntos$");
+		Matcher m = patt.matcher(lore);
+		if (m.matches()) {
+			int xp = Integer.parseInt(m.group(1));
+			return new MagicBottle(xp);
+		} else {
+			return null;
+		}
+	}
+	
+	public static boolean isWcBottle(ItemStack item) {
+		if (Config.convertWcBottles) {
+			if (item.getItemMeta().hasDisplayName() && item.getItemMeta().hasLore()) {
+				String name = ChatColor.stripColor(item.getItemMeta().getDisplayName());
+				String lore = ChatColor.stripColor(item.getItemMeta().getLore().get(0));
+				if (name.equals("MegaBotella")) {
+					return lore.matches("^(\\d+)/1000000 puntos$");
+				}
+			}
+		}
+		return false;
+	}
 	
 	public Integer getMaxFillablePoints(Player p, int points) {
 		int maxPoints = Config.getMaxFillPointsFor(p);

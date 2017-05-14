@@ -45,7 +45,7 @@ public class Commands implements CommandExecutor {
 
 	private void about(CommandSender sender) {
 		sender.sendMessage(
-				plugin.getDescription().getFullName() + " by Vontus");
+				plugin.getDescription().getFullName() + " by Vontus - WorldCraft version");
 	}
 
 	private void reload(CommandSender sender) {

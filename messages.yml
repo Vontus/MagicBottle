@@ -8,32 +8,32 @@
 
 # '[levels]' represents level number:
 # '[xpbar]' is a bar that shows the current xp progression to the next level
-bottle name: '&6MagicBottle &7| &eLevel [level] &7| [xpbar]'
+bottle name: '&6MagicBottle &7| &eNivel [level] &7| [xpbar]'
 
 bottle lore:
-  experience text: '&6Experience points:'
+  experience text: '&6Puntos de experiencia:'
   experience color: ' &e' #If you put more than colors and spaces here, the plugin will not recognise MagicBottles
   filled bar color: '&6'
   empty bar color: '&e'
   lines:
-    - '&6Instructions:'
-    - ' &eDeposit: &7(Shift +) Left Click.'
-    - ' &eWithdraw: &7(Shift +) Right Click.'
-    - ' &eYou can also put the bottle in a crafting grid'
-    - ' &eto deposit or withdraw all the experience.'
+    - '&6Instrucciones:'
+    - ' &eGuardar experiencia: &7(Shift +) Click izquierdo.'
+    - ' &eSacar experiencia: &7(Shift +) Click derecho.'
+    - ' &eTambién puedes poner la botella en una mesa de'
+    - ' &ecrafteo para guardar o sacar toda la experiencia.'
 
 messages:
   # '%' represents the maximum level.
-  max level reached: '&cThe maximum level you can save in a MagicBottle is %'
+  max level reached: '&cEl nivel máximo que puedes sacar de una MagicBottle es %'
   unauthorized:
-    deposit: '&cYou do not have permission for that.'
-    withdraw: '&cYou do not have permission for that.'
-    command: '&cYou do not have permission for that.'
-    reload: '&cYou do not have permission for that.'
+    deposit: '&cNo tienes permiso para hacer eso.'
+    withdraw: '&cNo tienes permiso para hacer eso.'
+    command: '&cNo tienes permiso para hacer eso.'
+    reload: '&cNo tienes permiso para hacer eso.'
     
   commands:
     # '%' represents command:
-    correct use: '&cCorrect use: %'
-    reload completed: '&eConfiguration reloaded.'
-    level not valid: '&cThe level must be a number between 0 and 20,000.'
-    given bottle: '&eGiven [amount] MagicBottle(s) to [player] with [level] levels.'
+    correct use: '&cUso correcto: %'
+    reload completed: '&eConfiguración recargada.'
+    level not valid: '&cEl nivel debe ser un número entre 0 y 20.000.'
+    given bottle: '&eDadas [amount] MagicBottle(s) a [player] con [level] niveles.'

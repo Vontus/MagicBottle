@@ -24,7 +24,7 @@ bottle lore:
 
 messages:
   # '%' represents the maximum level.
-  max level reached: '&cEl nivel máximo que puedes guardar en una MagicBottle es %'
+  max level reached: '&cEl nivel máximo que puedes guardar es %'
   unauthorized:
     deposit: '&cNo tienes permiso para hacer eso.'
     withdraw: '&cNo tienes permiso para hacer eso.'

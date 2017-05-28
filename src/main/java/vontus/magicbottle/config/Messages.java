@@ -31,6 +31,11 @@ public class Messages {
     public static String bottleFilledBarColor;
     public static String bottleEmptyBarColor;
     public static ArrayList<String> bottleLore;
+    
+    public static String repairInvRepaired;
+    public static String repairAutoEnabled;
+    public static String repairAutoDisabled;
+    public static String repairAutoNotification;
 
 	public Messages(JavaPlugin plugin) {
 		lang = new PluginFile(plugin, "messages.yml");
@@ -38,26 +43,31 @@ public class Messages {
 
 		// ************************************************
 
-		msgMaxLevelReached = getAndFormatMsg("messages.max level reached");
-		msgUnauthorizedToDeposit = getAndFormatMsg("messages.unauthorized.deposit");
-		msgUnauthorizedToWithdraw = getAndFormatMsg("messages.unauthorized.withdraw");
-		msgUnauthorizedToUseCommand = getAndFormatMsg("messages.unauthorized.command");
-		msgUnauthorizedToReload = getAndFormatMsg("messages.unauthorized.reload");
+		msgMaxLevelReached = prepMsg("messages.max level reached");
+		msgUnauthorizedToDeposit = prepMsg("messages.unauthorized.deposit");
+		msgUnauthorizedToWithdraw = prepMsg("messages.unauthorized.withdraw");
+		msgUnauthorizedToUseCommand = prepMsg("messages.unauthorized.command");
+		msgUnauthorizedToReload = prepMsg("messages.unauthorized.reload");
 		
-		cmdMsgCorrectUse = getAndFormatMsg("messages.commands.correct use");
-		cmdMsgReloadCompleted = getAndFormatMsg("messages.commands.reload completed");
-		cmdMsgLevelNotValid = getAndFormatMsg("messages.commands.level not valid");
-		cmdMsgGivenMagicBottle = getAndFormatMsg("messages.commands.given bottle");
+		cmdMsgCorrectUse = prepMsg("messages.commands.correct use");
+		cmdMsgReloadCompleted = prepMsg("messages.commands.reload completed");
+		cmdMsgLevelNotValid = prepMsg("messages.commands.level not valid");
+		cmdMsgGivenMagicBottle = prepMsg("messages.commands.given bottle");
 		
-        bottleName = getAndFormatMsg("bottle name");
-        bottleLevelText = getAndFormatMsg("bottle lore.experience text");
-        bottleLevelFormat = getAndFormatMsg("bottle lore.experience color");
-        bottleFilledBarColor = getAndFormatMsg("bottle lore.filled bar color");
-        bottleEmptyBarColor = getAndFormatMsg("bottle lore.empty bar color");
+        bottleName = prepMsg("bottle name");
+        bottleLevelText = prepMsg("bottle lore.experience text");
+        bottleLevelFormat = prepMsg("bottle lore.experience color");
+        bottleFilledBarColor = prepMsg("bottle lore.filled bar color");
+        bottleEmptyBarColor = prepMsg("bottle lore.empty bar color");
         bottleLore = getStringList("bottle lore.lines");
+        
+        repairInvRepaired = prepMsg("messages.repair.inventory repaired");
+        repairAutoEnabled = prepMsg("messages.repair.enabled autorepair");
+        repairAutoDisabled = prepMsg("messages.repair.disabled autorepair");
+        repairAutoNotification = prepMsg("messages.repair.auto notification");
 	}
 
-	private static String getAndFormatMsg(String config) {
+	private static String prepMsg(String config) {
 		return replaceColors(
 //				replacePrefix(
 						getMsg(config));

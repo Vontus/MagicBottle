@@ -5,8 +5,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import vontus.magicbottle.config.Config;
@@ -90,22 +92,40 @@ public class MagicBottle {
 		recreate();
 		this.playEffectPour(player);
 	}
-
-	private static int calculateExp(ItemStack item) {
-		int exp;
-		if (item.getType() != Material.EXP_BOTTLE) {
-			exp = 0;
-		} else {
-			try {
-				exp = Integer
-						.valueOf(ChatColor.stripColor((item.getItemMeta().getLore().get(1).trim())).replace(",", ""));
-			} catch (Exception exception) {
-				exp = 0;
-			}
+	
+	public int repair(PlayerInventory inv) {
+		int usedXP = 0;
+		usedXP += repairNoRecreate(inv.getItemInMainHand());
+		usedXP += repairNoRecreate(inv.getItemInOffHand());
+		for (int i = 0; i < inv.getSize(); i++) {
+			usedXP += repairNoRecreate(inv.getItem(i));
 		}
-		return exp;
+		recreate();
+		return usedXP;
 	}
 	
+	public int repair(ItemStack i) {
+		int usedXP = repairNoRecreate(i);
+		if (usedXP > 0) {
+			recreate();
+		}
+		return usedXP;
+	}
+	
+	private int repairNoRecreate(ItemStack i) {
+		if (i != null && i.getType() != Material.AIR && i.getAmount() == 1 && i.containsEnchantment(Enchantment.MENDING)) {
+			short usedDurability = i.getDurability();
+			if (usedDurability >= 2) {
+				int repairable = Math.min(exp * 2, usedDurability);
+				exp -= repairable / 2;
+				i.setDurability((short) (i.getDurability() - repairable));
+				recreate();
+				return repairable / 2;
+			}
+		}
+		return 0;
+	}
+
 	private String getXpBar() {
 		int barParts = 18; //To match Minecraft's xp bar parts
 		double level = getLevel();
@@ -176,11 +196,6 @@ public class MagicBottle {
 		}
 	}
 	
-	public static boolean isMagicBottle(ItemStack item) {
-		return item != null && item.containsEnchantment(EnchantGlow.getGlow()) &&
-				(item.getType() == Material.EXP_BOTTLE || item.getType() == Material.GLASS_BOTTLE);
- 	}
-	
 	public Integer getMaxFillablePoints(Player p, int points) {
 		int maxPoints = Config.getMaxFillPointsFor(p);
 
@@ -188,5 +203,36 @@ public class MagicBottle {
 			points = maxPoints - exp;
 		
 		return points;
+	}
+
+	private static int calculateExp(ItemStack item) {
+		int exp;
+		if (item.getType() != Material.EXP_BOTTLE) {
+			exp = 0;
+		} else {
+			try {
+				exp = Integer
+						.valueOf(ChatColor.stripColor((item.getItemMeta().getLore().get(1).trim())).replace(",", ""));
+			} catch (Exception exception) {
+				exp = 0;
+			}
+		}
+		return exp;
+	}
+
+	public static boolean isMagicBottle(ItemStack item) {
+		return item != null && item.containsEnchantment(EnchantGlow.getGlow()) &&
+				(item.getType() == Material.EXP_BOTTLE || item.getType() == Material.GLASS_BOTTLE);
+	}
+	
+	public static MagicBottle getNonEmptyMagicBottle(Player p) {
+		for(ItemStack is : p.getInventory()) {
+			if (isMagicBottle(is)) {
+				MagicBottle mb = new MagicBottle(is);
+				if (!mb.isEmpty())
+					return new MagicBottle(is);
+			}
+		}
+		return null;
 	}
 }

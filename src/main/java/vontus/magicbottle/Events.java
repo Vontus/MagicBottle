@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,6 +12,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -86,6 +88,18 @@ public class Events implements Listener {
 						e.setCancelled(true);
 					}
 				}
+			}
+		}
+	}
+
+	@EventHandler
+	public void onItemUse(PlayerItemDamageEvent e) {
+		Player p = e.getPlayer();
+		if (plugin.autoEnabled.contains(p) && e.getItem().containsEnchantment(Enchantment.MENDING)
+				&& e.getItem().getDurability() % 2 == 0) {
+			MagicBottle mb = MagicBottle.getNonEmptyMagicBottle(p);
+			if (mb != null) {
+				mb.repair(e.getItem());
 			}
 		}
 	}

@@ -49,3 +49,8 @@ max level:
     user: 100
     veteran: 150
     vip: 200
+
+repair:
+  enabled: true
+  # Number of ticks between inventory repairs when enabled
+  auto: true

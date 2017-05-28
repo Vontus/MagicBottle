@@ -37,3 +37,9 @@ messages:
     reload completed: '&eConfiguration reloaded.'
     level not valid: '&cThe level must be a number between 0 and 20,000.'
     given bottle: '&eGiven [amount] MagicBottle(s) to [player] with [level] levels.'
+    
+  repair:
+    inventory repaired: '&eSpent &6% &eXP in repairing your tools'
+    enabled autorepair: '&eAutorepair has been &aenabled'
+    disabled autorepair: '&eAutorepair has been &cdisabled'
+    auto notification: '&eSpent &6% &eXP in repairing your tools'

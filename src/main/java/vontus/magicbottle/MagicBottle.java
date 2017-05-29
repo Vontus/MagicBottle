@@ -1,6 +1,7 @@
 package vontus.magicbottle;
 
 import java.util.ArrayList;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -225,12 +226,13 @@ public class MagicBottle {
 				(item.getType() == Material.EXP_BOTTLE || item.getType() == Material.GLASS_BOTTLE);
 	}
 	
-	public static MagicBottle getNonEmptyMagicBottle(Player p) {
-		for(ItemStack is : p.getInventory()) {
-			if (isMagicBottle(is)) {
-				MagicBottle mb = new MagicBottle(is);
+	public static MagicBottle getNonEmptyMagicBottleInToolsbar(Player p) {
+		for (int i = 0; i < 9; i++) {
+			ItemStack item = p.getInventory().getItem(i);
+			if (isMagicBottle(item)) {
+				MagicBottle mb = new MagicBottle(item);
 				if (!mb.isEmpty())
-					return new MagicBottle(is);
+					return mb;
 			}
 		}
 		return null;

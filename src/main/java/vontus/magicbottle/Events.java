@@ -7,12 +7,15 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -92,14 +95,17 @@ public class Events implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onItemUse(PlayerItemDamageEvent e) {
 		Player p = e.getPlayer();
-		if (plugin.autoEnabled.contains(p) && e.getItem().containsEnchantment(Enchantment.MENDING)
-				&& e.getItem().getDurability() % 2 == 0) {
-			MagicBottle mb = MagicBottle.getNonEmptyMagicBottle(p);
-			if (mb != null) {
-				mb.repair(e.getItem());
+		ItemStack i = e.getItem();
+		if (plugin.autoEnabled.contains(p) && i.containsEnchantment(Enchantment.MENDING)
+				&& i.getDurability() % 2 != 0) {
+			MagicBottle mb = MagicBottle.getNonEmptyMagicBottleInToolsbar(p);
+			if (mb != null && !e.isCancelled()) {
+				i.setDurability((short) (i.getDurability() + e.getDamage()));
+				mb.repair(i);
+				e.setCancelled(true);
 			}
 		}
 	}

@@ -43,3 +43,5 @@ messages:
     enabled autorepair: '&eAutorepair has been &aenabled'
     disabled autorepair: '&eAutorepair has been &cdisabled'
     auto notification: '&eSpent &6% &eXP in repairing your tools'
+    config repairing disabled: '&cRepairing of tools is disabled in this server'
+    config auto repairing disabled: '&cAuto repairing of tools is disabled in this server'

@@ -72,6 +72,7 @@ public class Commands implements CommandExecutor {
 	}
 	
 	private void commandRepairInventory(Player p) {
+		
 		ItemStack inHand = p.getInventory().getItemInMainHand();
 
 		if (MagicBottle.isMagicBottle(inHand)) {

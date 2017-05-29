@@ -52,5 +52,4 @@ max level:
 
 repair:
   enabled: true
-  # Number of ticks between inventory repairs when enabled
   auto: true

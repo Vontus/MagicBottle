@@ -97,15 +97,17 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onItemUse(PlayerItemDamageEvent e) {
-		Player p = e.getPlayer();
-		ItemStack i = e.getItem();
-		if (plugin.autoEnabled.contains(p) && i.containsEnchantment(Enchantment.MENDING)
-				&& i.getDurability() % 2 != 0) {
-			MagicBottle mb = MagicBottle.getNonEmptyMagicBottleInToolsbar(p);
-			if (mb != null && !e.isCancelled()) {
-				i.setDurability((short) (i.getDurability() + e.getDamage()));
-				mb.repair(i);
-				e.setCancelled(true);
+		if (Config.repairAutoEnabled) {
+			Player p = e.getPlayer();
+			ItemStack i = e.getItem();
+			if (plugin.autoEnabled.contains(p) && i.containsEnchantment(Enchantment.MENDING)
+					&& i.getDurability() % 2 != 0) {
+				MagicBottle mb = MagicBottle.getNonEmptyMagicBottleInToolsbar(p);
+				if (mb != null && !e.isCancelled()) {
+					i.setDurability((short) (i.getDurability() + e.getDamage()));
+					mb.repair(i);
+					e.setCancelled(true);
+				}
 			}
 		}
 	}

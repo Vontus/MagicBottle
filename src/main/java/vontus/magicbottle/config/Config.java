@@ -29,10 +29,10 @@ public class Config {
 	public static boolean recipePour;
 	public static boolean recipeNewBottleEnabled;
 	public static boolean repairEnabled;
+	public static boolean repairAutoEnabled;
 
 	public static int defaultRankMaxLevel;
 	public static int maxLevel = 20000;
-	public static int repairAutoTicks;
 
 	public Config(Plugin plugin) {
 		Config.plugin = plugin;
@@ -51,7 +51,7 @@ public class Config {
 		}
 		
 		repairEnabled = plugin.getConfig().getBoolean("repair.enabled");
-		repairAutoTicks = plugin.getConfig().getInt("repair.ticks");
+		repairAutoEnabled = plugin.getConfig().getBoolean("repair.auto");
 	}
 
 	public static Material getBottleRecipeIngredient(int pos) {

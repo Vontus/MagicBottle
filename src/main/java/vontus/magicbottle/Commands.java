@@ -76,9 +76,9 @@ public class Commands implements CommandExecutor {
 
 		if (MagicBottle.isMagicBottle(inHand)) {
 			MagicBottle mb = new MagicBottle(inHand);
-			mb.repair(p.getInventory());
+			Integer usedXP = mb.repair(p.getInventory());
 			p.updateInventory();
-			p.sendMessage(Messages.repairInvRepaired);
+			p.sendMessage(Messages.repairInvRepaired.replace("%", usedXP.toString()));
 		}
 	}
 

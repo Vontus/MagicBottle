@@ -110,6 +110,16 @@ public class Events implements Listener {
 		}
 	}
 
+	@EventHandler
+	public void onPlayerLeave(PlayerQuitEvent e) {
+		plugin.autoEnabled.remove(e.getPlayer());
+	}
+	
+	@EventHandler
+	public void onPlayerKicked(PlayerKickEvent e) {
+		plugin.autoEnabled.remove(e.getPlayer());
+	}
+
 	private void onInteractFill(PlayerInteractEvent e) {
 		Player player = e.getPlayer();
 		MagicBottle bottle = new MagicBottle(e.getItem());

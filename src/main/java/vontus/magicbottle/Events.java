@@ -4,17 +4,27 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.ThrownExpBottle;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import net.md_5.bungee.api.ChatColor;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 
@@ -89,6 +99,55 @@ public class Events implements Listener {
 			}
 		}
 	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onItemUse(PlayerItemDamageEvent e) {
+		if (Config.repairAutoEnabled) {
+			Player p = e.getPlayer();
+			ItemStack i = e.getItem();
+			if (plugin.autoEnabled.contains(p) && i.containsEnchantment(Enchantment.MENDING)
+					&& i.getDurability() % 2 != 0) {
+				MagicBottle mb = MagicBottle.getNonEmptyMagicBottleInToolsbar(p);
+				if (mb != null && !e.isCancelled()) {
+					i.setDurability((short) (i.getDurability() + e.getDamage()));
+					mb.repair(i);
+					e.setCancelled(true);
+				}
+			}
+		}
+	}
+
+	@EventHandler
+	public void onPlayerLeave(PlayerQuitEvent e) {
+		plugin.autoEnabled.remove(e.getPlayer());
+	}
+	
+	@EventHandler
+	public void onPlayerKicked(PlayerKickEvent e) {
+		plugin.autoEnabled.remove(e.getPlayer());
+	}
+
+    @EventHandler
+    public void onLaunch(ProjectileLaunchEvent e) {
+        Projectile launched = e.getEntity();
+        if (launched instanceof ThrownExpBottle) {
+        	if (launched.getShooter() instanceof Player) {
+        		Player p = (Player)launched.getShooter();
+        		MagicBottle mb = null;
+        		PlayerInventory inv = p.getInventory();
+        		if (MagicBottle.isMagicBottle(inv.getItemInMainHand())) {
+        			mb = new MagicBottle(inv.getItemInMainHand());
+        		} else if (MagicBottle.isMagicBottle(p.getInventory().getItemInOffHand())) {
+        			mb = new MagicBottle(inv.getItemInOffHand());
+        		}
+        		if (mb != null) {
+        			Commands.giveBottleWithExp(mb.getExp(), p);
+        			p.sendMessage(ChatColor.RED + "Somehow you managed to throw the bottle, but you've given another one.");
+        			e.setCancelled(true);
+        		}
+        	}
+        }
+    }
 
 	private void onInteractFill(PlayerInteractEvent e) {
 		Player player = e.getPlayer();

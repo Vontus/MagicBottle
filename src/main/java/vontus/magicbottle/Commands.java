@@ -33,6 +33,9 @@ public class Commands implements CommandExecutor {
 				case "give":
 					give(sender, argument);
 					break;
+				case "repair":
+					repair(sender, argument);
+					break;
 				default:
 					sendMenu(sender);
 				}
@@ -43,9 +46,46 @@ public class Commands implements CommandExecutor {
 		return true;
 	}
 
+	private void repair(CommandSender sender, String[] args) {
+		if (sender instanceof Player) {
+			Player p = (Player) sender;
+			switch (args.length) {
+			case 1:
+				commandRepairInventory(p);
+				break;
+			case 2:
+				commandAutoRepair(p, args);
+				break;
+			}
+		}
+	}
+	
+	private void commandAutoRepair(Player p, String[] args) {
+		if (args[1].equals("auto")) {
+			if (plugin.autoEnabled.add(p)) {
+				p.sendMessage(Messages.repairAutoEnabled);
+			} else {
+				plugin.autoEnabled.remove(p);
+				p.sendMessage(Messages.repairAutoDisabled);
+			}
+		}
+	}
+	
+	private void commandRepairInventory(Player p) {
+		
+		ItemStack inHand = p.getInventory().getItemInMainHand();
+
+		if (MagicBottle.isMagicBottle(inHand)) {
+			MagicBottle mb = new MagicBottle(inHand);
+			Integer usedXP = mb.repair(p.getInventory());
+			p.updateInventory();
+			p.sendMessage(Messages.repairInvRepaired.replace("%", usedXP.toString()));
+		}
+	}
+
 	private void about(CommandSender sender) {
-		sender.sendMessage(
-				plugin.getDescription().getFullName() + " by Vontus");
+		sender.sendMessage(ChatColor.GOLD + plugin.getDescription().getFullName() + " by Vontus");
+		sender.sendMessage(ChatColor.YELLOW + "https://www.spigotmc.org/resources/magicbottle.40039/");
 	}
 
 	private void reload(CommandSender sender) {
@@ -83,7 +123,7 @@ public class Commands implements CommandExecutor {
 					} else if (player == null) {
 						sender.sendMessage("You must specify a connected player");
 					} else {
-						giveBottle(level, amount, player);
+						giveBottlesWithLevel(level, amount, player);
 						String m = Messages.cmdMsgGivenMagicBottle;
 						m = m.replace("[amount]", amount.toString())
 								.replace("[player]", player.getName())
@@ -118,10 +158,17 @@ public class Commands implements CommandExecutor {
 		}
 	}
 	
-	private void giveBottle(int level, int amount, Player player) {
+	public static void giveBottlesWithLevel(int level, int amount, Player player) {
 		MagicBottle bottle = new MagicBottle(Exp.getExpAtLevel(level));
 		ItemStack item = bottle.getItem();
 		item.setAmount(amount);
 		player.getInventory().addItem(new ItemStack[] { item });
+	}
+	
+	public static void giveBottleWithExp(int exp, Player p) {
+		MagicBottle bottle = new MagicBottle(exp);
+		ItemStack item = bottle.getItem();
+		item.setAmount(1);
+		p.getInventory().addItem(new ItemStack[] { item });
 	}
 }

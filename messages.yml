@@ -12,7 +12,7 @@ bottle name: '&6MagicBottle &7| &eLevel [level] &7| [xpbar]'
 
 bottle lore:
   experience text: '&6Experience points:'
-  experience color: '&e' #If you put more than colors here, the plugin will not recognise MagicBottles
+  experience color: ' &e' #If you put more than colors and spaces here, the plugin will not recognise MagicBottles
   filled bar color: '&6'
   empty bar color: '&e'
   lines:
@@ -37,3 +37,11 @@ messages:
     reload completed: '&eConfiguration reloaded.'
     level not valid: '&cThe level must be a number between 0 and 20,000.'
     given bottle: '&eGiven [amount] MagicBottle(s) to [player] with [level] levels.'
+    
+  repair:
+    inventory repaired: '&eSpent &6% &eXP in repairing your tools'
+    enabled autorepair: '&eAutorepair has been &aenabled'
+    disabled autorepair: '&eAutorepair has been &cdisabled'
+    auto notification: '&eSpent &6% &eXP in repairing your tools'
+    config repairing disabled: '&cRepairing of tools is disabled in this server'
+    config auto repairing disabled: '&cAuto repairing of tools is disabled in this server'

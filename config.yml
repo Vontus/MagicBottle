@@ -51,3 +51,7 @@ max level:
     user: 100
     veteran: 150
     vip: 200
+
+repair:
+  enabled: true
+  auto: true

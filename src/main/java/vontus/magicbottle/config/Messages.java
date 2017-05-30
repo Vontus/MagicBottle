@@ -39,6 +39,8 @@ public class Messages {
     
     public static String repairDisabledConfig;
     public static String repairAutoDisabledConfig;
+    
+    public static String repairMbNotInHand;
 
 	public Messages(JavaPlugin plugin) {
 		lang = new PluginFile(plugin, "messages.yml");
@@ -71,6 +73,8 @@ public class Messages {
         
         repairDisabledConfig = prepMsg("messages.repair.config repairing disabled");
         repairAutoDisabledConfig = prepMsg("messages.repair.config auto repairing disabled");
+        
+        repairMbNotInHand = prepMsg("messages.repair.mb not in hand");
 	}
 
 	private static String prepMsg(String config) {

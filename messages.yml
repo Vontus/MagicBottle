@@ -44,3 +44,4 @@ messages:
     disabled autorepair: '&eAutorepair has been &cdisabled'
     config repairing disabled: '&cRepairing of tools is disabled in this server'
     config auto repairing disabled: '&cAuto repairing of tools is disabled in this server'
+    mb not in hand: '&cYou must have a MagicBottle in your main hand to use this command'

@@ -20,6 +20,12 @@ permissions:
   magicbottle.action.withdraw:
     description: 'Allows you to withdraw experience from MagicBottles'
     default: true
+  magicbottle.command.repair:
+    description: 'Allows you to repair tools with bottled XP'
+    default: true
+  magicbottle.command.repair.auto:
+    description: 'Allows you to repair tools automatically with bottled XP'
+    default: true
   magicbottle.command.give:
     description: 'Admin command. Gives you or another player a number of bottles of a certain level'
   magicbottle.command.reload:

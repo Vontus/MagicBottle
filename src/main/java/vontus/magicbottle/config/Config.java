@@ -19,6 +19,8 @@ public class Config {
 	public static final String authorizationCraft = "magicbottle.action.craft";
 	public static final String authorizationGive = "magicbottle.command.give";
 	public static final String authorizationReload = "magicbottle.command.reload";
+	public static final String authorizationRepair = "magicbottle.command.repair";
+	public static final String authorizationRepairAuto = "magicbottle.command.repair.auto";
 
 	public static final String maxLevelsBasePermission = "magicbottle.maxlevel.";
 	public static final String maxLevelsUnlimitedPermission = "magicbottle.maxlevel.unlimited";

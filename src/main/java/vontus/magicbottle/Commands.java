@@ -123,7 +123,7 @@ public class Commands implements CommandExecutor {
 					} else if (player == null) {
 						sender.sendMessage("You must specify a connected player");
 					} else {
-						giveBottle(level, amount, player);
+						giveBottlesWithLevel(level, amount, player);
 						String m = Messages.cmdMsgGivenMagicBottle;
 						m = m.replace("[amount]", amount.toString())
 								.replace("[player]", player.getName())
@@ -158,10 +158,17 @@ public class Commands implements CommandExecutor {
 		}
 	}
 	
-	private void giveBottle(int level, int amount, Player player) {
+	public static void giveBottlesWithLevel(int level, int amount, Player player) {
 		MagicBottle bottle = new MagicBottle(Exp.getExpAtLevel(level));
 		ItemStack item = bottle.getItem();
 		item.setAmount(amount);
 		player.getInventory().addItem(new ItemStack[] { item });
+	}
+	
+	public static void giveBottleWithExp(int exp, Player p) {
+		MagicBottle bottle = new MagicBottle(exp);
+		ItemStack item = bottle.getItem();
+		item.setAmount(1);
+		p.getInventory().addItem(new ItemStack[] { item });
 	}
 }

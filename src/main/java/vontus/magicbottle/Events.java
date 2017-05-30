@@ -142,7 +142,7 @@ public class Events implements Listener {
         		}
         		if (mb != null) {
         			Commands.giveBottleWithExp(mb.getExp(), p);
-        			p.sendMessage(ChatColor.RED + "Somehow you managed to throw the bottle, but you've given another one.");
+        			p.sendMessage(ChatColor.RED + "Somehow you managed to throw the bottle, but you've been given another one.");
         			e.setCancelled(true);
         		}
         	}

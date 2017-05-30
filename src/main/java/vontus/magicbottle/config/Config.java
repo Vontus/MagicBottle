@@ -28,6 +28,9 @@ public class Config {
 	public static boolean recipeFill;
 	public static boolean recipePour;
 	public static boolean recipeNewBottleEnabled;
+  
+	public static boolean convertWcBottles;
+  
 	public static boolean repairEnabled;
 	public static boolean repairAutoEnabled;
 
@@ -43,6 +46,7 @@ public class Config {
 		recipeFill = plugin.getConfig().getBoolean("recipe.deposit");
 		recipePour = plugin.getConfig().getBoolean("recipe.withdraw");
 		recipeNewBottleEnabled = plugin.getConfig().getBoolean("recipe.bottle.enabled");
+		convertWcBottles = plugin.getConfig().getBoolean("convert wc bottles");
 		defaultRankMaxLevel = plugin.getConfig().getInt("max level.default");
 
 		for (String parent : plugin.getConfig().getConfigurationSection("max level.permissions").getKeys(false)) {

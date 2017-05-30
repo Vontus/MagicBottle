@@ -7,6 +7,8 @@
 
 # Config:
 
+# WORLDCRAFT: Activar la conversión de las antiguas MegaBottles a MagicBottles al ponerlas en una mesa de crafteo.
+convert wc bottles: true
 # Enable or disable sound and particle effects when a MagicBottle is used.
 effect:
   sound: true
@@ -40,7 +42,7 @@ recipe:
 # TIP: Set this depending on how difficult you made the recipe.
 max level:
   # This will be applied when the player doesn't have any of the following permissions.
-  default: 30
+  default: 1000
   permissions:
     # Allow players to have bottles with more levels than the default option.
     # To remove the limit entirely, give people 'magicbottle.maxlevel.unlimited'; still, the maximum level a bottle can hold is 20,000.

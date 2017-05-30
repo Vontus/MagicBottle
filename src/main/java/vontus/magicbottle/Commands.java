@@ -84,7 +84,7 @@ public class Commands implements CommandExecutor {
 	}
 
 	private void about(CommandSender sender) {
-		sender.sendMessage(ChatColor.GOLD + plugin.getDescription().getFullName() + " by Vontus");
+		sender.sendMessage(ChatColor.GOLD + plugin.getDescription().getFullName() + " by Vontus - WorldCraft version");
 		sender.sendMessage(ChatColor.YELLOW + "https://www.spigotmc.org/resources/magicbottle.40039/");
 	}
 

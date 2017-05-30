@@ -37,3 +37,10 @@ messages:
     reload completed: '&eConfiguración recargada.'
     level not valid: '&cEl nivel debe ser un número entre 0 y 20.000.'
     given bottle: '&eDadas [amount] MagicBottle(s) a [player] con [level] niveles.'
+    
+  repair:
+    inventory repaired: '&eGastados &6% &epuntos de experiencia en reparar tus herramientas'
+    enabled autorepair: '&eAutoreparación &aactivada'
+    disabled autorepair: '&eAutoreparación &cdesactivada'
+    config repairing disabled: '&cLa reparación está desactivada en este servidor'
+    config auto repairing disabled: '&cLa reparación automática está desactivada en este servidor'

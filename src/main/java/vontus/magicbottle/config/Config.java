@@ -28,7 +28,11 @@ public class Config {
 	public static boolean recipeFill;
 	public static boolean recipePour;
 	public static boolean recipeNewBottleEnabled;
+  
 	public static boolean convertWcBottles;
+  
+	public static boolean repairEnabled;
+	public static boolean repairAutoEnabled;
 
 	public static int defaultRankMaxLevel;
 	public static int maxLevel = 20000;
@@ -49,6 +53,9 @@ public class Config {
 			int value = plugin.getConfig().getInt("max level.permissions." + parent);
 			maxLevelsPermission.put(parent, value);
 		}
+		
+		repairEnabled = plugin.getConfig().getBoolean("repair.enabled");
+		repairAutoEnabled = plugin.getConfig().getBoolean("repair.auto");
 	}
 
 	public static Material getBottleRecipeIngredient(int pos) {

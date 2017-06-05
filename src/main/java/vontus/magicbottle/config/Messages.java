@@ -35,10 +35,11 @@ public class Messages {
     public static String repairInvRepaired;
     public static String repairAutoEnabled;
     public static String repairAutoDisabled;
-    public static String repairAutoNotification;
     
     public static String repairDisabledConfig;
     public static String repairAutoDisabledConfig;
+    
+    public static String repairMbNotInHand;
 
 	public Messages(JavaPlugin plugin) {
 		lang = new PluginFile(plugin, "messages.yml");
@@ -67,10 +68,11 @@ public class Messages {
         repairInvRepaired = prepMsg("messages.repair.inventory repaired");
         repairAutoEnabled = prepMsg("messages.repair.enabled autorepair");
         repairAutoDisabled = prepMsg("messages.repair.disabled autorepair");
-        repairAutoNotification = prepMsg("messages.repair.auto notification");
         
         repairDisabledConfig = prepMsg("messages.repair.config repairing disabled");
         repairAutoDisabledConfig = prepMsg("messages.repair.config auto repairing disabled");
+        
+        repairMbNotInHand = prepMsg("messages.repair.mb not in hand");
 	}
 
 	private static String prepMsg(String config) {

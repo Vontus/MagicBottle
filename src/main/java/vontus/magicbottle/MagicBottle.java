@@ -117,7 +117,7 @@ public class MagicBottle {
 		if (i != null && i.getType() != Material.AIR && i.getAmount() == 1 && i.containsEnchantment(Enchantment.MENDING)) {
 			short usedDurability = i.getDurability();
 			if (usedDurability >= 2) {
-				int repairable = Math.min(exp * 2, usedDurability);
+				int repairable = Math.min(exp, usedDurability / 2) * 2;
 				exp -= repairable / 2;
 				i.setDurability((short) (i.getDurability() - repairable));
 				recreate();

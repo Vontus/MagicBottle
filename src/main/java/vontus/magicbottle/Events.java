@@ -44,13 +44,12 @@ public class Events implements Listener {
 		ItemStack item = event.getItem();
 
 		if (MagicBottle.isMagicBottle(item)) {
-			if (item.getAmount() == 1 && !wait.contains(player.getUniqueId())) {
+			if (item.getAmount() == 1 && timeOut(player)) {
 				if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK) {
 					onInteractFill(event);
 				} else if (act == Action.RIGHT_CLICK_AIR || act == Action.RIGHT_CLICK_BLOCK) {
 					onInteractPour(event);
 				}
-				timeOut(player);
 			}
 
 			event.setCancelled(true);
@@ -102,8 +101,8 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onItemUse(PlayerItemDamageEvent e) {
-		if (Config.repairAutoEnabled) {
-			Player p = e.getPlayer();
+		Player p = e.getPlayer();
+		if (Config.repairAutoEnabled && timeOut(p)) {
 			ItemStack i = e.getItem();
 			if (plugin.autoEnabled.contains(p) && i.containsEnchantment(Enchantment.MENDING)
 					&& i.getDurability() % 2 != 0) {
@@ -112,6 +111,7 @@ public class Events implements Listener {
 					i.setDurability((short) (i.getDurability() + e.getDamage()));
 					mb.repair(i);
 					e.setCancelled(true);
+					p.updateInventory();
 				}
 			}
 		}
@@ -234,15 +234,20 @@ public class Events implements Listener {
 		return null;
 	}
 
-	private void timeOut(Player p) {
-		wait.add(p.getUniqueId());
-	    new BukkitRunnable(){
-	
-	        @Override
-			public void run() {
-	        	wait.remove(p.getUniqueId());
-	        }
-	    }.runTaskLater(this.plugin, 2);
+	private boolean timeOut(Player p) {
+		if (!wait.contains(p.getUniqueId())) {
+			wait.add(p.getUniqueId());
+		    new BukkitRunnable(){
+		
+		        @Override
+				public void run() {
+		        	wait.remove(p.getUniqueId());
+		        }
+		    }.runTaskLater(this.plugin, 4);
+		    return true;
+		} else {
+			return false;
+		}
 	}
 	
 	private boolean isEmptyBottleRecipe(CraftingInventory inv) {

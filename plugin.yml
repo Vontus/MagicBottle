@@ -1,7 +1,7 @@
 name: MagicBottle
 
 main: vontus.magicbottle.Plugin
-version: 1.0.5
+version: 1.1.0
 
 author: Vontus
 
@@ -19,6 +19,12 @@ permissions:
     default: true
   magicbottle.action.withdraw:
     description: 'Allows you to withdraw experience from MagicBottles'
+    default: true
+  magicbottle.command.repair:
+    description: 'Allows you to repair tools with bottled XP'
+    default: true
+  magicbottle.command.repair.auto:
+    description: 'Allows you to repair tools automatically with bottled XP'
     default: true
   magicbottle.command.give:
     description: 'Admin command. Gives you or another player a number of bottles of a certain level'

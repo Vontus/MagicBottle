@@ -73,7 +73,7 @@ public class EnchantGlow extends EnchantmentWrapper
 		try {
 			Enchantment.registerEnchantment(glow);
 		} catch (IllegalArgumentException e) {
-			Plugin.logger.severe("Can't register bottle enchantment. This can be ignored if XPBottle has been reloaded with an external plugin.");
+			Plugin.logger.severe("Can't register bottle enchantment. This can be ignored if MagicBottle has been reloaded by an external plugin.");
 		}
 		return glow;
 	}

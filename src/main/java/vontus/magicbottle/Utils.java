@@ -3,6 +3,9 @@ package vontus.magicbottle;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
 public class Utils {
 
 	public static String roundDouble(double number) {
@@ -17,5 +20,12 @@ public class Utils {
 
 	public static double stringToDouble(String toConvert) throws NumberFormatException {
 		return Double.valueOf(toConvert.replace(",", ""));
+	}
+	
+	public static Material getMaterial(ItemStack is) {
+		if (is == null)
+			return Material.AIR;
+		else
+			return is.getType();
 	}
 }

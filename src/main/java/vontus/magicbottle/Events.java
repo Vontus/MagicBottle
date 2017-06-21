@@ -254,7 +254,7 @@ public class Events implements Listener {
 		for (int i = 0; i < 9; i++) {
 			ItemStack item = inv.getMatrix()[i];
 			Material m = Config.getBottleRecipeIngredient(i + 1);
-			if (!Utils.getMaterial(item).equals(m)) {
+			if (!Utils.getMaterial(item).equals(m) || MagicBottle.isMagicBottle(item)) {
 				return false;
 			}
 		}

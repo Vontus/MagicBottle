@@ -24,7 +24,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import net.md_5.bungee.api.ChatColor;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 
@@ -43,8 +42,8 @@ public class Events implements Listener {
 		Action act = event.getAction();
 		ItemStack item = event.getItem();
 
-		if (MagicBottle.isMagicBottle(item)) {
-			if (item.getAmount() == 1 && timeOut(player)) {
+		if (MagicBottle.isMagicBottle(item) && item.getAmount() == 1) {
+			if (timeOut(player)) {
 				if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK) {
 					onInteractFill(event);
 				} else if (act == Action.RIGHT_CLICK_AIR || act == Action.RIGHT_CLICK_BLOCK) {
@@ -59,20 +58,18 @@ public class Events implements Listener {
 
 	@EventHandler
 	public void onPrepareCraft(PrepareItemCraftEvent event) {
-		if (event.getRecipe() != null) {
-			ItemStack r = event.getRecipe().getResult();
-			if (MagicBottle.isMagicBottle(r)) {
-				MagicBottle result = new MagicBottle(r);
-				if (MagicBottle.isMagicBottle(getFirstIngredient(event.getInventory()))) {
-					if (result.isEmpty()) {
-						onPrepareRecipePour(event);
-					} else {
-						onPrepareRecipeFill(event);
-					}
+		ItemStack r = event.getRecipe().getResult();
+		if (MagicBottle.isMagicBottle(r)) {
+			MagicBottle result = new MagicBottle(r);
+			if (MagicBottle.isMagicBottle(getFirstIngredient(event.getInventory()))) {
+				if (result.isEmpty()) {
+					onPrepareRecipePour(event);
 				} else {
-					if (!isEmptyBottleRecipe(event.getInventory())) {
-						event.getInventory().setResult(null);
-					}
+					onPrepareRecipeFill(event);
+				}
+			} else {
+				if (!isEmptyBottleRecipe(event.getInventory())) {
+					event.getInventory().setResult(null);
 				}
 			}
 		}
@@ -106,7 +103,7 @@ public class Events implements Listener {
 			ItemStack i = e.getItem();
 			if (plugin.autoEnabled.contains(p) && i.containsEnchantment(Enchantment.MENDING)
 					&& i.getDurability() % 2 != 0) {
-				MagicBottle mb = MagicBottle.getNonEmptyMagicBottleInToolsbar(p);
+				MagicBottle mb = MagicBottle.getUsableMBInToolsbar(p);
 				if (mb != null && !e.isCancelled()) {
 					i.setDurability((short) (i.getDurability() + e.getDamage()));
 					mb.repair(i);
@@ -242,7 +239,7 @@ public class Events implements Listener {
 				public void run() {
 		        	wait.remove(p.getUniqueId());
 		        }
-		    }.runTaskLater(this.plugin, 4);
+		    }.runTaskLater(this.plugin, 3);
 		    return true;
 		} else {
 			return false;

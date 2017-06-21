@@ -226,10 +226,19 @@ public class MagicBottle {
 				(item.getType() == Material.EXP_BOTTLE || item.getType() == Material.GLASS_BOTTLE);
 	}
 	
-	public static MagicBottle getNonEmptyMagicBottleInToolsbar(Player p) {
+	public static boolean isUsableMagicBottle(ItemStack item) {
+		if (isMagicBottle(item) && item.getAmount() == 1) {
+			MagicBottle mb = new MagicBottle(item);
+			return !mb.isEmpty();
+		} else {
+			return false;
+		}
+	}
+	
+	public static MagicBottle getUsableMBInToolsbar(Player p) {
 		for (int i = 0; i < 9; i++) {
 			ItemStack item = p.getInventory().getItem(i);
-			if (isMagicBottle(item)) {
+			if (isUsableMagicBottle(item)) {
 				MagicBottle mb = new MagicBottle(item);
 				if (!mb.isEmpty())
 					return mb;

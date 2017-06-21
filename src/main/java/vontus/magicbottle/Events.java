@@ -137,12 +137,11 @@ public class Events implements Listener {
         		PlayerInventory inv = p.getInventory();
         		if (MagicBottle.isMagicBottle(inv.getItemInMainHand())) {
         			mb = new MagicBottle(inv.getItemInMainHand());
-        		} else if (MagicBottle.isMagicBottle(p.getInventory().getItemInOffHand())) {
+        		} else if (MagicBottle.isUsableMagicBottle(p.getInventory().getItemInOffHand()) && inv.getItemInMainHand().getType() != Material.EXP_BOTTLE) {
         			mb = new MagicBottle(inv.getItemInOffHand());
         		}
         		if (mb != null) {
         			Commands.giveBottleWithExp(mb.getExp(), p);
-        			p.sendMessage(ChatColor.RED + "Somehow you managed to throw the bottle, but you've been given another one.");
         			e.setCancelled(true);
         		}
         	}

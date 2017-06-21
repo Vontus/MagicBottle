@@ -79,7 +79,7 @@ public class Commands implements CommandExecutor {
 		if (p.hasPermission(Config.authorizationRepair)) {
 			ItemStack inHand = p.getInventory().getItemInMainHand();
 
-			if (MagicBottle.isMagicBottle(inHand)) {
+			if (MagicBottle.isUsableMagicBottle(inHand)) { // TODO differenciate between non magicbottles and not usable magicbottles
 				MagicBottle mb = new MagicBottle(inHand);
 				Integer usedXP = mb.repair(p.getInventory());
 				p.updateInventory();

@@ -42,8 +42,8 @@ public class Events implements Listener {
 		Action act = event.getAction();
 		ItemStack item = event.getItem();
 
-		if (MagicBottle.isMagicBottle(item) && item.getAmount() == 1) {
-			if (timeOut(player)) {
+		if (MagicBottle.isMagicBottle(item)) {
+			if (item.getAmount() == 1 && timeOut(player)) {
 				if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK) {
 					onInteractFill(event);
 				} else if (act == Action.RIGHT_CLICK_AIR || act == Action.RIGHT_CLICK_BLOCK) {

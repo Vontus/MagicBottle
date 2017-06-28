@@ -6,22 +6,20 @@ import java.util.UUID;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.ThrownExpBottle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import vontus.magicbottle.config.Config;
@@ -35,19 +33,43 @@ public class Events implements Listener {
         this.plugin = plugin;
         this.wait = new HashSet<>();
     }
+    
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInteractEntity(PlayerInteractEntityEvent event) {
+		Player player = event.getPlayer();
+		EquipmentSlot slot = event.getHand();
+		ItemStack item = null;
+		
+		if (slot == EquipmentSlot.HAND) {
+			item = player.getInventory().getItemInMainHand();
+		} else if (slot == EquipmentSlot.OFF_HAND) {
+			item = player.getInventory().getItemInOffHand();
+		}
 
-	@EventHandler
+		if (MagicBottle.isMagicBottle(item)) {
+			MagicBottle mb = new MagicBottle(item);
+			if (item.getAmount() == 1 && timeOut(player)) {
+				onInteractPour(mb, player);
+			}
+
+			event.setCancelled(true);
+			player.updateInventory();
+		}
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
 	public void onInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		Action act = event.getAction();
 		ItemStack item = event.getItem();
 
 		if (MagicBottle.isMagicBottle(item)) {
+			MagicBottle mb = new MagicBottle(item);
 			if (item.getAmount() == 1 && timeOut(player)) {
 				if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK) {
-					onInteractFill(event);
+					onInteractFill(mb, player);
 				} else if (act == Action.RIGHT_CLICK_AIR || act == Action.RIGHT_CLICK_BLOCK) {
-					onInteractPour(event);
+					onInteractPour(mb, player);
 				}
 			}
 
@@ -58,18 +80,20 @@ public class Events implements Listener {
 
 	@EventHandler
 	public void onPrepareCraft(PrepareItemCraftEvent event) {
-		ItemStack r = event.getRecipe().getResult();
-		if (MagicBottle.isMagicBottle(r)) {
-			MagicBottle result = new MagicBottle(r);
-			if (MagicBottle.isMagicBottle(getFirstIngredient(event.getInventory()))) {
-				if (result.isEmpty()) {
-					onPrepareRecipePour(event);
+		if (event.getRecipe() != null) {
+			ItemStack r = event.getRecipe().getResult();
+			if (MagicBottle.isMagicBottle(r)) {
+				MagicBottle result = new MagicBottle(r);
+				if (MagicBottle.isMagicBottle(getFirstIngredient(event.getInventory()))) {
+					if (result.isEmpty()) {
+						onPrepareRecipePour(event);
+					} else {
+						onPrepareRecipeFill(event);
+					}
 				} else {
-					onPrepareRecipeFill(event);
-				}
-			} else {
-				if (!isEmptyBottleRecipe(event.getInventory())) {
-					event.getInventory().setResult(null);
+					if (!isEmptyBottleRecipe(event.getInventory())) {
+						event.getInventory().setResult(null);
+					}
 				}
 			}
 		}
@@ -124,56 +148,29 @@ public class Events implements Listener {
 		plugin.autoEnabled.remove(e.getPlayer());
 	}
 
-    @EventHandler
-    public void onLaunch(ProjectileLaunchEvent e) {
-        Projectile launched = e.getEntity();
-        if (launched instanceof ThrownExpBottle) {
-        	if (launched.getShooter() instanceof Player) {
-        		Player p = (Player)launched.getShooter();
-        		MagicBottle mb = null;
-        		PlayerInventory inv = p.getInventory();
-        		if (MagicBottle.isMagicBottle(inv.getItemInMainHand())) {
-        			mb = new MagicBottle(inv.getItemInMainHand());
-        		} else if (MagicBottle.isUsableMagicBottle(p.getInventory().getItemInOffHand()) && inv.getItemInMainHand().getType() != Material.EXP_BOTTLE) {
-        			mb = new MagicBottle(inv.getItemInOffHand());
-        		}
-        		if (mb != null) {
-        			Commands.giveBottleWithExp(mb.getExp(), p);
-        			e.setCancelled(true);
-        		}
-        	}
-        }
-    }
+    private void onInteractFill(MagicBottle bottle, Player p) {
+		if (Exp.getPoints(p) > 0) {
+			if (p.hasPermission(Config.authorizationFill)) {
+				int round = p.isSneaking() ? 1 : 0;
+				int targetPlayerLevel = Exp.floorLevel(p, round);
+				int expToDeposit = Exp.getExpToLevel(p, targetPlayerLevel) * -1;
 
-	private void onInteractFill(PlayerInteractEvent e) {
-		Player player = e.getPlayer();
-		MagicBottle bottle = new MagicBottle(e.getItem());
-
-		if (Exp.getPoints(player) > 0) {
-			if (player.hasPermission(Config.authorizationFill)) {
-				int round = player.isSneaking() ? 1 : 0;
-				int targetPlayerLevel = Exp.floorLevel(player, round);
-				int expToDeposit = Exp.getExpToLevel(player, targetPlayerLevel) * -1;
-
-				bottle.deposit(player, expToDeposit);
+				bottle.deposit(p, expToDeposit);
 			} else
-				player.sendMessage(Messages.msgUnauthorizedToDeposit);
+				p.sendMessage(Messages.msgUnauthorizedToDeposit);
 		}
 	}
 
-	private void onInteractPour(PlayerInteractEvent e) {
-		Player player = e.getPlayer();
-		MagicBottle bottle = new MagicBottle(e.getItem());
-		
+	private void onInteractPour(MagicBottle bottle, Player p) {
 		if (bottle.getExp() > 0) {
-			if (player.hasPermission(Config.authorizationPour)) {
-				int round = player.isSneaking() ? 1 : 0;
-				int targetPlayerLevel = Exp.ceilingLevel(player, round);
-				int expToWithdraw = Exp.getExpToLevel(player, targetPlayerLevel);
+			if (p.hasPermission(Config.authorizationPour)) {
+				int round = p.isSneaking() ? 1 : 0;
+				int targetPlayerLevel = Exp.ceilingLevel(p, round);
+				int expToWithdraw = Exp.getExpToLevel(p, targetPlayerLevel);
 
-				bottle.withdraw(player, expToWithdraw);
+				bottle.withdraw(p, expToWithdraw);
 			} else {
-				player.sendMessage(Messages.msgUnauthorizedToWithdraw);
+				p.sendMessage(Messages.msgUnauthorizedToWithdraw);
 			}
 		}
 	}

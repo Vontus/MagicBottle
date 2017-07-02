@@ -63,7 +63,7 @@ public class Events implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onPrepareCraft(PrepareItemCraftEvent event) {
 		if (event.getRecipe() != null) {
 			ItemStack r = event.getRecipe().getResult();
@@ -96,11 +96,13 @@ public class Events implements Listener {
 				}
 			} else {
 				if (MagicBottle.isMagicBottle(e.getRecipe().getResult())) {
-					Player player = (Player) e.getView().getPlayer();
-					if (!player.hasPermission(Config.authorizationCraft)) {
-						e.setCancelled(true);
-					} else {
-						PlayEffect.newBottle(player);
+					if (isEmptyBottleRecipe(e.getInventory())) {
+						Player player = (Player) e.getView().getPlayer();
+						if (player.hasPermission(Config.authorizationCraft)) {
+							PlayEffect.newBottle(player);
+						} else {
+							e.setCancelled(true);
+						}
 					}
 				}
 			}

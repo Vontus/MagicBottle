@@ -40,7 +40,7 @@ recipe:
 # TIP: Set this depending on how difficult you made the recipe.
 max level:
   # This will be applied when the player doesn't have any of the following permissions.
-  default: 30
+  default: 200
   permissions:
     # Allow players to have bottles with more levels than the default option.
     # To remove the limit entirely, give people 'magicbottle.maxlevel.unlimited'; still, the maximum level a bottle can hold is 20,000.
@@ -48,9 +48,9 @@ max level:
     # If a player has two or more of these permissions, the maximum value will be applied, including 'magicbottle.maxlevel.unlimited'.
     #   For example, a Veteran user can have the permissions 'user' and 'veteran', and only 'veteran' will be applied.
     # You can modify, add or remove any of the following limits at will.
-    user: 100
-    veteran: 150
-    vip: 200
+    user: 300
+    veteran: 350
+    vip: 400
 
 repair:
   enabled: true

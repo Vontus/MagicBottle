@@ -3,9 +3,7 @@ package vontus.magicbottle;
 import java.util.ArrayList;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -77,10 +75,10 @@ public class MagicBottle {
 			exp += points;
 			Exp.setPoints(player, Exp.getPoints(player) - points);
 			recreate();
-			playEffectFill(player);
+			PlayEffect.fillBottle(player);
 		} else {
 			player.sendMessage(Messages.msgMaxLevelReached.replace("%", Integer.toString(Exp.getLevelFromExp(Config.getMaxFillPointsFor(player)).intValue())));
-			playEffectForbidden(player);
+			PlayEffect.forbidden(player);
 		}
 	}
 
@@ -93,7 +91,7 @@ public class MagicBottle {
 			exp -= points;
 		}
 		recreate();
-		this.playEffectPour(player);
+		PlayEffect.pourBottle(player);
 	}
 	
 	public int repair(PlayerInventory inv) {
@@ -173,30 +171,6 @@ public class MagicBottle {
 		return line.replace(Messages.levelReplacer, level)
 				.replace(Messages.xpPointsReplacer, points)
 				.replace(Messages.xpBarReplacer, getXpBar());
-	}
-
-	private void playEffectFill(Player player) {
-		if (Config.effectSound)
-			player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1);
-		if (Config.effectParticles) {
-			ParticleEffect.SPELL_WITCH.display(0.1f, 0.1f, 0.1f, 0.1f, 50, player.getLocation(), 50);
-		}
-	}
-	
-	private void playEffectForbidden(Player player) {
-		if (Config.effectSound)
-			player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 0.2f, 1);
-	}
-
-	private void playEffectPour(Player player) {
-		if (Config.effectSound) {
-			player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1);
-		}
-		if (Config.effectParticles) {
-			Location l = player.getLocation();
-			l.setY(l.getY() + 2);
-			ParticleEffect.ENCHANTMENT_TABLE.display(0.2f, 0.2f, 0.2f, 1, 50, l, 50);
-		}
 	}
 	
 	public Integer getMaxFillablePoints(Player p, int points) {

@@ -99,6 +99,8 @@ public class Events implements Listener {
 					Player player = (Player) e.getView().getPlayer();
 					if (!player.hasPermission(Config.authorizationCraft)) {
 						e.setCancelled(true);
+					} else {
+						PlayEffect.newBottle(player);
 					}
 				}
 			}

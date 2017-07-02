@@ -11,6 +11,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
@@ -30,6 +32,14 @@ public class Events implements Listener {
     public Events(Plugin plugin) {
         this.plugin = plugin;
         this.wait = new HashSet<>();
+    }
+    
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onClickInventory(InventoryClickEvent e) {
+    	InventoryType invType = e.getView().getType();
+    	if (invType == InventoryType.ANVIL || invType == InventoryType.BREWING) {
+    		e.setCancelled(MagicBottle.isMagicBottle(e.getCurrentItem()));
+    	}
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

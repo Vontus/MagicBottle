@@ -12,13 +12,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.CraftingInventory;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -32,29 +30,6 @@ public class Events implements Listener {
     public Events(Plugin plugin) {
         this.plugin = plugin;
         this.wait = new HashSet<>();
-    }
-    
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onInteractEntity(PlayerInteractEntityEvent event) {
-		Player player = event.getPlayer();
-		EquipmentSlot slot = event.getHand();
-		ItemStack item = null;
-		
-		if (slot == EquipmentSlot.HAND) {
-			item = player.getInventory().getItemInMainHand();
-		} else if (slot == EquipmentSlot.OFF_HAND) {
-			item = player.getInventory().getItemInOffHand();
-		}
-
-		if (MagicBottle.isMagicBottle(item)) {
-			MagicBottle mb = new MagicBottle(item);
-			if (item.getAmount() == 1 && timeOut(player)) {
-				onInteractPour(mb, player);
-			}
-
-			event.setCancelled(true);
-			player.updateInventory();
-		}
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -78,7 +53,7 @@ public class Events implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPrepareCraft(PrepareItemCraftEvent event) {
 		if (event.getRecipe() != null) {
 			ItemStack r = event.getRecipe().getResult();
@@ -99,7 +74,7 @@ public class Events implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onCraft(CraftItemEvent e) {
 		if (MagicBottle.isMagicBottle(e.getRecipe().getResult())) {
 			MagicBottle result = new MagicBottle(e.getRecipe().getResult());

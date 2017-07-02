@@ -8,15 +8,15 @@
 
 # '[levels]' represents level number:
 # '[xpbar]' is a bar that shows the current xp progression to the next level
-bottle name: '&6MagicBottle &7| &eLevel [level] &7| [xpbar]'
+bottle name: '&5MagicBottle &7| &eLevel [level] &7| [xpbar]'
 
 bottle lore:
-  experience text: '&6Experience points:'
-  experience color: ' &e' #If you put more than colors and spaces here, the plugin will not recognise MagicBottles
-  filled bar color: '&6'
+  experience text: '&5Experience points:'
+  experience color: ' &e' #If you put more than colors and spaces here, the plugin will not recognize MagicBottles
+  filled bar color: '&5'
   empty bar color: '&e'
   lines:
-    - '&6Instructions:'
+    - '&5Instructions:'
     - ' &eDeposit: &7(Shift +) Left Click.'
     - ' &eWithdraw: &7(Shift +) Right Click.'
     - ' &eYou can also put the bottle in a crafting grid'
@@ -39,7 +39,7 @@ messages:
     given bottle: '&eGiven [amount] MagicBottle(s) to [player] with [level] levels.'
     
   repair:
-    inventory repaired: '&eSpent &6% &eXP in repairing your tools'
+    inventory repaired: '&eSpent &5% &eXP in repairing your tools'
     enabled autorepair: '&eAutorepair has been &aenabled'
     disabled autorepair: '&eAutorepair has been &cdisabled'
     config repairing disabled: '&cRepairing of tools is disabled in this server'

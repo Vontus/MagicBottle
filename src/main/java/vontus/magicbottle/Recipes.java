@@ -1,7 +1,6 @@
 package vontus.magicbottle;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -18,13 +17,13 @@ public class Recipes {
 
 		if (Config.recipeFill) {
 			ShapelessRecipe recipeFill = getShapelessRecipe(1, "fill");
-			recipeFill.addIngredient(1, Material.GLASS_BOTTLE);
+			recipeFill.addIngredient(1, MagicBottle.materialEmtpy);
 			plugin.getServer().addRecipe(recipeFill);
 		}
 
 		if (Config.recipePour) {
 			ShapelessRecipe recipePour = getShapelessRecipe(0, "pour");
-			recipePour.addIngredient(1, Material.EXP_BOTTLE);
+			recipePour.addIngredient(1, MagicBottle.materialFilled);
 			plugin.getServer().addRecipe(recipePour);
 		}
 

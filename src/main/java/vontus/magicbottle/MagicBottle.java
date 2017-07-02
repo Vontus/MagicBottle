@@ -16,6 +16,8 @@ import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 
 public class MagicBottle {
+	public static Material materialFilled = Material.DRAGONS_BREATH;
+	public static Material materialEmtpy = Material.GLASS_BOTTLE;
 	private ItemStack item;
 	private Integer exp;
 
@@ -32,9 +34,9 @@ public class MagicBottle {
 	private void recreate() {
 		Material mat;
 		if (exp > 0) {
-			mat = Material.EXP_BOTTLE;
+			mat = materialFilled;
 		} else {
-			mat = Material.GLASS_BOTTLE;
+			mat = materialEmtpy;
 		}
 		
 		if (item == null) {
@@ -208,22 +210,18 @@ public class MagicBottle {
 
 	private static int calculateExp(ItemStack item) {
 		int exp;
-		if (item.getType() != Material.EXP_BOTTLE) {
+		try {
+			exp = Integer.valueOf(ChatColor.stripColor((item.getItemMeta().getLore().get(1).trim())).replace(",", ""));
+		} catch (Exception exception) {
 			exp = 0;
-		} else {
-			try {
-				exp = Integer
-						.valueOf(ChatColor.stripColor((item.getItemMeta().getLore().get(1).trim())).replace(",", ""));
-			} catch (Exception exception) {
-				exp = 0;
-			}
 		}
 		return exp;
 	}
 
 	public static boolean isMagicBottle(ItemStack item) {
-		return item != null && item.containsEnchantment(EnchantGlow.getGlow()) &&
-				(item.getType() == Material.EXP_BOTTLE || item.getType() == Material.GLASS_BOTTLE);
+		return item != null && item.containsEnchantment(EnchantGlow.getGlow())
+				//&& (item.getType() == materialFilled || item.getType() == materialEmtpy)
+				;
 	}
 	
 	public static boolean isUsableMagicBottle(ItemStack item) {

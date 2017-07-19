@@ -13,6 +13,7 @@ effect:
   particles: true
 
 # Enable or disable the ability to fill or pour the bottle by using it in a crafting grid.
+# You must restart your server after changing any of the recipes configurations.
 recipe:
   deposit: true
   withdraw: true

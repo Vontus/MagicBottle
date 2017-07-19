@@ -3,6 +3,7 @@ package vontus.magicbottle;
 import java.util.HashSet;
 import java.util.logging.Logger;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -14,6 +15,7 @@ import vontus.magicbottle.config.Messages;
 public class Plugin extends JavaPlugin {
 	public static Logger logger;
 	public HashSet<Player> autoEnabled = new HashSet<>();
+	public Metrics metrics;
 
 	@Override
 	public void onEnable() {
@@ -22,6 +24,7 @@ public class Plugin extends JavaPlugin {
 		new Recipes(this);
 		this.getServer().getPluginManager().registerEvents(new Events(this), this);
 		this.getCommand("magicbottle").setExecutor(new Commands(this));
+		metrics = new Metrics(this);
 	}
 
 	public void loadConfig() {

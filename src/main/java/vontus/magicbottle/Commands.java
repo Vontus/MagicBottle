@@ -14,6 +14,11 @@ import vontus.magicbottle.config.Messages;
 
 public class Commands implements CommandExecutor {
 	private Plugin plugin;
+	
+	public final String USAGE_ABOUT = "/magicbottle about";
+	public final String USAGE_REPAIR = "/magicbottle repair [auto]";
+	public final String USAGE_GIVE = "/magicbottle give <level> [amount] [player]";
+	public final String USAGE_RELOAD = "/magicbottle reload";
 
 	public Commands(Plugin plugin) {
 		this.plugin = plugin;
@@ -54,14 +59,20 @@ public class Commands implements CommandExecutor {
 				commandRepairInventory(p);
 				break;
 			case 2:
-				commandAutoRepair(p, args);
+				if (args[1].equals("auto")) {
+					commandAutoRepair(p, args);
+				} else {
+					p.sendMessage(correctUse(USAGE_REPAIR));
+				}
 				break;
 			}
+		} else {
+			sender.sendMessage(Messages.msgOnlyPlayersCommand);
 		}
 	}
-	
+
 	private void commandAutoRepair(Player p, String[] args) {
-		if (args[1].equals("auto")) {
+		if (Config.repairAutoEnabled) {
 			if (p.hasPermission(Config.authorizationRepairAuto)) {
 				if (plugin.autoEnabled.add(p)) {
 					p.sendMessage(Messages.repairAutoEnabled);
@@ -72,23 +83,29 @@ public class Commands implements CommandExecutor {
 			} else {
 				p.sendMessage(Messages.msgUnauthorizedToUseCommand);
 			}
+		} else {
+			p.sendMessage(Messages.repairAutoDisabledConfig);
 		}
 	}
-	
-	private void commandRepairInventory(Player p) {
-		if (p.hasPermission(Config.authorizationRepair)) {
-			ItemStack inHand = p.getInventory().getItemInMainHand();
 
-			if (MagicBottle.isUsableMagicBottle(inHand)) {
-				MagicBottle mb = new MagicBottle(inHand);
-				Integer usedXP = mb.repair(p.getInventory());
-				p.updateInventory();
-				p.sendMessage(Messages.repairInvRepaired.replace("%", usedXP.toString()));
+	private void commandRepairInventory(Player p) {
+		if (Config.repairEnabled) {
+			if (p.hasPermission(Config.authorizationRepair)) {
+				ItemStack inHand = p.getInventory().getItemInMainHand();
+
+				if (MagicBottle.isUsableMagicBottle(inHand)) {
+					MagicBottle mb = new MagicBottle(inHand);
+					Integer usedXP = mb.repair(p.getInventory());
+					p.updateInventory();
+					p.sendMessage(Messages.repairInvRepaired.replace("%", usedXP.toString()));
+				} else {
+					p.sendMessage(Messages.repairMbNotInHand);
+				}
 			} else {
-				p.sendMessage(Messages.repairMbNotInHand);
+				p.sendMessage(Messages.msgUnauthorizedToUseCommand);
 			}
 		} else {
-			p.sendMessage(Messages.msgUnauthorizedToUseCommand);
+			p.sendMessage(Messages.repairDisabledConfig);
 		}
 	}
 
@@ -141,10 +158,10 @@ public class Commands implements CommandExecutor {
 					}
 					break;
 				default:
-					sender.sendMessage(correctUse("/magicbottle give [level] [amount] [player]"));
+					sender.sendMessage(correctUse(USAGE_GIVE));
 				}
 			} catch (NumberFormatException e) {
-				sender.sendMessage(correctUse("/magicbottle give [level] [amount] [player]"));
+				sender.sendMessage(correctUse(USAGE_GIVE));
 			}
 		} else {
 			sender.sendMessage(Messages.msgUnauthorizedToUseCommand);
@@ -158,15 +175,15 @@ public class Commands implements CommandExecutor {
 	
 	private void sendMenu(CommandSender sender) {
 		sender.sendMessage(ChatColor.GOLD + "- MagicBottle Commands -");
-		sender.sendMessage(ChatColor.YELLOW + " /magicbottle about");
+		sender.sendMessage(ChatColor.YELLOW + " " + USAGE_ABOUT);
 		if (sender.hasPermission(Config.authorizationGive)) {
-			sender.sendMessage(ChatColor.YELLOW + " /magicbottle give [level] [amount] [player]");
+			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_GIVE);
 		}
 		if (sender.hasPermission(Config.authorizationReload)) {
-			sender.sendMessage(ChatColor.YELLOW + " /magicbottle reload");
+			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_RELOAD);
 		}
 		if (sender.hasPermission(Config.authorizationRepair)) {
-			sender.sendMessage(ChatColor.YELLOW + " /magicbottle repair [auto]");
+			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_REPAIR);
 		}
 	}
 	

@@ -166,9 +166,7 @@ public class Events implements Listener {
 
 	private void onPrepareRecipePour(PrepareItemCraftEvent e) {
 		Player player = (Player) e.getView().getPlayer();
-		if (Config.recipePour && player.hasPermission(Config.authorizationPour)) {
-			// Leave it like that
-		} else {
+		if (!Config.recipePour || !player.hasPermission(Config.authorizationPour)) {
 			e.getInventory().setResult(null);
 		}
 	}

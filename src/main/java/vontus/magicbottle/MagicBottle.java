@@ -77,7 +77,8 @@ public class MagicBottle {
 			recreate();
 			PlayEffect.fillBottle(player);
 		} else {
-			player.sendMessage(Messages.msgMaxLevelReached.replace("%", Integer.toString(Exp.getLevelFromExp(Config.getMaxFillPointsFor(player)).intValue())));
+			int maxLevels = Config.getMaxLevelsFor(player);
+			player.sendMessage(Messages.msgMaxLevelReached.replace("%", Integer.toString(maxLevels)));
 			PlayEffect.forbidden(player);
 		}
 	}

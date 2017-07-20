@@ -61,6 +61,10 @@ public class Config {
 	}
 
 	public static int getMaxFillPointsFor(final Player p) {
+		return Exp.getExpAtLevel(getMaxLevelsFor(p));
+	}
+	
+	public static int getMaxLevelsFor(final Player p) {
 		int max = -1;
 
 		if (p.hasPermission(maxLevelsUnlimitedPermission))
@@ -74,6 +78,6 @@ public class Config {
 
 		if (max == -1)
 			max = defaultRankMaxLevel;
-		return Exp.getExpAtLevel(max);
+		return max;
 	}
 }

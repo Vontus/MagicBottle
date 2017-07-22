@@ -11,6 +11,7 @@ import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
+import vontus.magicbottle.util.Exp;
 
 public class Commands implements CommandExecutor {
 	private Plugin plugin;

@@ -102,7 +102,12 @@ public class Events implements Listener {
 					if (isEmptyBottleRecipe(e.getInventory())) {
 						Player player = (Player) e.getView().getPlayer();
 						if (player.hasPermission(Config.authorizationCraft)) {
-							PlayEffect.newBottle(player);
+							if (chargeNewBottleMoney(player)) {
+								SoundEffect.newBottle(player);
+							} else {
+								SoundEffect.forbidden(player);
+								e.setCancelled(true);
+							}
 						} else {
 							e.setCancelled(true);
 						}
@@ -242,5 +247,13 @@ public class Events implements Listener {
 			}
 		}
 		return true;
+	}
+	
+	private boolean chargeNewBottleMoney(Player p) {
+		if (Config.costMoneyCraftNewBottle != 0) {
+			return plugin.econ.withdrawPlayer(p, Config.costMoneyCraftNewBottle).transactionSuccess();
+		} else {
+			return true;
+		}
 	}
 }

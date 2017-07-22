@@ -6,8 +6,8 @@ import java.util.Map.Entry;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-import vontus.magicbottle.Exp;
 import vontus.magicbottle.Plugin;
+import vontus.magicbottle.util.Exp;
 
 public class Config {
 	private static HashMap<String, Integer> maxLevelsPermission;
@@ -35,6 +35,9 @@ public class Config {
 
 	public static int defaultRankMaxLevel;
 	public static int maxLevel = 20000;
+	
+	public static double costPercentageDeposit;
+	public static double costMoneyCraftNewBottle;
 
 	public Config(Plugin plugin) {
 		Config.plugin = plugin;
@@ -54,6 +57,9 @@ public class Config {
 		
 		repairEnabled = plugin.getConfig().getBoolean("repair.enabled");
 		repairAutoEnabled = plugin.getConfig().getBoolean("repair.auto");
+		
+		costPercentageDeposit = plugin.getConfig().getDouble("costs.deposit.exp-percentage") / 100;
+		costMoneyCraftNewBottle = plugin.getConfig().getDouble("costs.craft new bottle.money");
 	}
 
 	public static Material getBottleRecipeIngredient(int pos) {

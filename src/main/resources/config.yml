@@ -45,14 +45,25 @@ max level:
   permissions:
     # Allow players to have bottles with more levels than the default option.
     # To remove the limit entirely, give people 'magicbottle.maxlevel.unlimited'; still, the maximum level a bottle can hold is 20,000.
-    # You need to grant people the permission 'magicbottle.maxlevel.<name>', being <name> from the list shown below.
+    # You need to grant people the permission 'magicbottle.maxlevel.<name>', being <name> in the list shown below.
     # If a player has two or more of these permissions, the maximum value will be applied, including 'magicbottle.maxlevel.unlimited'.
-    #   For example, a Veteran user can have the permissions 'user' and 'veteran', and only 'veteran' will be applied.
+    #   For example, a Veteran user can have the permissions 'user' and 'veteran', but only 'veteran' will be applied.
     # You can modify, add or remove any of the following limits at will.
     user: 300
     veteran: 350
     vip: 400
 
 repair:
+  # Enable or disable the '/mb repair' command
   enabled: true
+  # Enable or disable the '/mb repair auto' command
   auto: true
+
+# Here you can configure what percentage of experience will be charged when transferring experience.
+costs:
+  deposit:
+    # Integer value from 0 to 100
+    exp-percentage: 0
+  craft new bottle:
+    # Money needed to create a new bottle. Vault is required for this to take effect.
+    money: 0

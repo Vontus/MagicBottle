@@ -12,6 +12,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
+import vontus.magicbottle.effects.SoundEffect;
+import vontus.magicbottle.util.EnchantGlow;
+import vontus.magicbottle.util.Exp;
+import vontus.magicbottle.util.Utils;
 
 public class MagicBottle {
 	public static Material materialFilled = Material.DRAGONS_BREATH;
@@ -72,27 +76,25 @@ public class MagicBottle {
 		points = getMaxFillablePoints(player, points);
 		
 		if (points > 0) {
-			exp += points;
+			int expCost = (int) Math.round(points * Config.costPercentageDeposit);
+			exp += points - expCost;
 			Exp.setPoints(player, Exp.getPoints(player) - points);
 			recreate();
-			PlayEffect.fillBottle(player);
+			SoundEffect.fillBottle(player);
 		} else {
 			int maxLevels = Config.getMaxLevelsFor(player);
 			player.sendMessage(Messages.msgMaxLevelReached.replace("%", Integer.toString(maxLevels)));
-			PlayEffect.forbidden(player);
+			SoundEffect.forbidden(player);
 		}
 	}
-
-	public void withdraw(Player player, int points) {
-		if (exp < points) {
-			Exp.setPoints(player, Exp.getPoints(player) + exp);
-			exp = 0;
-		} else {
-			Exp.setPoints(player, Exp.getPoints(player) + points);
-			exp -= points;
-		}
+	
+	public int withdraw(Player player, int points) {
+		points = Math.min(exp, points);
+		exp -= points;
+		Exp.givePoints(player, points);
 		recreate();
-		PlayEffect.pourBottle(player);
+		SoundEffect.pourBottle(player);
+		return points;
 	}
 	
 	public int repair(PlayerInventory inv) {

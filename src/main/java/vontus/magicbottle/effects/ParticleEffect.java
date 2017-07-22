@@ -1,4 +1,4 @@
-package vontus.magicbottle;
+package vontus.magicbottle.effects;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -16,7 +16,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import vontus.magicbottle.ReflectionUtils.PackageType;
+import vontus.magicbottle.effects.ReflectionUtils.PackageType;
 
 /**
  * <b>ParticleEffect Library</b>

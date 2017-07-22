@@ -24,6 +24,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
+import vontus.magicbottle.effects.SoundEffect;
+import vontus.magicbottle.util.Exp;
+import vontus.magicbottle.util.Utils;
 
 public class Events implements Listener {
     private HashSet<UUID> wait;
@@ -52,9 +55,9 @@ public class Events implements Listener {
 			MagicBottle mb = new MagicBottle(item);
 			if (item.getAmount() == 1 && timeOut(player)) {
 				if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK) {
-					onInteractFill(mb, player);
+					onInteractDeposit(mb, player);
 				} else if (act == Action.RIGHT_CLICK_AIR || act == Action.RIGHT_CLICK_BLOCK) {
-					onInteractPour(mb, player);
+					onInteractWithdraw(mb, player);
 				}
 			}
 
@@ -71,9 +74,9 @@ public class Events implements Listener {
 				MagicBottle result = new MagicBottle(r);
 				if (MagicBottle.isMagicBottle(getFirstIngredient(event.getInventory()))) {
 					if (result.isEmpty()) {
-						onPrepareRecipePour(event);
+						onPrepareRecipeWithdraw(event);
 					} else {
-						onPrepareRecipeFill(event);
+						onPrepareRecipeDeposit(event);
 					}
 				} else {
 					if (!isEmptyBottleRecipe(event.getInventory())) {
@@ -90,7 +93,7 @@ public class Events implements Listener {
 			MagicBottle result = new MagicBottle(e.getRecipe().getResult());
 			if (MagicBottle.isMagicBottle(getFirstIngredient(e.getInventory()))) {
 				if (result.isEmpty()) {
-					onRecipePour(e);
+					onRecipeDeposit(e);
 				} else {
 					onRecipeFill(e);
 				}
@@ -137,7 +140,7 @@ public class Events implements Listener {
 		plugin.autoEnabled.remove(e.getPlayer());
 	}
 
-    private void onInteractFill(MagicBottle bottle, Player p) {
+    private void onInteractDeposit(MagicBottle bottle, Player p) {
 		if (Exp.getPoints(p) > 0) {
 			if (p.hasPermission(Config.authorizationFill)) {
 				int round = p.isSneaking() ? 1 : 0;
@@ -150,7 +153,7 @@ public class Events implements Listener {
 		}
 	}
 
-	private void onInteractPour(MagicBottle bottle, Player p) {
+	private void onInteractWithdraw(MagicBottle bottle, Player p) {
 		if (bottle.getExp() > 0) {
 			if (p.hasPermission(Config.authorizationPour)) {
 				int round = p.isSneaking() ? 1 : 0;
@@ -164,14 +167,14 @@ public class Events implements Listener {
 		}
 	}
 
-	private void onPrepareRecipePour(PrepareItemCraftEvent e) {
+	private void onPrepareRecipeWithdraw(PrepareItemCraftEvent e) {
 		Player player = (Player) e.getView().getPlayer();
 		if (!Config.recipePour || !player.hasPermission(Config.authorizationPour)) {
 			e.getInventory().setResult(null);
 		}
 	}
 
-	private void onPrepareRecipeFill(PrepareItemCraftEvent e) {
+	private void onPrepareRecipeDeposit(PrepareItemCraftEvent e) {
 		Player player = (Player) e.getView().getPlayer();
 		if (Config.recipeFill && player.hasPermission(Config.authorizationFill) && Exp.getPoints(player) > 0) {
 			MagicBottle bottle = new MagicBottle(0);
@@ -182,7 +185,7 @@ public class Events implements Listener {
 		}
 	}
 
-	private void onRecipePour(CraftItemEvent e) {
+	private void onRecipeDeposit(CraftItemEvent e) {
 		Player player = (Player) e.getView().getPlayer();
 		ItemStack i = getFirstIngredient(e.getInventory());
 		if (i.getAmount() == 1 && Config.recipePour && player.hasPermission(Config.authorizationPour)) {

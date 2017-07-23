@@ -83,7 +83,7 @@ public class MagicBottle {
 			SoundEffect.fillBottle(player);
 		} else {
 			int maxLevels = Config.getMaxLevelsFor(player);
-			player.sendMessage(Messages.msgMaxLevelReached.replace("%", Integer.toString(maxLevels)));
+			player.sendMessage(Messages.msgMaxLevelReached.replace("[level]", Integer.toString(maxLevels)));
 			SoundEffect.forbidden(player);
 		}
 	}

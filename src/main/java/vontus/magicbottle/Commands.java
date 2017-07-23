@@ -98,7 +98,7 @@ public class Commands implements CommandExecutor {
 					MagicBottle mb = new MagicBottle(inHand);
 					Integer usedXP = mb.repair(p.getInventory());
 					p.updateInventory();
-					p.sendMessage(Messages.repairInvRepaired.replace("%", usedXP.toString()));
+					p.sendMessage(Messages.repairInvRepaired.replace("[xp]", usedXP.toString()));
 				} else {
 					p.sendMessage(Messages.repairMbNotInHand);
 				}
@@ -171,7 +171,7 @@ public class Commands implements CommandExecutor {
 
 	private String correctUse(String s) {
 		String msg = Messages.cmdMsgCorrectUse;
-		return msg.replace("%", s);
+		return msg.replace("[use]", s);
 	}
 	
 	private void sendMenu(CommandSender sender) {

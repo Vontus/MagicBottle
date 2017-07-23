@@ -39,7 +39,7 @@ public class Plugin extends JavaPlugin {
 		new Messages(this);
 		
 		if (Config.costMoneyCraftNewBottle != 0 && econ == null) {
-			logger.warning("Vault is required to add a cost to crafting a bottle. Set the cost to 0 to disable this warning.");
+			logger.warning("Vault is required to set economy costs. Add Vault or set the cost to 0 to disable this warning.");
 			Config.costMoneyCraftNewBottle = 0;
 		}
 	}

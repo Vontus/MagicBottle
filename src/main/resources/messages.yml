@@ -8,36 +8,47 @@
 
 # '[levels]' represents level number:
 # '[xpbar]' is a bar that shows the current xp progression to the next level
-bottle name: '&5MagicBottle &7| &eLevel [level] &7| [xpbar]'
-
-bottle lore:
+bottle text:
+  name: '&5&lMagicBottle &7| &eLevel [level] &7| [xpbar]'
   experience text: '&5Experience points:'
   experience color: ' &e' #If you put more than colors and spaces here, bottles won't work.
   filled bar color: '&5'
   empty bar color: '&e'
-  lines:
+  lore:
     - '&5Instructions:'
     - ' &eDeposit: &7(Shift +) Left Click.'
     - ' &eWithdraw: &7(Shift +) Right Click.'
     - ' &eYou can also put the bottle in a crafting grid'
     - ' &eto deposit or withdraw all the experience.'
 
+# This text will be displayed in a crafting table when the player is about to craft a new bottle.
+new bottle text:
+  name: '&5&lMagicBottle'
+  lore:
+    - '&eClick to create a new &5MagicBottle&e.'
+    # You can delete this line if you didn't set a cost for new bottles.
+    - '&5[money]$ &ewill be charged when creating it.'
+
 messages:
   max level reached: '&cThe maximum level you can save in a MagicBottle is [level].'
   only players command: '&cOnly players can use this command.'
-  not enough money: '&cYou need [money]$ to create a new MagicBottle.'
 
   unauthorized:
-    deposit: '&cYou do not have permission for that.'
-    withdraw: '&cYou do not have permission for that.'
-    command: '&cYou do not have permission for that.'
-    reload: '&cYou do not have permission for that.'
+    deposit: '&cYou do not have permission to deposit experience.'
+    withdraw: '&cYou do not have permission to withdraw experience.'
+    command: '&cYou do not have permission to use that command.'
+    craft: '&cYou do not have permission to craft that.'
     
   commands:
     correct use: '&cCorrect use: [use]'
     reload completed: '&eConfiguration reloaded.'
-    level not valid: '&cThe level must be a number between 0 and 20,000.'
+    level not valid: '&cLevel must be a number between 0 and 20,000.'
     given bottle: '&eGiven [amount] MagicBottle(s) to [player] with [level] levels.'
+    experience explanation:
+      - '&6--- &7How XP Works &6---'
+      - '&eJust like in any RPG game, levelling is progressively harder. '
+      - ''
+      - ''
     
   repair:
     inventory repaired: '&eSpent &5[xp] &eXP in repairing your tools.'
@@ -46,3 +57,7 @@ messages:
     config repairing disabled: '&cRepairing has been disabled in this server.'
     config auto repairing disabled: '&cAutomatic repairing has been disabled in this server.'
     mb not in hand: '&cYou must have a MagicBottle with experience in your main hand to use this command.'
+
+  costs:
+    not enough money: '&cYou need [money]$ to create a new MagicBottle.'
+    charge xp percentage: '&eYou have been charged &5[xp] &epoints for depositing xp (&5[percentage]%&e).'

@@ -120,7 +120,7 @@ public class Commands implements CommandExecutor {
 			plugin.loadConfig();
 			sender.sendMessage(Messages.cmdMsgReloadCompleted);
 		} else {
-			sender.sendMessage(Messages.msgUnauthorizedToReload);
+			sender.sendMessage(Messages.msgUnauthorizedToUseCommand);
 		}
 	}
 	

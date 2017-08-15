@@ -14,8 +14,8 @@ public class Config {
 
 	private static Plugin plugin;
 
-	public static final String authorizationFill = "magicbottle.action.deposit";
-	public static final String authorizationPour = "magicbottle.action.withdraw";
+	public static final String authorizationDeposit = "magicbottle.action.deposit";
+	public static final String authorizationWithdraw = "magicbottle.action.withdraw";
 	public static final String authorizationCraft = "magicbottle.action.craft";
 	public static final String authorizationGive = "magicbottle.command.give";
 	public static final String authorizationReload = "magicbottle.command.reload";
@@ -38,6 +38,7 @@ public class Config {
 	
 	public static double costPercentageDeposit;
 	public static double costMoneyCraftNewBottle;
+	public static boolean costCraftNewBottleChangeLore;
 
 	public Config(Plugin plugin) {
 		Config.plugin = plugin;
@@ -60,6 +61,7 @@ public class Config {
 		
 		costPercentageDeposit = plugin.getConfig().getDouble("costs.deposit.exp-percentage") / 100;
 		costMoneyCraftNewBottle = plugin.getConfig().getDouble("costs.craft new bottle.money");
+		costCraftNewBottleChangeLore = plugin.getConfig().getBoolean("costs.craft new bottle.change lore");
 	}
 
 	public static Material getBottleRecipeIngredient(int pos) {

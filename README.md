@@ -18,7 +18,7 @@ An easy-to-use Minecraft Bukkit plugin for storing player experience in glass bo
 2. Start the server.
 3. TA-DA!
 ## Configuration
-You can find the default configuration [here](https://github.com/Vontus/MagicBottle/blob/master/config.yml).
+You can find the default configuration [here](https://github.com/Vontus/MagicBottle/blob/master/src/main/resources/config.yml).
 Everything you need to know is documented in it.
 ## Permissions
 - **magicbottle.action.craft**

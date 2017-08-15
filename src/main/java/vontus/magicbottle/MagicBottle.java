@@ -19,7 +19,7 @@ import vontus.magicbottle.util.Utils;
 
 public class MagicBottle {
 	public static Material materialFilled = Material.DRAGONS_BREATH;
-	public static Material materialEmtpy = Material.GLASS_BOTTLE;
+	public static Material materialEmpty = Material.GLASS_BOTTLE;
 	private ItemStack item;
 	private Integer exp;
 
@@ -38,7 +38,7 @@ public class MagicBottle {
 		if (exp > 0) {
 			mat = materialFilled;
 		} else {
-			mat = materialEmtpy;
+			mat = materialEmpty;
 		}
 		
 		if (item == null) {
@@ -170,10 +170,15 @@ public class MagicBottle {
 	private String replaceVariables(String line) {
 		String level = Utils.roundInt((int)getLevel());
 		String points = Utils.roundDouble(getExp());
+		line = replaceStaticVariables(line);
 		
 		return line.replace(Messages.levelReplacer, level)
 				.replace(Messages.xpPointsReplacer, points)
 				.replace(Messages.xpBarReplacer, getXpBar());
+	}
+	
+	private static String replaceStaticVariables(String line) {
+		return line.replace(Messages.moneyReplacer, Double.toString(Config.costMoneyCraftNewBottle));
 	}
 	
 	public Integer getMaxFillablePoints(Player p, int points) {
@@ -220,5 +225,27 @@ public class MagicBottle {
 			}
 		}
 		return null;
+	}
+	
+	public static ItemStack getPreMagicBottle() {
+		ItemStack is;
+		if (Config.costCraftNewBottleChangeLore) {
+			is = new ItemStack(materialEmpty);
+			ItemMeta meta = is.getItemMeta();
+			meta.setDisplayName(replaceStaticVariables(Messages.newBottleName));
+			ArrayList<String> lore = new ArrayList<>();
+
+			for (String line : Messages.newBottleLore) {
+				line = replaceStaticVariables(line);
+				lore.add(line);
+			}
+			meta.setLore(lore);
+			meta.addEnchant(EnchantGlow.getGlow(), 1, true);
+			is.setItemMeta(meta);
+		} else {
+			is = new MagicBottle(0).getItem();
+		}
+		
+		return is;
 	}
 }

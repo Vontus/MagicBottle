@@ -9,10 +9,10 @@ public class Messages {
 	static PluginFile lang;
 	static FileConfiguration file;
 
-	public static final String moneyReplacer = "[money]";
 	public static final String levelReplacer = "[level]";
 	public static final String xpPointsReplacer = "[points]";
 	public static final String xpBarReplacer = "[xpbar]";
+	public static final String moneyReplacer = "[money]";
 
 	public static String msgMaxLevelReached;
 	public static String msgOnlyPlayersCommand;

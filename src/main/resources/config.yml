@@ -12,9 +12,9 @@ effect:
   sound: true
   particles: true
 
-# Enable or disable the ability to fill or pour the bottle by using it in a crafting grid.
-# You must restart your server after changing any of the recipes configurations.
 recipe:
+  # Enable or disable the ability to fill or pour the bottle by using it in a crafting grid.
+  # You must restart your server after changing any of the recipes configurations.
   deposit: true
   withdraw: true
   # Enable the ability to craft new MagicBottles.
@@ -67,3 +67,7 @@ costs:
   craft new bottle:
     # Money needed to create a new bottle. Vault is required for this to take effect.
     money: 0
+    # Whether to change the bottle lore when it is about to be crafted to tell the player how much it will cost.
+    # Enable this if you set a cost. The custom lore is messages.yml
+    # Restart the server after changing this
+    change lore: false

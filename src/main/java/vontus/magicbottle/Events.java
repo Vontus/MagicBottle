@@ -66,7 +66,7 @@ public class Events implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.HIGH)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPrepareCraft(PrepareItemCraftEvent event) {
 		if (event.getRecipe() != null) {
 			ItemStack r = event.getRecipe().getResult();
@@ -103,12 +103,15 @@ public class Events implements Listener {
 						Player player = (Player) e.getView().getPlayer();
 						if (player.hasPermission(Config.authorizationCraft)) {
 							if (chargeNewBottleMoney(player)) {
+								e.getInventory().setResult(new MagicBottle(0).getItem());
 								SoundEffect.newBottle(player);
 							} else {
 								SoundEffect.forbidden(player);
+								player.sendMessage(Messages.msgNotEnoughMoney.replace(Messages.moneyReplacer, Double.toString(Config.costMoneyCraftNewBottle)));
 								e.setCancelled(true);
 							}
 						} else {
+							player.sendMessage(Messages.msgUnauthorizedToCraft);
 							e.setCancelled(true);
 						}
 					}
@@ -147,7 +150,7 @@ public class Events implements Listener {
 
     private void onInteractDeposit(MagicBottle bottle, Player p) {
 		if (Exp.getPoints(p) > 0) {
-			if (p.hasPermission(Config.authorizationFill)) {
+			if (p.hasPermission(Config.authorizationDeposit)) {
 				int round = p.isSneaking() ? 1 : 0;
 				int targetPlayerLevel = Exp.floorLevel(p, round);
 				int expToDeposit = Exp.getExpToLevel(p, targetPlayerLevel) * -1;
@@ -160,7 +163,7 @@ public class Events implements Listener {
 
 	private void onInteractWithdraw(MagicBottle bottle, Player p) {
 		if (bottle.getExp() > 0) {
-			if (p.hasPermission(Config.authorizationPour)) {
+			if (p.hasPermission(Config.authorizationWithdraw)) {
 				int round = p.isSneaking() ? 1 : 0;
 				int targetPlayerLevel = Exp.ceilingLevel(p, round);
 				int expToWithdraw = Exp.getExpToLevel(p, targetPlayerLevel);
@@ -174,14 +177,14 @@ public class Events implements Listener {
 
 	private void onPrepareRecipeWithdraw(PrepareItemCraftEvent e) {
 		Player player = (Player) e.getView().getPlayer();
-		if (!Config.recipePour || !player.hasPermission(Config.authorizationPour)) {
+		if (!Config.recipePour || !player.hasPermission(Config.authorizationWithdraw)) {
 			e.getInventory().setResult(null);
 		}
 	}
 
 	private void onPrepareRecipeDeposit(PrepareItemCraftEvent e) {
 		Player player = (Player) e.getView().getPlayer();
-		if (Config.recipeFill && player.hasPermission(Config.authorizationFill) && Exp.getPoints(player) > 0) {
+		if (Config.recipeFill && player.hasPermission(Config.authorizationDeposit) && Exp.getPoints(player) > 0) {
 			MagicBottle bottle = new MagicBottle(0);
 			bottle.setExp(bottle.getMaxFillablePoints(player, Exp.getPoints(player)));
 			e.getInventory().setResult(bottle.getItem());
@@ -193,7 +196,7 @@ public class Events implements Listener {
 	private void onRecipeDeposit(CraftItemEvent e) {
 		Player player = (Player) e.getView().getPlayer();
 		ItemStack i = getFirstIngredient(e.getInventory());
-		if (i.getAmount() == 1 && Config.recipePour && player.hasPermission(Config.authorizationPour)) {
+		if (i.getAmount() == 1 && Config.recipePour && player.hasPermission(Config.authorizationWithdraw)) {
 			MagicBottle bottle = new MagicBottle(i);
 			bottle.withdraw(player, bottle.getExp());
 			e.getInventory().setResult(new MagicBottle(0).getItem());
@@ -205,7 +208,7 @@ public class Events implements Listener {
 	private void onRecipeFill(CraftItemEvent e) {
 		Player player = (Player) e.getView().getPlayer();
 		ItemStack ingredient = getFirstIngredient(e.getInventory());
-		if (ingredient.getAmount() == 1 && Exp.getPoints(player) > 0 && player.hasPermission(Config.authorizationFill) && Config.recipeFill) {
+		if (ingredient.getAmount() == 1 && Exp.getPoints(player) > 0 && player.hasPermission(Config.authorizationDeposit) && Config.recipeFill) {
 			MagicBottle bottle = new MagicBottle(0);
 			bottle.deposit(player, player.getTotalExperience());
 			e.getInventory().setResult(bottle.getItem());

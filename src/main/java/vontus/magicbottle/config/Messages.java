@@ -84,7 +84,7 @@ public class Messages {
         repairMbNotInHand = prepMsg("messages.repair.mb not in hand");
         
 		msgNotEnoughMoney = prepMsg("messages.costs.not enough money");
-		msgChargeXpPercentage = prepMsg("messages.costs.charge xp percentage");
+		//msgChargeXpPercentage = prepMsg("messages.costs.charge xp percentage");
 	}
 
 	private static String prepMsg(String config) {

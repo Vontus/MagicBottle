@@ -1,4 +1,4 @@
-package vontus.magicbottle;
+package vontus.magicbottle.effects;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

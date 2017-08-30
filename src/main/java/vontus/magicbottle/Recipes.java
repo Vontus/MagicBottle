@@ -17,7 +17,7 @@ public class Recipes {
 
 		if (Config.recipeFill) {
 			ShapelessRecipe recipeFill = getShapelessRecipe(1, "fill");
-			recipeFill.addIngredient(1, MagicBottle.materialEmtpy);
+			recipeFill.addIngredient(1, MagicBottle.materialEmpty);
 			plugin.getServer().addRecipe(recipeFill);
 		}
 
@@ -28,7 +28,7 @@ public class Recipes {
 		}
 
 		if (Config.recipeNewBottleEnabled) {
-			ShapedRecipe craftBottle = getShapedRecipe(0, "bottle");
+			ShapedRecipe craftBottle = getNewBottleRecipe(0, "bottle");
 			craftBottle.shape("123", "456", "789");
 			for (int i = 1; i < 10; i++) {
 				craftBottle.setIngredient((char) (i + 48), Config.getBottleRecipeIngredient(i));
@@ -49,8 +49,8 @@ public class Recipes {
 	}
 
 	@SuppressWarnings("deprecation")
-	public ShapedRecipe getShapedRecipe(int level, String name) {
-		ItemStack item = new MagicBottle(level).getItem();
+	public ShapedRecipe getNewBottleRecipe(int level, String name) {
+		ItemStack item = MagicBottle.getPreMagicBottle();
 		if (Bukkit.getVersion().contains("1.12")) {
 			NamespacedKey key = new NamespacedKey(plugin, name);
 			return new ShapedRecipe(key, item);

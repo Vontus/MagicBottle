@@ -1,4 +1,4 @@
-package vontus.magicbottle;
+package vontus.magicbottle.util;
 
 import org.bukkit.entity.Player;
 
@@ -35,6 +35,29 @@ public class Exp {
 		}
 	}
 
+	// This method is required because the bukkit player.getTotalExperience()
+	// method, shows exp that has been 'spent'.
+	// Without this people would be able to use exp and then still sell it.
+	public static Integer getPoints(final Player player) {
+		int exp = Math.round(getExpAtLevel(player) * player.getExp());
+		int currentLevel = player.getLevel();
+
+		exp += getExpAtLevel(currentLevel);
+
+		if (exp < 0) {
+			exp = Integer.MAX_VALUE;
+		}
+		return exp;
+	}
+	
+	public static void givePoints(final Player player, final int points) {
+		setPoints(player, getPoints(player) + points);
+	}
+	
+	public static void takePoints(final Player player, final int points) {
+		setPoints(player, getPoints(player) - points);
+	}
+
 	private static Integer getExpAtLevel(final Player player) {
 		return getExpToLvlUp(player.getLevel());
 	}
@@ -60,21 +83,6 @@ public class Exp {
 			return quadraticEquationGreatestRoot(2.5, -40.5, 360 - exp);
 		else
 			return quadraticEquationGreatestRoot(4.5, -162.5, 2220 - exp);
-	}
-
-	// This method is required because the bukkit player.getTotalExperience()
-	// method, shows exp that has been 'spent'.
-	// Without this people would be able to use exp and then still sell it.
-	public static Integer getPoints(final Player player) {
-		int exp = Math.round(getExpAtLevel(player) * player.getExp());
-		int currentLevel = player.getLevel();
-
-		exp += getExpAtLevel(currentLevel);
-
-		if (exp < 0) {
-			exp = Integer.MAX_VALUE;
-		}
-		return exp;
 	}
 
 	public static Integer getExpAtLevel(int level) {

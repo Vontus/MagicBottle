@@ -1,4 +1,4 @@
-package vontus.magicbottle;
+package vontus.magicbottle.util;
 
 import java.text.NumberFormat;
 import java.util.Locale;

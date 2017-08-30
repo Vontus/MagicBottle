@@ -1,4 +1,4 @@
-package vontus.magicbottle;
+package vontus.magicbottle.effects;
 
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 
 import vontus.magicbottle.config.Config;
 
-public class PlayEffect {
+public class SoundEffect {
 
 	public static void fillBottle(Player player) {
 		if (Config.effectSound)

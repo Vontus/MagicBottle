@@ -1,4 +1,4 @@
-package vontus.magicbottle;
+package vontus.magicbottle.util;
 
 import java.lang.reflect.Field;
 
@@ -72,9 +72,7 @@ public class EnchantGlow extends EnchantmentWrapper
 		glow = new EnchantGlow();
 		try {
 			Enchantment.registerEnchantment(glow);
-		} catch (IllegalArgumentException e) {
-			Plugin.logger.severe("Can't register bottle enchantment. This can be ignored if MagicBottle has been reloaded by an external plugin.");
-		}
+		} catch (IllegalArgumentException e) { }
 		return glow;
 	}
 	

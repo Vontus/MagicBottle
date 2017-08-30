@@ -12,9 +12,9 @@ effect:
   sound: true
   particles: true
 
-# Enable or disable the ability to fill or pour the bottle by using it in a crafting grid.
-# You must restart your server after changing any of the recipes configurations.
 recipe:
+  # Enable or disable the ability to fill or pour the bottle by using it in a crafting grid.
+  # You must restart your server after changing any of the recipes configurations.
   deposit: true
   withdraw: true
   # Enable the ability to craft new MagicBottles.
@@ -45,14 +45,31 @@ max level:
   permissions:
     # Allow players to have bottles with more levels than the default option.
     # To remove the limit entirely, give people 'magicbottle.maxlevel.unlimited'; still, the maximum level a bottle can hold is 20,000.
-    # You need to grant people the permission 'magicbottle.maxlevel.<name>', being <name> from the list shown below.
+    # You need to grant people the permission 'magicbottle.maxlevel.<name>', being <name> in the list shown below.
     # If a player has two or more of these permissions, the maximum value will be applied, including 'magicbottle.maxlevel.unlimited'.
-    #   For example, a Veteran user can have the permissions 'user' and 'veteran', and only 'veteran' will be applied.
+    #   For example, a Veteran user can have the permissions 'user' and 'veteran', but only 'veteran' will be applied.
     # You can modify, add or remove any of the following limits at will.
     user: 300
     veteran: 350
     vip: 400
 
 repair:
+  # Enable or disable the '/mb repair' command
   enabled: true
+  # Enable or disable the '/mb repair auto' command
   auto: true
+
+# Here you can configure what percentage of experience will be charged when transferring experience.
+costs:
+  deposit:
+    # Integer from 0 to 100.
+    # Values from 50 to 100 might take experience without saving any in the bottle.
+    # I'd recommend using a value from 0 to 49.
+    exp-percentage: 0
+  craft new bottle:
+    # Money needed to create a new bottle. Vault is required for this to take effect.
+    money: 0
+    # Whether to change the bottle lore when it is about to be crafted to tell the player how much it will cost.
+    # Enable this if you set a cost. The custom lore is in messages.yml
+    # Restart the server after changing this.
+    change lore: false

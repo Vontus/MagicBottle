@@ -74,7 +74,7 @@ public class Commands implements CommandExecutor {
 
 	private void commandAutoRepair(Player p, String[] args) {
 		if (Config.repairAutoEnabled) {
-			if (p.hasPermission(Config.authorizationRepairAuto)) {
+			if (p.hasPermission(Config.permRepairAuto)) {
 				if (plugin.autoEnabled.add(p)) {
 					p.sendMessage(Messages.repairAutoEnabled);
 				} else {
@@ -91,7 +91,7 @@ public class Commands implements CommandExecutor {
 
 	private void commandRepairInventory(Player p) {
 		if (Config.repairEnabled) {
-			if (p.hasPermission(Config.authorizationRepair)) {
+			if (p.hasPermission(Config.permRepair)) {
 				ItemStack inHand = p.getInventory().getItemInMainHand();
 
 				if (MagicBottle.isUsableMagicBottle(inHand)) {
@@ -116,7 +116,7 @@ public class Commands implements CommandExecutor {
 	}
 
 	private void reload(CommandSender sender) {
-		if (sender.hasPermission(Config.authorizationReload)) {
+		if (sender.hasPermission(Config.permReload)) {
 			plugin.loadConfig();
 			sender.sendMessage(Messages.cmdMsgReloadCompleted);
 		} else {
@@ -125,7 +125,7 @@ public class Commands implements CommandExecutor {
 	}
 	
 	private void give(CommandSender sender, String[] args) {
-		if (sender.hasPermission(Config.authorizationGive)) {
+		if (sender.hasPermission(Config.permGive)) {
 			Player player = null;
 			Integer level = 0;
 			Integer amount = 1;
@@ -177,13 +177,13 @@ public class Commands implements CommandExecutor {
 	private void sendMenu(CommandSender sender) {
 		sender.sendMessage(ChatColor.GOLD + "- MagicBottle Commands -");
 		sender.sendMessage(ChatColor.YELLOW + " " + USAGE_ABOUT);
-		if (sender.hasPermission(Config.authorizationGive)) {
+		if (sender.hasPermission(Config.permGive)) {
 			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_GIVE);
 		}
-		if (sender.hasPermission(Config.authorizationReload)) {
+		if (sender.hasPermission(Config.permReload)) {
 			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_RELOAD);
 		}
-		if (sender.hasPermission(Config.authorizationRepair)) {
+		if (sender.hasPermission(Config.permRepair)) {
 			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_REPAIR);
 		}
 	}

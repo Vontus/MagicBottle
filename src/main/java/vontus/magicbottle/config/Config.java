@@ -14,13 +14,13 @@ public class Config {
 
 	private static Plugin plugin;
 
-	public static final String authorizationDeposit = "magicbottle.action.deposit";
-	public static final String authorizationWithdraw = "magicbottle.action.withdraw";
-	public static final String authorizationCraft = "magicbottle.action.craft";
-	public static final String authorizationGive = "magicbottle.command.give";
-	public static final String authorizationReload = "magicbottle.command.reload";
-	public static final String authorizationRepair = "magicbottle.command.repair";
-	public static final String authorizationRepairAuto = "magicbottle.command.repair.auto";
+	public static final String permDeposit = "magicbottle.action.deposit";
+	public static final String permWithdraw = "magicbottle.action.withdraw";
+	public static final String permCraft = "magicbottle.action.craft";
+	public static final String permGive = "magicbottle.command.give";
+	public static final String permReload = "magicbottle.command.reload";
+	public static final String permRepair = "magicbottle.command.repair";
+	public static final String permRepairAuto = "magicbottle.command.repair.auto";
 
 	public static final String maxLevelsBasePermission = "magicbottle.maxlevel.";
 	public static final String maxLevelsUnlimitedPermission = "magicbottle.maxlevel.unlimited";

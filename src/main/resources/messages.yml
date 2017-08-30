@@ -16,16 +16,16 @@ bottle text:
   empty bar color: '&e'
   lore:
     - '&5Instructions:'
-    - ' &eDeposit: &7(Shift +) Left Click.'
-    - ' &eWithdraw: &7(Shift +) Right Click.'
+    - ' &eSave XP: &7(Shift +) Left Click.'
+    - ' &eTake XP: &7(Shift +) Right Click.'
     - ' &eYou can also put the bottle in a crafting grid'
-    - ' &eto deposit or withdraw all the experience.'
+    - ' &eto save or take all the experience.'
 
 # This text will be displayed in a crafting table when the player is about to craft a new bottle.
 new bottle text:
   name: '&5&lMagicBottle'
   lore:
-    - '&eClick to create a new &5MagicBottle&e.'
+    - '&eClick to craft a new &5MagicBottle&e.'
     # You can delete this line if you didn't set a cost for new bottles.
     - '&5[money]$ &ewill be charged when creating it.'
 
@@ -34,8 +34,8 @@ messages:
   only players command: '&cOnly players can use this command.'
 
   unauthorized:
-    deposit: '&cYou do not have permission to deposit experience.'
-    withdraw: '&cYou do not have permission to withdraw experience.'
+    deposit: '&cYou do not have permission to save experience.'
+    withdraw: '&cYou do not have permission to take experience.'
     command: '&cYou do not have permission to use that command.'
     craft: '&cYou do not have permission to craft that.'
     
@@ -44,11 +44,6 @@ messages:
     reload completed: '&eConfiguration reloaded.'
     level not valid: '&cLevel must be a number between 0 and 20,000.'
     given bottle: '&eGiven [amount] MagicBottle(s) to [player] with [level] levels.'
-    experience explanation:
-      - '&6--- &7How XP Works &6---'
-      - '&eJust like in any RPG game, levelling is progressively harder. '
-      - ''
-      - ''
     
   repair:
     inventory repaired: '&eSpent &5[xp] &eXP in repairing your tools.'
@@ -60,4 +55,3 @@ messages:
 
   costs:
     not enough money: '&cYou need [money]$ to create a new MagicBottle.'
-    charge xp percentage: '&eYou have been charged &5[xp] &epoints for depositing xp (&5[percentage]%&e).'

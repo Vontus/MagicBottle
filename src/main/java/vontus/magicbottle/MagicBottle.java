@@ -76,7 +76,7 @@ public class MagicBottle {
 		points = getMaxFillablePoints(player, points);
 		
 		if (points > 0) {
-			int expCost = (int) Math.round(points * Config.costPercentageDeposit);
+			int expCost = getCost(player, points);
 			exp += points - expCost;
 			Exp.setPoints(player, Exp.getPoints(player) - points);
 			recreate();
@@ -85,6 +85,14 @@ public class MagicBottle {
 			int maxLevels = Config.getMaxLevelsFor(player);
 			player.sendMessage(Messages.msgMaxLevelReached.replace("[level]", Integer.toString(maxLevels)));
 			SoundEffect.forbidden(player);
+		}
+	}
+	
+	private int getCost(Player player, int points) {
+		if (player.hasPermission(Config.permDepositCostExempt)) {
+			return 0;
+		} else {
+			return (int) Math.round(points * Config.costPercentageDeposit);
 		}
 	}
 	

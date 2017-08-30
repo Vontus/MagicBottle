@@ -62,12 +62,14 @@ repair:
 # Here you can configure what percentage of experience will be charged when transferring experience.
 costs:
   deposit:
-    # Integer value from 0 to 100
+    # Integer from 0 to 100.
+    # Values from 50 to 100 might take experience without saving any in the bottle.
+    # I'd recommend using a value from 0 to 49.
     exp-percentage: 0
   craft new bottle:
     # Money needed to create a new bottle. Vault is required for this to take effect.
     money: 0
     # Whether to change the bottle lore when it is about to be crafted to tell the player how much it will cost.
-    # Enable this if you set a cost. The custom lore is messages.yml
-    # Restart the server after changing this
+    # Enable this if you set a cost. The custom lore is in messages.yml
+    # Restart the server after changing this.
     change lore: false

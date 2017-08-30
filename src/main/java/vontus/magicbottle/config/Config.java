@@ -21,6 +21,8 @@ public class Config {
 	public static final String permReload = "magicbottle.command.reload";
 	public static final String permRepair = "magicbottle.command.repair";
 	public static final String permRepairAuto = "magicbottle.command.repair.auto";
+	public static final String permCraftCostExempt = "magicbottle.action.craft.cost.exempt";
+	public static final String permDepositCostExempt = "magicbottle.action.deposit.cost.exempt";
 
 	public static final String maxLevelsBasePermission = "magicbottle.maxlevel.";
 	public static final String maxLevelsUnlimitedPermission = "magicbottle.maxlevel.unlimited";

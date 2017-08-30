@@ -33,3 +33,9 @@ permissions:
   magicbottle.maxlevel.unlimited:
     description: 'Allows you to save up to 20,000 levels in a single MagicBottle'
     default: false
+  magicbottle.action.craft.cost.exempt:
+    description: 'Exempts the player from paying the cost of crafting a new bottle'
+    default: false
+  magicbottle.action.deposit.cost.exempt:
+    description: 'Exempts the player from paying the cost of depositing experience into a bottle'
+    default: false

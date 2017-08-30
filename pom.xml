@@ -7,7 +7,7 @@
 	<build>
 		<resources>
 			<resource>
-				<directory>src/</directory>
+				<directory>src/main/resources</directory>
 				<includes>
 					<include>*.yml</include>
 				</includes>

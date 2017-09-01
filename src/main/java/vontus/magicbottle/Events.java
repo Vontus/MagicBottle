@@ -215,7 +215,7 @@ public class Events implements Listener {
 		if (ingr.getAmount() == 1 && Exp.getPoints(player) > 0 && player.hasPermission(Config.permDeposit)
 				&& Config.recipeFill) {
 			MagicBottle bottle = new MagicBottle(0);
-			bottle.deposit(player, player.getTotalExperience());
+			bottle.deposit(player, Exp.getPoints(player));
 			e.getInventory().setResult(bottle.getItem());
 		} else {
 			e.setCancelled(true);

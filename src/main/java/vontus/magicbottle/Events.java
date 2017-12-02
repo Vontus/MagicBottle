@@ -1,6 +1,7 @@
 package vontus.magicbottle;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.bukkit.Material;
@@ -126,14 +127,16 @@ public class Events implements Listener {
 		Player p = e.getPlayer();
 		if (Config.repairAutoEnabled && timeOut(p)) {
 			ItemStack i = e.getItem();
-			if (plugin.autoEnabled.contains(p) && i.containsEnchantment(Enchantment.MENDING)
-					&& i.getDurability() % 2 != 0) {
-				MagicBottle mb = MagicBottle.getUsableMBInToolsbar(p);
-				if (mb != null && !e.isCancelled()) {
-					i.setDurability((short) (i.getDurability() + e.getDamage()));
-					mb.repair(i);
-					e.setCancelled(true);
-					p.updateInventory();
+			if (plugin.autoEnabled.contains(p) && i.getDurability() % 2 != 0) {
+				Optional<Enchantment> ench = MagicBottle.repairEnchantment;
+				if (!ench.isPresent() || i.containsEnchantment(ench.get())) {
+					MagicBottle mb = MagicBottle.getUsableMBInToolsbar(p);
+					if (mb != null && !e.isCancelled()) {
+						i.setDurability((short) (i.getDurability() + e.getDamage()));
+						mb.repair(i);
+						e.setCancelled(true);
+						p.updateInventory();
+					}
 				}
 			}
 		}

@@ -1,6 +1,7 @@
 package vontus.magicbottle;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -20,6 +21,7 @@ import vontus.magicbottle.util.Utils;
 public class MagicBottle {
 	public static Material materialFilled = Material.DRAGONS_BREATH;
 	public static Material materialEmpty = Material.GLASS_BOTTLE;
+	public static Enchantment repairEnchantment = Enchantment.MENDING;
 	private ItemStack item;
 	private Integer exp;
 
@@ -125,14 +127,16 @@ public class MagicBottle {
 	}
 	
 	private int repairNoRecreate(ItemStack i) {
-		if (i != null && i.getType() != Material.AIR && i.getAmount() == 1 && i.containsEnchantment(Enchantment.MENDING)) {
-			short usedDurability = i.getDurability();
-			if (usedDurability >= 2) {
-				int repairable = Math.min(exp, usedDurability / 2) * 2;
-				exp -= repairable / 2;
-				i.setDurability((short) (i.getDurability() - repairable));
-				recreate();
-				return repairable / 2;
+		if (Utils.getMaterial(i) != Material.AIR) {
+			if (repairEnchantment == null || i.containsEnchantment(repairEnchantment)) {
+				short usedDurability = i.getDurability();
+				if (usedDurability >= 2) {
+					int repairable = Math.min(exp, usedDurability / 2) * 2;
+					exp -= repairable / 2;
+					i.setDurability((short) (i.getDurability() - repairable));
+					recreate();
+					return repairable / 2;
+				}
 			}
 		}
 		return 0;

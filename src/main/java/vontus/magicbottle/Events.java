@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -11,21 +12,22 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemDamageEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import vontus.magicbottle.cauldron.CheckItemTask;
+import vontus.magicbottle.cauldron.MagicCauldron;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
-import vontus.magicbottle.effects.SoundEffect;
+import vontus.magicbottle.effects.Effects;
 import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
 
@@ -36,6 +38,30 @@ public class Events implements Listener {
 	public Events(Plugin plugin) {
 		this.plugin = plugin;
 		this.wait = new HashSet<>();
+	}
+
+	@EventHandler
+	public void onPlayerSneak(PlayerToggleSneakEvent e) {
+		// Easter egg :)
+		if (!e.getPlayer().isSneaking()) {
+			MagicCauldron mc = MagicCauldron.getCauldronAt(e.getPlayer().getLocation());
+			if (mc != null && !mc.isEmpty()) {
+				Effects.witchLaugh(e.getPlayer());
+			}
+		}
+	}
+
+	@EventHandler
+	public void onBlockBreak(BlockBreakEvent e) {
+		MagicCauldron mc = MagicCauldron.getCauldronAt(e.getBlock().getLocation());
+		if (mc != null) {
+			mc.remove();
+		}
+	}
+
+	@EventHandler
+	public void onItemDrop(PlayerDropItemEvent e) {
+		new CheckItemTask(e.getItemDrop()).runTaskTimer(plugin, 5, 5);
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -105,9 +131,9 @@ public class Events implements Listener {
 						if (player.hasPermission(Config.permCraft)) {
 							if (chargeNewBottleMoney(player)) {
 								e.getInventory().setResult(new MagicBottle(0).getItem());
-								SoundEffect.newBottle(player);
+								Effects.newBottle(player);
 							} else {
-								SoundEffect.forbidden(player);
+								Effects.forbidden(player);
 								player.sendMessage(Messages.msgNotEnoughMoney.replace(Messages.moneyReplacer,
 										Double.toString(Config.costMoneyCraftNewBottle)));
 								e.setCancelled(true);

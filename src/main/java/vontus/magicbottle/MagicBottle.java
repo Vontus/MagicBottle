@@ -13,7 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
-import vontus.magicbottle.effects.SoundEffect;
+import vontus.magicbottle.effects.Effects;
 import vontus.magicbottle.util.EnchantGlow;
 import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
@@ -82,11 +82,11 @@ public class MagicBottle {
 			exp += points - expCost;
 			Exp.setPoints(player, Exp.getPoints(player) - points);
 			recreate();
-			SoundEffect.fillBottle(player);
+			Effects.fillBottle(player);
 		} else {
 			int maxLevels = Config.getMaxLevelsFor(player);
 			player.sendMessage(Messages.msgMaxLevelReached.replace("[level]", Integer.toString(maxLevels)));
-			SoundEffect.forbidden(player);
+			Effects.forbidden(player);
 		}
 	}
 	
@@ -103,7 +103,7 @@ public class MagicBottle {
 		exp -= points;
 		Exp.givePoints(player, points);
 		recreate();
-		SoundEffect.pourBottle(player);
+		Effects.pourBottle(player);
 		return points;
 	}
 	

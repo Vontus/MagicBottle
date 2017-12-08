@@ -11,10 +11,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import net.milkbowl.vault.economy.Economy;
 import vontus.magicbottle.Commands;
 import vontus.magicbottle.Events;
+import vontus.magicbottle.cauldron.MagicCauldron;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 
 public class Plugin extends JavaPlugin {
+	public static Plugin plugin;
 	public static Logger logger;
 	public HashSet<Player> autoEnabled = new HashSet<>();
 	public Metrics metrics;
@@ -22,6 +24,8 @@ public class Plugin extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		super.onDisable();
+		Plugin.plugin = this;
 		logger = getLogger();
 		setupEconomy();
 		loadConfig();
@@ -29,6 +33,12 @@ public class Plugin extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new Events(this), this);
 		this.getCommand("magicbottle").setExecutor(new Commands(this));
 		metrics = new Metrics(this);
+	}
+
+	@Override
+	public void onDisable() {
+		super.onDisable();
+		MagicCauldron.removeAll();
 	}
 
 	public void loadConfig() {

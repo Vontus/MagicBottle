@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 
 import vontus.magicbottle.config.Config;
 
-public class SoundEffect {
+public class Effects {
 
 	public static void fillBottle(Player player) {
 		if (Config.effectSound)
@@ -34,5 +34,28 @@ public class SoundEffect {
 	public static void newBottle(Player player) {
 		if (Config.effectSound)
 			player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 0.1f);
+	}
+
+	public static void newBottle(Location location) {
+		if (Config.effectSound)
+			location.getWorld().playSound(location, Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 0.1f);
+	}
+
+	public static void addIngredientToCauldron(Location location) {
+		if (Config.effectSound)
+			location.getWorld().playSound(location, Sound.ENTITY_WITCH_DRINK, 10, 0.5f);
+	}
+
+	public static void activeCauldron(Location location) {
+		if (Config.effectParticles) {
+			Location loc = location.add(0.5, 0.5, 0.5);
+			ParticleEffect.SPELL_MOB.display(0, 0, 0, 1, 1, loc, 50);
+		}
+	}
+
+	public static void witchLaugh(Player p) {
+		if (Config.effectSound) {
+			p.playSound(p.getLocation(), Sound.ENTITY_WITCH_AMBIENT, 0.5f, 1);
+		}
 	}
 }

@@ -53,6 +53,13 @@ public class Effects {
 		}
 	}
 
+	public static void cauldronComplete(Location location) {
+		if (Config.effectParticles) {
+			Location loc = location.add(0.5, 0.5, 0.5);
+			ParticleEffect.SPELL_WITCH.display(0.2f, 0.1f, 0.2f, 0, 1, loc, 50);
+		}
+	}
+
 	public static void witchLaugh(Player p) {
 		if (Config.effectSound) {
 			p.playSound(p.getLocation(), Sound.ENTITY_WITCH_AMBIENT, 0.5f, 1);

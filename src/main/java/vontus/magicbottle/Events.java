@@ -27,6 +27,7 @@ import vontus.magicbottle.cauldron.CheckItemTask;
 import vontus.magicbottle.cauldron.MagicCauldron;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
+import vontus.magicbottle.config.RecipeIngredient;
 import vontus.magicbottle.effects.Effects;
 import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
@@ -51,7 +52,7 @@ public class Events implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent e) {
 		MagicCauldron mc = MagicCauldron.getCauldronAt(e.getBlock().getLocation());
 		if (mc != null) {
@@ -61,7 +62,12 @@ public class Events implements Listener {
 
 	@EventHandler
 	public void onItemDrop(PlayerDropItemEvent e) {
-		new CheckItemTask(e.getItemDrop()).runTaskTimer(plugin, 5, 5);
+		for (RecipeIngredient ing : Config.recipeIngredients) {
+			if (ing.getMaterial() == e.getItemDrop().getItemStack().getType()) {
+				new CheckItemTask(e.getItemDrop()).runTaskTimer(plugin, 5, 5);
+				return;
+			}
+		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)

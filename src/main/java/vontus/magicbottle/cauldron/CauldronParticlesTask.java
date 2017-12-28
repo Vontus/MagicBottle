@@ -21,7 +21,11 @@ public class CauldronParticlesTask extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		Effects.activeCauldron(magicCauldron.getLocation());
+		if (magicCauldron.isComplete()) {
+			Effects.cauldronComplete(magicCauldron.getLocation());
+		} else {
+			Effects.activeCauldron(magicCauldron.getLocation());
+		}
 	}
 
 	@Override

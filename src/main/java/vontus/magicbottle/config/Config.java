@@ -1,11 +1,15 @@
 package vontus.magicbottle.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import org.bukkit.inventory.Recipe;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.util.Exp;
 
@@ -13,6 +17,8 @@ public class Config {
 	private static HashMap<String, Integer> maxLevelsPermission;
 
 	private static Plugin plugin;
+
+	public static List<RecipeIngredient> recipeIngredients;
 
 	public static final String permDeposit = "magicbottle.action.deposit";
 	public static final String permWithdraw = "magicbottle.action.withdraw";
@@ -64,10 +70,20 @@ public class Config {
 		costPercentageDeposit = plugin.getConfig().getDouble("costs.deposit.exp-percentage") / 100;
 		costMoneyCraftNewBottle = plugin.getConfig().getDouble("costs.craft new bottle.money");
 		costCraftNewBottleChangeLore = plugin.getConfig().getBoolean("costs.craft new bottle.change lore");
+
+		recipeIngredients = getBottleRecipeIngredients();
 	}
 
-	public static Material getBottleRecipeIngredient(int pos) {
-		return Material.getMaterial(plugin.getConfig().getString("recipe.bottle.recipe." + pos));
+	private static List<RecipeIngredient> getBottleRecipeIngredients() {
+		ArrayList<RecipeIngredient> ingredients = new ArrayList<>();
+		List<?> configIngredients = plugin.getConfig().getList("recipe.bottle.ingredients");
+		for (Object o : configIngredients) {
+			LinkedHashMap hm = (LinkedHashMap) o;
+			RecipeIngredient ingredient = new RecipeIngredient();
+			ingredient.setAmount((int) hm.get("amount"));
+			ingredient.setMaterial(Material.getMaterial((String) hm.get("material")));
+		}
+		return ingredients;
 	}
 
 	public static int getMaxFillPointsFor(final Player p) {

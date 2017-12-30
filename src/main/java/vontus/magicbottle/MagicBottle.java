@@ -1,8 +1,5 @@
 package vontus.magicbottle;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -10,13 +7,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.effects.Effects;
 import vontus.magicbottle.util.EnchantGlow;
 import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
+
+import java.util.ArrayList;
 
 public class MagicBottle {
 	public static Material materialFilled = Material.DRAGONS_BREATH;
@@ -35,7 +33,7 @@ public class MagicBottle {
 		exp = calculateExp(expContainer);
 	}
 	
-	private void recreate() {
+	public void recreate() {
 		Material mat;
 		if (exp > 0) {
 			mat = materialFilled;

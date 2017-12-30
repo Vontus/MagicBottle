@@ -1,16 +1,15 @@
 package vontus.magicbottle.cauldron;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
 import org.bukkit.material.Cauldron;
+import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.RecipeIngredient;
-import vontus.magicbottle.effects.Effects;
 import vontus.magicbottle.util.TaskStatus;
 
 import java.util.ArrayList;
@@ -19,10 +18,10 @@ import java.util.List;
 
 
 public class MagicCauldron {
+	public static final Material CAULDRON_MATERIAL = Material.CAULDRON;
 	private Block block;
 	private ArrayList<ItemStack> items;
 	private CauldronParticlesTask particlesTask;
-	private boolean complete = false;
 
 	private static ArrayList<MagicCauldron> cauldronList = new ArrayList<>();
 
@@ -33,70 +32,59 @@ public class MagicCauldron {
 		this.items = new ArrayList<>();
 	}
 
-	public ItemStack addItem(ItemStack is) {
+	public boolean addItem(ItemStack itemToAdd) {
 		if (!isComplete()) {
 			List<RecipeIngredient> leftIngredients = calculateLeftIngredients();
-			for (RecipeIngredient ing : leftIngredients) {
-
+			for (RecipeIngredient leftIngredient : leftIngredients) {
+				if (leftIngredient.getMaterial() == itemToAdd.getType()) {
+					int amountToAdd = Math.min(leftIngredient.getAmount(), itemToAdd.getAmount());
+					for (ItemStack i : items) {
+						if (i.getType() == itemToAdd.getType()) {
+							i.setAmount(i.getAmount() + amountToAdd);
+							itemToAdd.setAmount(itemToAdd.getAmount() - amountToAdd);
+							updateParticles();
+							return true;
+						}
+					}
+					ItemStack copyToAdd = itemToAdd.clone();
+					itemToAdd.setAmount(itemToAdd.getAmount() - amountToAdd);
+					copyToAdd.setAmount(amountToAdd);
+					items.add(copyToAdd);
+					updateParticles();
+					return true;
+				}
 			}
-			ItemStack is2 = is.clone();
-			is.setAmount(is.getAmount() - 1);
-			is2.setAmount(1);
-			items.add(is2);
-			startParticles();
-			if (isComplete()) {
-				Effects.newBottle(block.getLocation());
-			}
-			checkCompleted();
-			return true;
-		}
-		return false;
-	}
-
-	private void checkCompleted() {
-		complete = calculateLeftIngredients().size() == 0;
-	}
-
-	public boolean addItem(ItemStack is) {
-		if (!isComplete()) {
-			ItemStack is2 = is.clone();
-			is.setAmount(is.getAmount() - 1);
-			is2.setAmount(1);
-			items.add(is2);
-			startParticles();
-			if (isComplete()) {
-				Effects.newBottle(block.getLocation());
-			}
-			return true;
 		}
 		return false;
 	}
 
 	private List<RecipeIngredient> calculateLeftIngredients() {
 		ArrayList<RecipeIngredient> leftIngredients = new ArrayList<>();
+		recipeLoop:
 		for (RecipeIngredient ingredient : Config.recipeIngredients) {
 			for (ItemStack is : items) {
 				if (ingredient.getMaterial() == is.getType()) {
 					if (ingredient.getAmount() > is.getAmount()) {
 						leftIngredients.add(new RecipeIngredient(ingredient.getMaterial(), ingredient.getAmount() - is.getAmount()));
 					}
-					break;
+					continue recipeLoop;
 				}
 			}
+			leftIngredients.add(ingredient);
 		}
 		return leftIngredients;
 	}
 
-	private boolean canAddItem(ItemStack is) {
-		for (RecipeIngredient ing : calculateLeftIngredients()) {
-			if (ing.getMaterial() == is.getType()) {
-				return true;
-			}
-		}
-		return false;
-	}
+//	private boolean canAddItem(ItemStack is) {
+//		for (RecipeIngredient ing : calculateLeftIngredients()) {
+//			if (ing.getMaterial() == is.getType()) {
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
 
-	private void startParticles() {
+	private void updateParticles() {
 		if (particlesTask == null) {
 			particlesTask = new CauldronParticlesTask(this);
 		}
@@ -110,7 +98,7 @@ public class MagicCauldron {
 	}
 
 	public boolean isComplete() {
-		return complete;
+		return calculateLeftIngredients().isEmpty();
 	}
 
 	public boolean isEmpty() {
@@ -138,7 +126,6 @@ public class MagicCauldron {
 			block.getWorld().dropItemNaturally(block.getLocation(), is);
 		}
 		items.clear();
-		complete = false;
 	}
 
 	public static void removeAll() {
@@ -149,8 +136,21 @@ public class MagicCauldron {
 		}
 	}
 
+	public boolean tryCreateBottle(Player player, ItemStack itemStack) {
+		if (this.isComplete()) {
+			MagicBottle mb = new MagicBottle(itemStack);
+			mb.recreate();
+			cancelParticles();
+			items.clear();
+			MagicCauldron.cauldronList.remove(this);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	private static boolean isValidMagicCauldron(Block block) {
-		if (block.getType() == Material.CAULDRON) {
+		if (block.getType() == CAULDRON_MATERIAL) {
 			Block lower = block.getWorld().getBlockAt(block.getLocation().add(0, -1, 0));
 			if (lower.getType() == Material.FIRE || lower.getType() == Material.LAVA) {
 				Cauldron c = (Cauldron) block.getState().getData();

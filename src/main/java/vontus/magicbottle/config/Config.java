@@ -1,17 +1,15 @@
 package vontus.magicbottle.config;
 
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import vontus.magicbottle.Plugin;
+import vontus.magicbottle.util.Exp;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
-
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-
-import org.bukkit.inventory.Recipe;
-import vontus.magicbottle.Plugin;
-import vontus.magicbottle.util.Exp;
 
 public class Config {
 	private static HashMap<String, Integer> maxLevelsPermission;
@@ -82,6 +80,7 @@ public class Config {
 			RecipeIngredient ingredient = new RecipeIngredient();
 			ingredient.setAmount((int) hm.get("amount"));
 			ingredient.setMaterial(Material.getMaterial((String) hm.get("material")));
+			ingredients.add(ingredient);
 		}
 		return ingredients;
 	}

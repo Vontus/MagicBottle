@@ -1,14 +1,11 @@
 package vontus.magicbottle;
 
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
-import net.md_5.bungee.api.ChatColor;
-import vontus.magicbottle.MagicBottle;
-import vontus.magicbottle.Plugin;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.util.Exp;

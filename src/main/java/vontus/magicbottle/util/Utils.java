@@ -1,10 +1,10 @@
 package vontus.magicbottle.util;
 
-import java.text.NumberFormat;
-import java.util.Locale;
-
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class Utils {
 

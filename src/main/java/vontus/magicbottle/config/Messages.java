@@ -1,9 +1,10 @@
 package vontus.magicbottle.config;
 
-import java.util.ArrayList;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.ArrayList;
 
 public class Messages {
 	static PluginFile lang;

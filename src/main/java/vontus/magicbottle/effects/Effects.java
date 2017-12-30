@@ -3,7 +3,6 @@ package vontus.magicbottle.effects;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-
 import vontus.magicbottle.config.Config;
 
 public class Effects {

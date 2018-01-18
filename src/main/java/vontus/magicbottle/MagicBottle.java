@@ -22,6 +22,7 @@ public class MagicBottle {
 	public static Material materialFilled = Material.DRAGONS_BREATH;
 	public static Material materialEmpty = Material.GLASS_BOTTLE;
 	public static Enchantment repairEnchantment = Enchantment.MENDING;
+	public static Enchantment bottleEnchantment = EnchantGlow.getGlow();
 	private ItemStack item;
 	private Integer exp;
 
@@ -175,7 +176,7 @@ public class MagicBottle {
 		String name = replaceVariables(Messages.bottleName);
 		meta.setDisplayName(name);
 		meta.setLore(tag);
-		meta.addEnchant(EnchantGlow.getGlow(), 1, true);
+		meta.addEnchant(bottleEnchantment, 1, true);
 		item.setItemMeta(meta);
 	}
 	
@@ -213,8 +214,9 @@ public class MagicBottle {
 	}
 
 	public static boolean isMagicBottle(ItemStack item) {
-		return item != null && item.containsEnchantment(EnchantGlow.getGlow())
-				//&& (item.getType() == materialFilled || item.getType() == materialEmtpy)
+		return  item != null &&
+				item.containsEnchantment(bottleEnchantment) &&
+				(item.getType() == materialFilled || item.getType() == materialEmpty)
 				;
 	}
 	
@@ -252,7 +254,7 @@ public class MagicBottle {
 				lore.add(line);
 			}
 			meta.setLore(lore);
-			meta.addEnchant(EnchantGlow.getGlow(), 1, true);
+			meta.addEnchant(bottleEnchantment, 1, true);
 			is.setItemMeta(meta);
 		} else {
 			is = new MagicBottle(0).getItem();

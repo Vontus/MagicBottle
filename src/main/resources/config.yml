@@ -2,68 +2,58 @@
 
 # Config:
 
-# Enables sound and particle effects in the whole plugin
-effect:
-  sound: true
-  particles: true
+general:
+  # Enables sound and particle effects in the whole plugin
+  effects:
+    sound: true
+    particles: true
 
-recipe:
-  # Enables the ability to fill or pour bottles by putting them in a crafting grid
-  # You must restart your server after changing any of the recipes configurations
-  deposit: true
-  withdraw: true
-  # Enables the ability to craft new MagicBottles
-  # If you disable this, players won't be able to craft new bottles but existing ones will remain usable
-  bottle:
-    enabled: true
-    # Defines the items needed to craft a new empty MagicBottle
-    # These items need to be thrown inside a valid cauldron (filled with water and fire underneath)
-    # Players need to right click with an empty vanilla bottle after throwing all the items
-    # The order is irrelevant
-    # You can see a complete list of possible item materials here: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
-    ingredients:
-      - material: BLAZE_POWDER
-        amount: 2
-      - material: GLOWSTONE_DUST
-        amount: 2
-      - material: ENDER_CHEST
-        amount: 1
-      - material: GOLD_BLOCK
-        amount: 3
+  # Enables the ability to use a crafting grid to save or take all xp from MagicBottles
+  # Disable this if you're having trouble with other crafting plugins
+  crafting grid transfer xp: true
 
-# Set the maximum level a player can save in a single MagicBottle
-# TIP: Set this depending on how difficult you made the recipe
-max level:
-  # This max level will be applied when the player doesn't have any of the following permissions
-  default: 200
-  permissions:
-    # Allow players to have bottles with more levels than the default option
-    # To remove the limit entirely, give people 'magicbottle.maxlevel.unlimited'; still, the maximum level a bottle can hold is 20,000 (that's 1,796,752,220 XP!)
-    # You need to grant people the permission 'magicbottle.maxlevel.<name>', being <name> in the list shown below
-    # If a player has two or more of these permissions, the maximum value will be applied, including 'magicbottle.maxlevel.unlimited'
-    #   For example, a Veteran user can have the permissions 'user' and 'veteran', but only 'veteran' will be applied
-    # You can modify, add or remove any of the following limits at will
-    user: 300
-    veteran: 350
-    vip: 400
+  # Makes the plugin use a custom invisible enchantment to make MagicBottles glow
+  # Disabling this will cause all MagicBottles to have the Infinity enchantment
+  # Disable this if MagicBottles stop working
+  use custom enchantment: true
 
-repair:
-  # Enable or disable the '/mb repair' command
-  enabled: true
-  # Enable or disable the '/mb repair auto' command
-  auto: true
+permission groups:
+  # DON'T DELETE THIS GROUP
+  # The default group will be applied when the user doesn't have any other group permission
+  default:
+    # Max level players in this group can save in a MagicBottle
+    # This can't be more than 20,000 levels (that's 1,796,752,220 XP!)
+    max level: 200
+    repair:
+      # Ability to repair equipment with XP saved in MagicBottles
+      enabled: true
+      # Ability to make MagicBottles repair equipment automatically
+      auto: true
+    costs:
+      # Percentage of XP lost when depositing in a MagicBottle (should be from 0 to 49 max to get the best result)
+      xp-percentage: 0
+      # Money needed to create a new bottle. Vault is required for this to take effect.
+      new bottle money: 0
 
-# Here you can configure what percentage of experience will be charged when transferring experience.
-costs:
-  deposit:
-    # Integer from 0 to 100.
-    # Values from 50 to 100 might take experience without saving any in the bottle.
-    # I'd recommend using a value from 0 to 49.
-    exp-percentage: 0
-  craft new bottle:
-    # Money needed to create a new bottle. Vault is required for this to take effect.
-    money: 0
-    # Whether to change the bottle lore when it is about to be crafted to tell the player how much it will cost.
-    # Enable this if you set a cost. The custom lore is in messages.yml
-    # Restart the server after changing this.
-    change lore: false
+  custom groups:
+    # You need to grant people the permission 'magicbottle.group.<name>', being '<name>' in the list shown below
+    # If a player is assigned two or more of these groups, the one with the greater priority will be applied
+    #   For example, a VIP can have the permissions 'vip' and 'veteran', but only 'vip' will be applied
+    # Make sure two groups don't have the same priority
+    # You can modify, add or remove any of the following groups at will, just be careful with indentation (spaces only)
+    veteran:
+      priority: 1
+      max level: 200
+      repair:
+        enabled: true
+        auto: true
+
+    vip:
+      priority: 2
+      max level: 200
+      repair:
+        enabled: true
+        auto: true
+      costs:
+        xp-percentage: 0
+        new bottle money: 0

@@ -18,6 +18,7 @@ import vontus.magicbottle.cauldron.MagicCauldron;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.config.RecipeIngredient;
+import vontus.magicbottle.config.RecipesConfig;
 import vontus.magicbottle.effects.Effects;
 import vontus.magicbottle.util.Exp;
 
@@ -61,9 +62,9 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onItemDrop(PlayerDropItemEvent e) {
-		for (RecipeIngredient ing : Config.recipeIngredients) {
+		for (RecipeIngredient ing : RecipesConfig.getRecipe(RecipesConfig.BOTTLE)) {
 			if (ing.getMaterial() == e.getItemDrop().getItemStack().getType()) {
-				new CheckItemTask(e.getItemDrop()).runTaskTimer(plugin, 5, 5);
+				new CheckItemTask(e.getItemDrop(), e.getPlayer()).runTaskTimer(plugin, 5, 5);
 				return;
 			}
 		}

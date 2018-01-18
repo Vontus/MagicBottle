@@ -10,6 +10,7 @@ import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.RecipeIngredient;
+import vontus.magicbottle.config.RecipesConfig;
 import vontus.magicbottle.util.TaskStatus;
 
 import java.util.ArrayList;
@@ -22,18 +23,28 @@ public class MagicCauldron {
 	private Block block;
 	private ArrayList<ItemStack> items;
 	private CauldronParticlesTask particlesTask;
+	private Player craftingPlayer;
 
 	private static ArrayList<MagicCauldron> cauldronList = new ArrayList<>();
 
-	private MagicCauldron() { }
+	private MagicCauldron(Block block, Player craftingPlayer) {
+		this.block = block;
+		this.items = new ArrayList<>();
+		this.craftingPlayer = craftingPlayer;
+	}
 
 	private MagicCauldron(Block block) {
 		this.block = block;
 		this.items = new ArrayList<>();
+		this.craftingPlayer = null;
 	}
 
-	public boolean addItem(ItemStack itemToAdd) {
-		if (!isComplete()) {
+	public Player getCraftingPlayer() {
+		return craftingPlayer;
+	}
+
+	public boolean addItem(ItemStack itemToAdd, Player player) {
+		if (!isComplete() && player == craftingPlayer) {
 			List<RecipeIngredient> leftIngredients = calculateLeftIngredients();
 			for (RecipeIngredient leftIngredient : leftIngredients) {
 				if (leftIngredient.getMaterial() == itemToAdd.getType()) {
@@ -42,7 +53,7 @@ public class MagicCauldron {
 						if (i.getType() == itemToAdd.getType()) {
 							i.setAmount(i.getAmount() + amountToAdd);
 							itemToAdd.setAmount(itemToAdd.getAmount() - amountToAdd);
-							updateParticles();
+							updateCauldron(player);
 							return true;
 						}
 					}
@@ -50,7 +61,7 @@ public class MagicCauldron {
 					itemToAdd.setAmount(itemToAdd.getAmount() - amountToAdd);
 					copyToAdd.setAmount(amountToAdd);
 					items.add(copyToAdd);
-					updateParticles();
+					updateCauldron(player);
 					return true;
 				}
 			}
@@ -58,10 +69,17 @@ public class MagicCauldron {
 		return false;
 	}
 
+	private void updateCauldron(Player player) {
+		if (craftingPlayer == null) {
+			craftingPlayer = player;
+		}
+		updateParticles();
+	}
+
 	private List<RecipeIngredient> calculateLeftIngredients() {
 		ArrayList<RecipeIngredient> leftIngredients = new ArrayList<>();
 		recipeLoop:
-		for (RecipeIngredient ingredient : Config.recipeIngredients) {
+		for (RecipeIngredient ingredient : RecipesConfig.getRecipe(RecipesConfig.BOTTLE)) {
 			for (ItemStack is : items) {
 				if (ingredient.getMaterial() == is.getType()) {
 					if (ingredient.getAmount() > is.getAmount()) {

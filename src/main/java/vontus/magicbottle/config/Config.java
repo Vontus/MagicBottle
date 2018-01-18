@@ -16,8 +16,6 @@ public class Config {
 
 	private static Plugin plugin;
 
-	public static List<RecipeIngredient> recipeIngredients;
-
 	public static final String permDeposit = "magicbottle.action.deposit";
 	public static final String permWithdraw = "magicbottle.action.withdraw";
 	public static final String permCraft = "magicbottle.action.craft";
@@ -68,21 +66,6 @@ public class Config {
 		costPercentageDeposit = plugin.getConfig().getDouble("costs.deposit.exp-percentage") / 100;
 		costMoneyCraftNewBottle = plugin.getConfig().getDouble("costs.craft new bottle.money");
 		costCraftNewBottleChangeLore = plugin.getConfig().getBoolean("costs.craft new bottle.change lore");
-
-		recipeIngredients = getBottleRecipeIngredients();
-	}
-
-	private static List<RecipeIngredient> getBottleRecipeIngredients() {
-		ArrayList<RecipeIngredient> ingredients = new ArrayList<>();
-		List<?> configIngredients = plugin.getConfig().getList("recipe.bottle.ingredients");
-		for (Object o : configIngredients) {
-			LinkedHashMap hm = (LinkedHashMap) o;
-			RecipeIngredient ingredient = new RecipeIngredient();
-			ingredient.setAmount((int) hm.get("amount"));
-			ingredient.setMaterial(Material.getMaterial((String) hm.get("material")));
-			ingredients.add(ingredient);
-		}
-		return ingredients;
 	}
 
 	public static int getMaxFillPointsFor(final Player p) {

@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import vontus.magicbottle.cauldron.MagicCauldron;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
+import vontus.magicbottle.config.RecipesConfig;
 
 import java.util.HashSet;
 import java.util.logging.Logger;
@@ -43,6 +44,7 @@ public class Plugin extends JavaPlugin {
 		this.saveDefaultConfig();
 		new Config(this);
 		new Messages(this);
+		new RecipesConfig(this);
 		
 		if (Config.costMoneyCraftNewBottle != 0 && econ == null) {
 			logger.warning("Vault is required to set economy costs. Add Vault or set the recipe cost to 0 to disable this warning.");

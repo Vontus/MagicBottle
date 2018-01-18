@@ -1,6 +1,7 @@
 package vontus.magicbottle.cauldron;
 
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.effects.Effects;
@@ -9,12 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CheckItemTask extends BukkitRunnable {
+	private Player player;
 	private Item item;
 	private int timesTried;
 	private static int maxTryTimes = 200;
 	public static List<Item> itemsBeingChecked = new ArrayList<>();
 
-	public CheckItemTask(Item item) {
+	public CheckItemTask(Item item, Player player) {
+		this.player = player;
 		this.item = item;
 		itemsBeingChecked.add(item);
 		timesTried = 0;
@@ -26,7 +29,7 @@ public class CheckItemTask extends BukkitRunnable {
 			this.cancel();
 			MagicCauldron mc = MagicCauldron.getCauldronAt(item.getLocation());
 			if (mc != null) {
-				if (mc.addItem(item.getItemStack())) {
+				if (mc.addItem(item.getItemStack(), player)) {
 					Effects.addIngredientToCauldron(item.getLocation());
 				}
 			} else {

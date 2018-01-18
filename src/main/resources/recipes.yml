@@ -1,0 +1,17 @@
+bottle:
+  # Enables this crafting recipe
+  # If you disable this, players won't be able to craft new bottles but existing ones will remain usable
+  enabled: true
+  # Defines the items needed to craft a new empty MagicBottle
+  # These items need to be thrown inside a valid cauldron (filled with water and fire underneath)
+  # Players need to right click with an empty vanilla bottle after throwing all the items
+  # You can see a complete list of possible item materials here: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
+  ingredients:
+    - material: BLAZE_POWDER
+      amount: 2
+    - material: GLOWSTONE_DUST
+      amount: 2
+    - material: ENDER_CHEST
+      amount: 1
+    - material: GOLD_BLOCK
+      amount: 3

@@ -73,3 +73,13 @@ costs:
     # Enable this if you set a cost. The custom lore is in messages.yml
     # Restart the server after changing this.
     change lore: false
+
+# These compatibility settings that will try to disable things in the plugin that may break with other plugins
+# You should only change them if you're having trouble
+compatibility:
+  # Set this to true if your bottles stop working
+  # Bottles will show the enchantment 'Efficiency I' instead
+  disable custom enchantments: false
+
+# DON'T TOUCH THIS
+config version: 0

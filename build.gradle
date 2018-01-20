@@ -1,31 +1,37 @@
-version '1.4.2'
+plugins {
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
+}
 
 apply plugin: 'java'
+String packagePath = 'vontus.magicbottle'
 
+version '1.4.3'
 sourceCompatibility = 1.8
+
+configurations {
+    extraLibs
+}
 
 repositories {
     mavenCentral()
-    maven {
-        name 'Spigot'
-        url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-    }
-    maven {
-        name 'BStats'
-        url 'http://repo.bstats.org/content/repositories/releases/'
-    }
-    maven {
-        name 'Vault'
-        url 'http://nexus.hc.to/content/repositories/pub_releases'
-    }
-    maven {
-        url 'https://oss.sonatype.org/content/repositories/snapshots/'
-    }
+    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url 'http://repo.bstats.org/content/repositories/releases/' }
+    maven { url 'http://nexus.hc.to/content/repositories/pub_releases' }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile "org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT"
-    compile "org.bstats:bstats-bukkit:1.2"
     compile "net.milkbowl.vault:VaultAPI:1.6"
+    extraLibs "org.bstats:bstats-bukkit:1.2"
+    configurations.compile.extendsFrom(configurations.extraLibs)
+}
+
+shadowJar {
+    dependencies {
+        include dependency('org.bstats:bstats-bukkit')
+    }
+    relocate('org.bstats', packagePath + '.dependencies')
+    archiveName = "${baseName}-${version}.${extension}"
 }

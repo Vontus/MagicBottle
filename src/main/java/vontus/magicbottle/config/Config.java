@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 
+import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.util.Exp;
 
@@ -42,6 +44,8 @@ public class Config {
 	public static double costMoneyCraftNewBottle;
 	public static boolean costCraftNewBottleChangeLore;
 
+	//public static boolean compatDisableCustomEnchantments;
+
 	public Config(Plugin plugin) {
 		Config.plugin = plugin;
 		maxLevelsPermission = new HashMap<>();
@@ -64,6 +68,11 @@ public class Config {
 		costPercentageDeposit = plugin.getConfig().getDouble("costs.deposit.exp-percentage") / 100;
 		costMoneyCraftNewBottle = plugin.getConfig().getDouble("costs.craft new bottle.money");
 		costCraftNewBottleChangeLore = plugin.getConfig().getBoolean("costs.craft new bottle.change lore");
+
+		boolean compatDisableCustomEnchantments = plugin.getConfig().getBoolean("compatibility.disable custom enchantments");
+		if (compatDisableCustomEnchantments) {
+			MagicBottle.bottleEnchantment = Enchantment.DIG_SPEED;
+		}
 	}
 
 	public static Material getBottleRecipeIngredient(int pos) {

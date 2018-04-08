@@ -9,7 +9,6 @@ public class EnchantParser {
 	private static final Enchantment FLAME = Enchantment.ARROW_FIRE;
 	private static final Enchantment INFINITY = Enchantment.ARROW_INFINITE;
 	private static final Enchantment PUNCH = Enchantment.ARROW_KNOCKBACK;
-	private static final Enchantment CURSE_OF_BINDING = Enchantment.BINDING_CURSE;
 	private static final Enchantment SHARPNESS = Enchantment.DAMAGE_ALL;
 	private static final Enchantment BANE_OF_THE_ARTHROPODS = Enchantment.DAMAGE_ARTHROPODS;
 	private static final Enchantment SMITE = Enchantment.DAMAGE_UNDEAD;
@@ -31,9 +30,7 @@ public class EnchantParser {
 	private static final Enchantment FIRE_PROTECTION = Enchantment.PROTECTION_FIRE;
 	private static final Enchantment PROJECTILE_PROTECTION = Enchantment.PROTECTION_PROJECTILE;
 	private static final Enchantment SILK_TOUCH = Enchantment.SILK_TOUCH;
-	private static final Enchantment SWEEPING_EDGE = Enchantment.SWEEPING_EDGE;
 	private static final Enchantment THORNS = Enchantment.THORNS;
-	private static final Enchantment CURSE_OF_VANISHING = Enchantment.VANISHING_CURSE;
 	private static final Enchantment AQUA_AFFINITY = Enchantment.WATER_WORKER;
 
 	public static Enchantment parseForBukkit(String enchantString) throws ParseException {
@@ -46,8 +43,6 @@ public class EnchantParser {
 				return EnchantParser.INFINITY;
 			case "PUNCH":
 				return EnchantParser.PUNCH;
-			case "CURSE_OF_BINDING":
-				return EnchantParser.CURSE_OF_BINDING;
 			case "SHARPNESS":
 				return EnchantParser.SHARPNESS;
 			case "BANE_OF_THE_ARTHROPODS":
@@ -90,12 +85,8 @@ public class EnchantParser {
 				return EnchantParser.PROJECTILE_PROTECTION;
 			case "SILK_TOUCH":
 				return EnchantParser.SILK_TOUCH;
-			case "SWEEPING_EDGE":
-				return EnchantParser.SWEEPING_EDGE;
 			case "THORNS":
 				return EnchantParser.THORNS;
-			case "CURSE_OF_VANISHING":
-				return EnchantParser.CURSE_OF_VANISHING;
 			case "AQUA_AFFINITY":
 				return EnchantParser.AQUA_AFFINITY;
 			default:

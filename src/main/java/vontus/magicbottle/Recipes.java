@@ -1,16 +1,14 @@
 package vontus.magicbottle;
 
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 
-import vontus.magicbottle.Plugin;
 import vontus.magicbottle.config.Config;
 
 public class Recipes {
-	Plugin plugin;
+	private Plugin plugin;
 
 	public Recipes(Plugin plugin) {
 		this.plugin = plugin;
@@ -28,7 +26,7 @@ public class Recipes {
 		}
 
 		if (Config.recipeNewBottleEnabled) {
-			ShapedRecipe craftBottle = getNewBottleRecipe(0, "bottle");
+			ShapedRecipe craftBottle = getNewBottleRecipe();
 			craftBottle.shape("123", "456", "789");
 			for (int i = 1; i < 10; i++) {
 				craftBottle.setIngredient((char) (i + 48), Config.getBottleRecipeIngredient(i));
@@ -37,25 +35,15 @@ public class Recipes {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
-	public ShapelessRecipe getShapelessRecipe(int level, String name) {
+	private ShapelessRecipe getShapelessRecipe(int level, String name) {
 		ItemStack item = new MagicBottle(level).getItem();
-		if (Bukkit.getVersion().contains("1.12")) {
-			NamespacedKey key = new NamespacedKey(plugin, name);
-			return new ShapelessRecipe(key, item);
-		} else {
-			return new ShapelessRecipe(item);
-		}
+		NamespacedKey key = new NamespacedKey(plugin, name);
+		return new ShapelessRecipe(key, item);
 	}
 
-	@SuppressWarnings("deprecation")
-	public ShapedRecipe getNewBottleRecipe(int level, String name) {
+	private ShapedRecipe getNewBottleRecipe() {
 		ItemStack item = MagicBottle.getPreMagicBottle();
-		if (Bukkit.getVersion().contains("1.12")) {
-			NamespacedKey key = new NamespacedKey(plugin, name);
-			return new ShapedRecipe(key, item);
-		} else {
-			return new ShapedRecipe(item);
-		}
+		NamespacedKey key = new NamespacedKey(plugin, "bottle");
+		return new ShapedRecipe(key, item);
 	}
 }

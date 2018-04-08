@@ -49,8 +49,8 @@ messages:
     inventory repaired: '&eSpent &5[xp] &eXP in repairing your tools.'
     enabled autorepair: '&eAutorepair has been &aenabled&e.'
     disabled autorepair: '&eAutorepair has been &cdisabled&e.'
-    config repairing disabled: '&cRepairing has been disabled in this server.'
-    config auto repairing disabled: '&cAutomatic repairing has been disabled in this server.'
+    config repairing disabled: '&cRepairing is disabled in this server.'
+    config auto repairing disabled: '&cAutomatic repairing is disabled in this server.'
     mb not in hand: '&cYou must have a MagicBottle with experience in your main hand to use this command.'
 
   costs:

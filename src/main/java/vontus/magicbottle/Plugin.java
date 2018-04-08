@@ -17,7 +17,6 @@ import vontus.magicbottle.config.Messages;
 public class Plugin extends JavaPlugin {
 	public static Logger logger;
 	public HashSet<Player> autoEnabled = new HashSet<>();
-	public Metrics metrics;
 	Economy econ = null;
 
 	@Override
@@ -28,15 +27,15 @@ public class Plugin extends JavaPlugin {
 		new Recipes(this);
 		this.getServer().getPluginManager().registerEvents(new Events(this), this);
 		this.getCommand("magicbottle").setExecutor(new Commands(this));
-		metrics = new Metrics(this);
+		new Metrics(this);
 	}
 
 	public void loadConfig() {
 		this.reloadConfig();
 
 		this.saveDefaultConfig();
-		new Config(this);
-		new Messages(this);
+		Config.load(this);
+		Messages.load(this);
 		
 		if (Config.costMoneyCraftNewBottle != 0 && econ == null) {
 			logger.warning("Vault is required to set economy costs. Add Vault or set the recipe cost to 0 to disable this warning.");
@@ -44,15 +43,12 @@ public class Plugin extends JavaPlugin {
 		}
 	}
 
-	private boolean setupEconomy() {
-		if (getServer().getPluginManager().getPlugin("Vault") == null) {
-			return false;
+	private void setupEconomy() {
+		if (getServer().getPluginManager().getPlugin("Vault") != null) {
+			RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+			if (rsp != null) {
+				econ = rsp.getProvider();
+			}
 		}
-		RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-		if (rsp == null) {
-			return false;
-		}
-		econ = rsp.getProvider();
-		return econ != null;
 	}
 }

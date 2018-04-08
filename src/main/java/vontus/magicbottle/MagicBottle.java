@@ -19,10 +19,9 @@ import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
 
 public class MagicBottle {
-	public static Material materialFilled = Material.DRAGONS_BREATH;
-	public static Material materialEmpty = Material.GLASS_BOTTLE;
-	public static Enchantment repairEnchantment = Enchantment.MENDING;
-	public static Enchantment bottleEnchantment = EnchantGlow.getGlow();
+	public static final Material materialFilled = Material.DRAGONS_BREATH;
+	public static final Material materialEmpty = Material.GLASS_BOTTLE;
+	private static final int XP_LINE = 1;
 	private ItemStack item;
 	private Integer exp;
 
@@ -129,7 +128,7 @@ public class MagicBottle {
 	
 	private int repairNoRecreate(ItemStack i) {
 		if (Utils.getMaterial(i) != Material.AIR) {
-			if (repairEnchantment == null || i.containsEnchantment(repairEnchantment)) {
+			if (Config.canRepair(i)) {
 				short usedDurability = i.getDurability();
 				if (usedDurability >= 2) {
 					int repairable = Math.min(exp, usedDurability / 2) * 2;
@@ -150,16 +149,16 @@ public class MagicBottle {
 		double decimalPart = level - integerPart;
 		int coloredNumber = (int) (decimalPart * barParts);
 		
-		String bar = "";
+		StringBuilder bar = new StringBuilder();
 		for (int i = 0; i < barParts; i++) {
 			if (i < coloredNumber) {
-				bar += Messages.bottleFilledBarColor;
+				bar.append(Messages.bottleFilledBarColor);
 			} else {
-				bar += Messages.bottleEmptyBarColor;
+				bar.append(Messages.bottleEmptyBarColor);
 			}
-			bar += "|";
+			bar.append("|");
 		}
-		return ChatColor.translateAlternateColorCodes('&', bar);
+		return ChatColor.translateAlternateColorCodes('&', bar.toString());
 	}
 
 	private void print() {
@@ -176,7 +175,7 @@ public class MagicBottle {
 		String name = replaceVariables(Messages.bottleName);
 		meta.setDisplayName(name);
 		meta.setLore(tag);
-		meta.addEnchant(bottleEnchantment, 1, true);
+		meta.addEnchant(Config.bottleEnchantment, 1, true);
 		item.setItemMeta(meta);
 	}
 	
@@ -206,7 +205,7 @@ public class MagicBottle {
 	private static int calculateExp(ItemStack item) {
 		int exp;
 		try {
-			exp = Integer.valueOf(ChatColor.stripColor((item.getItemMeta().getLore().get(1).trim())).replace(",", ""));
+			exp = Integer.valueOf(ChatColor.stripColor((item.getItemMeta().getLore().get(XP_LINE).trim())).replace(",", ""));
 		} catch (Exception exception) {
 			exp = 0;
 		}
@@ -215,7 +214,7 @@ public class MagicBottle {
 
 	public static boolean isMagicBottle(ItemStack item) {
 		return  item != null &&
-				item.containsEnchantment(bottleEnchantment) &&
+				item.containsEnchantment(Config.bottleEnchantment) &&
 				(item.getType() == materialFilled || item.getType() == materialEmpty)
 				;
 	}
@@ -254,7 +253,7 @@ public class MagicBottle {
 				lore.add(line);
 			}
 			meta.setLore(lore);
-			meta.addEnchant(bottleEnchantment, 1, true);
+			meta.addEnchant(Config.bottleEnchantment, 1, true);
 			is.setItemMeta(meta);
 		} else {
 			is = new MagicBottle(0).getItem();

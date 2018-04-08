@@ -17,10 +17,6 @@ public class Utils {
 		Double round = Math.round(number * 10) / 10d;
 		return NumberFormat.getNumberInstance(Locale.US).format(round);
 	}
-
-	public static double stringToDouble(String toConvert) throws NumberFormatException {
-		return Double.valueOf(toConvert.replace(",", ""));
-	}
 	
 	public static Material getMaterial(ItemStack is) {
 		if (is == null)

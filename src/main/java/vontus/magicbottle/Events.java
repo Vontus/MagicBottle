@@ -128,8 +128,7 @@ public class Events implements Listener {
 		if (Config.repairAutoEnabled && timeOut(p)) {
 			ItemStack i = e.getItem();
 			if (plugin.autoEnabled.contains(p) && i.getDurability() % 2 != 0) {
-				Enchantment ench = MagicBottle.repairEnchantment;
-				if (i.containsEnchantment(ench)) {
+				if (Config.canRepair(i)) {
 					MagicBottle mb = MagicBottle.getUsableMBInToolsbar(p);
 					if (mb != null && !e.isCancelled()) {
 						i.setDurability((short) (i.getDurability() + e.getDamage()));

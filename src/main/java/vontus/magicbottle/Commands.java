@@ -16,10 +16,10 @@ import vontus.magicbottle.util.Exp;
 public class Commands implements CommandExecutor {
 	private Plugin plugin;
 	
-	public final String USAGE_ABOUT = "/magicbottle about";
-	public final String USAGE_REPAIR = "/magicbottle repair [auto]";
-	public final String USAGE_GIVE = "/magicbottle give <level> [amount] [player]";
-	public final String USAGE_RELOAD = "/magicbottle reload";
+	private final String USAGE_ABOUT = "/magicbottle about";
+	private final String USAGE_REPAIR = "/magicbottle repair [auto]";
+	private final String USAGE_GIVE = "/magicbottle give <level> [amount] [player]";
+	private final String USAGE_RELOAD = "/magicbottle reload";
 
 	public Commands(Plugin plugin) {
 		this.plugin = plugin;
@@ -61,7 +61,7 @@ public class Commands implements CommandExecutor {
 				break;
 			case 2:
 				if (args[1].equals("auto")) {
-					commandAutoRepair(p, args);
+					commandAutoRepair(p);
 				} else {
 					p.sendMessage(correctUse(USAGE_REPAIR));
 				}
@@ -72,7 +72,7 @@ public class Commands implements CommandExecutor {
 		}
 	}
 
-	private void commandAutoRepair(Player p, String[] args) {
+	private void commandAutoRepair(Player p) {
 		if (Config.repairAutoEnabled) {
 			if (p.hasPermission(Config.permRepairAuto)) {
 				if (plugin.autoEnabled.add(p)) {
@@ -188,17 +188,10 @@ public class Commands implements CommandExecutor {
 		}
 	}
 	
-	public static void giveBottlesWithLevel(int level, int amount, Player player) {
+	private static void giveBottlesWithLevel(int level, int amount, Player player) {
 		MagicBottle bottle = new MagicBottle(Exp.getExpAtLevel(level));
 		ItemStack item = bottle.getItem();
 		item.setAmount(amount);
-		player.getInventory().addItem(new ItemStack[] { item });
-	}
-	
-	public static void giveBottleWithExp(int exp, Player p) {
-		MagicBottle bottle = new MagicBottle(exp);
-		ItemStack item = bottle.getItem();
-		item.setAmount(1);
-		p.getInventory().addItem(new ItemStack[] { item });
+		player.getInventory().addItem(item);
 	}
 }

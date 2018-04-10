@@ -16,13 +16,11 @@ public class EnchantParser {
 	private static final Enchantment EFFICIENCY = Enchantment.DIG_SPEED;
 	private static final Enchantment UNBREAKING = Enchantment.DURABILITY;
 	private static final Enchantment FIRE_ASPECT = Enchantment.FIRE_ASPECT;
-	private static final Enchantment FROST_WALKER = Enchantment.FROST_WALKER;
 	private static final Enchantment KNOCKBACK = Enchantment.KNOCKBACK;
 	private static final Enchantment FORTUNE = Enchantment.LOOT_BONUS_BLOCKS;
 	private static final Enchantment LOOTING = Enchantment.LOOT_BONUS_MOBS;
 	private static final Enchantment LUCK_OF_THE_SEA = Enchantment.LUCK;
 	private static final Enchantment LURE = Enchantment.LURE;
-	private static final Enchantment MENDING = Enchantment.MENDING;
 	private static final Enchantment WATER_BREATHING = Enchantment.OXYGEN;
 	private static final Enchantment PROTECTION = Enchantment.PROTECTION_ENVIRONMENTAL;
 	private static final Enchantment BLAST_PROTECTION = Enchantment.PROTECTION_EXPLOSIONS;
@@ -57,8 +55,6 @@ public class EnchantParser {
 				return EnchantParser.UNBREAKING;
 			case "FIRE_ASPECT":
 				return EnchantParser.FIRE_ASPECT;
-			case "FROST_WALKER":
-				return EnchantParser.FROST_WALKER;
 			case "KNOCKBACK":
 				return EnchantParser.KNOCKBACK;
 			case "FORTUNE":
@@ -69,8 +65,6 @@ public class EnchantParser {
 				return EnchantParser.LUCK_OF_THE_SEA;
 			case "LURE":
 				return EnchantParser.LURE;
-			case "MENDING":
-				return EnchantParser.MENDING;
 			case "WATER_BREATHING":
 				return EnchantParser.WATER_BREATHING;
 			case "PROTECTION":

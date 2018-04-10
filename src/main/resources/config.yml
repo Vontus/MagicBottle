@@ -60,7 +60,7 @@ repair:
   auto: true
   # Tools and armor will need this enchantment in order to be able to repair them
   # Set this to ANY if you want MagicBottle to repair any repairable tool (unenchanted tools will be repaired too)
-  enchantment: MENDING
+  enchantment: ANY
 
 # Here you can configure what percentage of experience will be charged when transferring experience.
 costs:

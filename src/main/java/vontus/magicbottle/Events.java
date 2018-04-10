@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -15,10 +16,7 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemDamageEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -39,6 +37,13 @@ public class Events implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onDrinkPotion(PlayerItemConsumeEvent e) {
+		if (MagicBottle.isMagicBottle(e.getItem())) {
+			e.setCancelled(true);
+		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onClickInventory(InventoryClickEvent e) {
 		InventoryType invType = e.getView().getType();
 		if (invType == InventoryType.ANVIL || invType == InventoryType.BREWING) {
@@ -51,7 +56,6 @@ public class Events implements Listener {
 		Player player = event.getPlayer();
 		Action act = event.getAction();
 		ItemStack item = event.getItem();
-
 		if (MagicBottle.isMagicBottle(item)) {
 			MagicBottle mb = new MagicBottle(item);
 			if (item.getAmount() == 1 && timeOut(player)) {

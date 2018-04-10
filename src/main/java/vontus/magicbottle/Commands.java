@@ -92,7 +92,7 @@ public class Commands implements CommandExecutor {
 	private void commandRepairInventory(Player p) {
 		if (Config.repairEnabled) {
 			if (p.hasPermission(Config.permRepair)) {
-				ItemStack inHand = p.getInventory().getItemInMainHand();
+				ItemStack inHand = p.getInventory().getItemInHand();
 
 				if (MagicBottle.isUsableMagicBottle(inHand)) {
 					MagicBottle mb = new MagicBottle(inHand);

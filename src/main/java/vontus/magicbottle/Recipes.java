@@ -8,6 +8,7 @@ import vontus.magicbottle.config.Config;
 
 public class Recipes {
 
+	@SuppressWarnings("deprecation")
 	public Recipes(Plugin plugin) {
 
 		if (Config.recipeFill) {
@@ -18,7 +19,7 @@ public class Recipes {
 
 		if (Config.recipePour) {
 			ShapelessRecipe recipePour = getShapelessRecipe(0);
-			recipePour.addIngredient(1, MagicBottle.materialFilled);
+			recipePour.addIngredient(1, MagicBottle.materialFilled, 11);
 			plugin.getServer().addRecipe(recipePour);
 		}
 

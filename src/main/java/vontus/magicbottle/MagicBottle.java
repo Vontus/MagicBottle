@@ -3,14 +3,19 @@ package vontus.magicbottle;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.material.MaterialData;
+import org.bukkit.potion.*;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.effects.SoundEffect;
@@ -19,7 +24,7 @@ import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
 
 public class MagicBottle {
-	public static final Material materialFilled = Material.DRAGONS_BREATH;
+	public static final Material materialFilled = Material.POTION;
 	public static final Material materialEmpty = Material.GLASS_BOTTLE;
 	private static final int XP_LINE = 1;
 	private ItemStack item;
@@ -42,14 +47,26 @@ public class MagicBottle {
 		} else {
 			mat = materialEmpty;
 		}
-		
+
 		if (item == null) {
 			item = new ItemStack(mat);
 		} else {
 			if (item.getType() != mat)
 				item.setType(mat);
 		}
-		
+
+		if (exp > 0) {
+			new Potion(PotionType.JUMP).apply(item);
+			PotionMeta m = (PotionMeta)item.getItemMeta();
+			m.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+			item.setItemMeta(m);
+		} else {
+			ItemStack empty = new ItemStack(materialEmpty);
+			item.setData(empty.getData());
+			item.setItemMeta(empty.getItemMeta());
+			item.setDurability((short)0);
+		}
+
 		print();
 	}
 
@@ -109,8 +126,7 @@ public class MagicBottle {
 	
 	public int repair(PlayerInventory inv) {
 		int usedXP = 0;
-		usedXP += repairNoRecreate(inv.getItemInMainHand());
-		usedXP += repairNoRecreate(inv.getItemInOffHand());
+		usedXP += repairNoRecreate(inv.getItemInHand());
 		for (int i = 0; i < inv.getSize(); i++) {
 			usedXP += repairNoRecreate(inv.getItem(i));
 		}

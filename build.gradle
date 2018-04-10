@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile "org.spigotmc:spigot-api:1.10.2-R0.1-SNAPSHOT"
+    compile "org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT"
     compile "net.milkbowl.vault:VaultAPI:1.6"
     extraLibs "org.bstats:bstats-bukkit:1.2"
     configurations.compile.extendsFrom(configurations.extraLibs)
@@ -33,5 +33,5 @@ shadowJar {
         include dependency('org.bstats:bstats-bukkit')
     }
     relocate('org.bstats', packagePath + '.dependencies')
-    archiveName = "${baseName}-${version}.${extension}"
+    archiveName = "${baseName}-${version}-MC1.8.8.${extension}"
 }

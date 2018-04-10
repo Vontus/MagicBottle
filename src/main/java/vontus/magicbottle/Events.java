@@ -1,12 +1,6 @@
 package vontus.magicbottle;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -20,12 +14,14 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.effects.SoundEffect;
 import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
+
+import java.util.HashSet;
+import java.util.UUID;
 
 public class Events implements Listener {
 	private HashSet<UUID> wait;

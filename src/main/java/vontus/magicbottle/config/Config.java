@@ -1,18 +1,16 @@
 package vontus.magicbottle.config;
 
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Map.Entry;
-
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-
 import org.bukkit.inventory.ItemStack;
-import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.util.EnchantGlow;
 import vontus.magicbottle.util.Exp;
+
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 public class Config {
 	private static HashMap<String, Integer> maxLevelsPermission;

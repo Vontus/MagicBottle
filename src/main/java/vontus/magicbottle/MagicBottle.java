@@ -1,27 +1,22 @@
 package vontus.magicbottle;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.material.MaterialData;
-import org.bukkit.potion.*;
+import org.bukkit.potion.Potion;
+import org.bukkit.potion.PotionType;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.effects.SoundEffect;
-import vontus.magicbottle.util.EnchantGlow;
 import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
+
+import java.util.ArrayList;
 
 public class MagicBottle {
 	public static final Material materialFilled = Material.POTION;

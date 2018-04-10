@@ -33,5 +33,5 @@ shadowJar {
         include dependency('org.bstats:bstats-bukkit')
     }
     relocate('org.bstats', packagePath + '.dependencies')
-    archiveName = "${baseName}-${version}.${extension}"
+    archiveName = "${baseName}-${version}-MC1.12.${extension}"
 }

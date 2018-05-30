@@ -7,9 +7,9 @@ import org.bukkit.inventory.ShapelessRecipe;
 import vontus.magicbottle.config.Config;
 
 public class Recipes {
+	private Plugin plugin;
 
 	public Recipes(Plugin plugin) {
-
 		if (Config.recipeFill) {
 			ShapelessRecipe recipeFill = getShapelessRecipe(1);
 			recipeFill.addIngredient(1, MagicBottle.materialEmpty);

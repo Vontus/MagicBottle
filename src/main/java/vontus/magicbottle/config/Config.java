@@ -1,18 +1,16 @@
 package vontus.magicbottle.config;
 
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Map.Entry;
-
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-
 import org.bukkit.inventory.ItemStack;
-import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.util.EnchantGlow;
 import vontus.magicbottle.util.Exp;
+
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 public class Config {
 	private static HashMap<String, Integer> maxLevelsPermission;
@@ -31,7 +29,6 @@ public class Config {
 
 	private static final String maxLevelsBasePermission = "magicbottle.maxlevel.";
 	private static final String maxLevelsUnlimitedPermission = "magicbottle.maxlevel.unlimited";
-	private static final String ANY_ENCHANTMENT = "ANY";
 
 	public static boolean effectSound;
 	public static boolean effectParticles;
@@ -49,6 +46,7 @@ public class Config {
 	public static boolean costCraftNewBottleChangeLore;
 
 	public static Enchantment bottleEnchantment;
+	public static EnchantParser repairEnchantment;
 
 	public static void load(Plugin plugin) {
 		Config.plugin = plugin;
@@ -65,18 +63,18 @@ public class Config {
 			int value = plugin.getConfig().getInt("max level.permissions." + parent);
 			maxLevelsPermission.put(parent, value);
 		}
-		
+
 		repairEnabled = plugin.getConfig().getBoolean("repair.enabled");
 		repairAutoEnabled = plugin.getConfig().getBoolean("repair.auto");
-		
+
 		costPercentageDeposit = plugin.getConfig().getDouble("costs.deposit.exp-percentage") / 100;
 		costMoneyCraftNewBottle = plugin.getConfig().getDouble("costs.craft new bottle.money");
 		costCraftNewBottleChangeLore = plugin.getConfig().getBoolean("costs.craft new bottle.change lore");
 
-		if (repairEnabled || repairAutoEnabled) {
-			try {
-				EnchantParser.parseForBukkit(plugin.getConfig().getString("repair.enchantment"));
-			} catch (ParseException e) {
+		try {
+			repairEnchantment = EnchantParser.parseForBukkit(plugin.getConfig().getString("repair.enchantment"));
+		} catch (ParseException e) {
+			if (repairEnabled || repairAutoEnabled) {
 				repairEnabled = false;
 				repairAutoEnabled = false;
 				Plugin.logger.severe(e.getMessage() + ". Repairing has been disabled.");
@@ -92,20 +90,7 @@ public class Config {
 	}
 
 	public static boolean canRepair(ItemStack is) {
-		String enchStr = plugin.getConfig().getString("repair.enchantment");
-		if (enchStr.equals(ANY_ENCHANTMENT)) {
-			return true;
-		} else {
-			try {
-				Enchantment ench = EnchantParser.parseForBukkit(enchStr);
-				return is.containsEnchantment(ench);
-			} catch (ParseException e) {
-				repairEnabled = false;
-				repairAutoEnabled = false;
-				Plugin.logger.severe(e.getMessage() + ". Repairing has been disabled.");
-				return false;
-			}
-		}
+		return (repairEnabled || repairAutoEnabled) && repairEnchantment.canRepair(is);
 	}
 
 	public static Material getBottleRecipeIngredient(int pos) {
@@ -115,7 +100,7 @@ public class Config {
 	public static int getMaxFillPointsFor(final Player p) {
 		return Exp.getExpAtLevel(getMaxLevelsFor(p));
 	}
-	
+
 	public static int getMaxLevelsFor(final Player p) {
 		int max = -1;
 

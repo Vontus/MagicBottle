@@ -1,19 +1,16 @@
 package vontus.magicbottle;
 
-import java.util.HashSet;
-import java.util.logging.Logger;
-
+import net.milkbowl.vault.economy.Economy;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import net.milkbowl.vault.economy.Economy;
-import vontus.magicbottle.Commands;
-import vontus.magicbottle.Events;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
+
+import java.util.HashSet;
+import java.util.logging.Logger;
 
 public class Plugin extends JavaPlugin {
 	public static Logger logger;

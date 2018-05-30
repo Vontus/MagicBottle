@@ -1,6 +1,7 @@
 package vontus.magicbottle.config;
 
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
 
 import java.text.ParseException;
 
@@ -33,64 +34,115 @@ public class EnchantParser {
 	private static final Enchantment THORNS = Enchantment.THORNS;
 	private static final Enchantment AQUA_AFFINITY = Enchantment.WATER_WORKER;
 
-	public static Enchantment parseForBukkit(String enchantString) throws ParseException {
+	private static final String ANY_ENCHANTMENT = "ANY";
+
+	private final Enchantment ench;
+	private final boolean anyEnchant;
+
+	private EnchantParser(Enchantment e) {
+		ench = e;
+		anyEnchant = false;
+	}
+
+	private EnchantParser(boolean anyEnchant) {
+		ench = null;
+		this.anyEnchant = anyEnchant;
+	}
+
+	public boolean canRepair(ItemStack item) {
+		return anyEnchant || (ench != null && item.containsEnchantment(ench));
+	}
+
+	public static EnchantParser parseForBukkit(String enchantString) throws ParseException {
+		EnchantParser ep;
 		switch (enchantString) {
+			case ANY_ENCHANTMENT:
+				ep = new EnchantParser(true);
+				break;
 			case "POWER":
-				return EnchantParser.POWER;
+				ep = new EnchantParser(EnchantParser.POWER);
+				break;
 			case "FLAME":
-				return EnchantParser.FLAME;
+				ep = new EnchantParser( EnchantParser.FLAME);
+				break;
 			case "INFINITY":
-				return EnchantParser.INFINITY;
+				ep = new EnchantParser( EnchantParser.INFINITY);
+				break;
 			case "PUNCH":
-				return EnchantParser.PUNCH;
+				ep = new EnchantParser( EnchantParser.PUNCH);
+				break;
 			case "SHARPNESS":
-				return EnchantParser.SHARPNESS;
+				ep = new EnchantParser( EnchantParser.SHARPNESS);
+				break;
 			case "BANE_OF_THE_ARTHROPODS":
-				return EnchantParser.BANE_OF_THE_ARTHROPODS;
+				ep = new EnchantParser( EnchantParser.BANE_OF_THE_ARTHROPODS);
+				break;
 			case "SMITE":
-				return EnchantParser.SMITE;
+				ep = new EnchantParser( EnchantParser.SMITE);
+				break;
 			case "DEPTH_STRIDER":
-				return EnchantParser.DEPTH_STRIDER;
+				ep = new EnchantParser( EnchantParser.DEPTH_STRIDER);
+				break;
 			case "EFFICIENCY":
-				return EnchantParser.EFFICIENCY;
+				ep = new EnchantParser( EnchantParser.EFFICIENCY);
+				break;
 			case "UNBREAKING":
-				return EnchantParser.UNBREAKING;
+				ep = new EnchantParser( EnchantParser.UNBREAKING);
+				break;
 			case "FIRE_ASPECT":
-				return EnchantParser.FIRE_ASPECT;
+				ep = new EnchantParser( EnchantParser.FIRE_ASPECT);
+				break;
 			case "FROST_WALKER":
-				return EnchantParser.FROST_WALKER;
+				ep = new EnchantParser( EnchantParser.FROST_WALKER);
+				break;
 			case "KNOCKBACK":
-				return EnchantParser.KNOCKBACK;
+				ep = new EnchantParser( EnchantParser.KNOCKBACK);
+				break;
 			case "FORTUNE":
-				return EnchantParser.FORTUNE;
+				ep = new EnchantParser( EnchantParser.FORTUNE);
+				break;
 			case "LOOTING":
-				return EnchantParser.LOOTING;
+				ep = new EnchantParser( EnchantParser.LOOTING);
+				break;
 			case "LUCK_OF_THE_SEA":
-				return EnchantParser.LUCK_OF_THE_SEA;
+				ep = new EnchantParser( EnchantParser.LUCK_OF_THE_SEA);
+				break;
 			case "LURE":
-				return EnchantParser.LURE;
+				ep = new EnchantParser( EnchantParser.LURE);
+				break;
 			case "MENDING":
-				return EnchantParser.MENDING;
+				ep = new EnchantParser( EnchantParser.MENDING);
+				break;
 			case "WATER_BREATHING":
-				return EnchantParser.WATER_BREATHING;
+				ep = new EnchantParser( EnchantParser.WATER_BREATHING);
+				break;
 			case "PROTECTION":
-				return EnchantParser.PROTECTION;
+				ep = new EnchantParser( EnchantParser.PROTECTION);
+				break;
 			case "BLAST_PROTECTION":
-				return EnchantParser.BLAST_PROTECTION;
+				ep = new EnchantParser( EnchantParser.BLAST_PROTECTION);
+				break;
 			case "FEATHER_FALLING":
-				return EnchantParser.FEATHER_FALLING;
+				ep = new EnchantParser( EnchantParser.FEATHER_FALLING);
+				break;
 			case "FIRE_PROTECTION":
-				return EnchantParser.FIRE_PROTECTION;
+				ep = new EnchantParser( EnchantParser.FIRE_PROTECTION);
+				break;
 			case "PROJECTILE_PROTECTION":
-				return EnchantParser.PROJECTILE_PROTECTION;
+				ep = new EnchantParser( EnchantParser.PROJECTILE_PROTECTION);
+				break;
 			case "SILK_TOUCH":
-				return EnchantParser.SILK_TOUCH;
+				ep = new EnchantParser( EnchantParser.SILK_TOUCH);
+				break;
 			case "THORNS":
-				return EnchantParser.THORNS;
+				ep = new EnchantParser( EnchantParser.THORNS);
+				break;
 			case "AQUA_AFFINITY":
-				return EnchantParser.AQUA_AFFINITY;
+				ep = new EnchantParser(EnchantParser.AQUA_AFFINITY);
+				break;
 			default:
 				throw new ParseException("The enchantment '" + enchantString + "' is not supported", 0);
 		}
+		return ep;
 	}
 }

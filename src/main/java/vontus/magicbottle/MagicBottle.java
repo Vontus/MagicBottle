@@ -1,36 +1,34 @@
 package vontus.magicbottle;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.effects.SoundEffect;
-import vontus.magicbottle.util.EnchantGlow;
 import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
+
+import java.util.ArrayList;
 
 public class MagicBottle {
 	public static final Material materialFilled = Material.DRAGONS_BREATH;
 	public static final Material materialEmpty = Material.GLASS_BOTTLE;
 	private static final int XP_LINE = 1;
+	private static final int DURABILITY_POINTS_PER_XP = 2;
 	private ItemStack item;
 	private Integer exp;
 
-	public MagicBottle(int exp) {
+	MagicBottle(int exp) {
 		this.exp = exp;
 		recreate();
 	}
 
-	public MagicBottle(ItemStack expContainer) {
+	MagicBottle(ItemStack expContainer) {
 		item = expContainer;
 		exp = calculateExp(expContainer);
 	}
@@ -107,35 +105,37 @@ public class MagicBottle {
 		return points;
 	}
 	
-	public int repair(PlayerInventory inv) {
+	public int repair(PlayerInventory inv, boolean fullRepair) {
 		int usedXP = 0;
-		usedXP += repairNoRecreate(inv.getItemInMainHand());
-		usedXP += repairNoRecreate(inv.getItemInOffHand());
+		usedXP += repairNoRecreate(inv.getItemInMainHand(), fullRepair);
+		usedXP += repairNoRecreate(inv.getItemInOffHand(), fullRepair);
 		for (int i = 0; i < inv.getSize(); i++) {
-			usedXP += repairNoRecreate(inv.getItem(i));
+			usedXP += repairNoRecreate(inv.getItem(i), fullRepair);
 		}
 		recreate();
 		return usedXP;
 	}
 	
-	public int repair(ItemStack i) {
-		int usedXP = repairNoRecreate(i);
+	public int repair(ItemStack i, boolean fullRepair) {
+		int usedXP = repairNoRecreate(i, fullRepair);
 		if (usedXP > 0) {
 			recreate();
 		}
 		return usedXP;
 	}
 	
-	private int repairNoRecreate(ItemStack i) {
+	private int repairNoRecreate(ItemStack i, boolean fullRepair) {
 		if (Utils.getMaterial(i) != Material.AIR) {
 			if (Config.canRepair(i)) {
 				short usedDurability = i.getDurability();
-				if (usedDurability >= 2) {
-					int repairable = Math.min(exp, usedDurability / 2) * 2;
-					exp -= repairable / 2;
-					i.setDurability((short) (i.getDurability() - repairable));
+				if (usedDurability >= DURABILITY_POINTS_PER_XP || fullRepair) {
+					int repairable = Math.min(exp * DURABILITY_POINTS_PER_XP, usedDurability);
+					int remainder = fullRepair ? repairable % 2 : 0;
+					int xpToUse = repairable / 2 + remainder;
+					exp -= xpToUse;
+					i.setDurability((short) (i.getDurability() - repairable - remainder));
 					recreate();
-					return repairable / 2;
+					return xpToUse;
 				}
 			}
 		}
@@ -228,9 +228,8 @@ public class MagicBottle {
 		}
 	}
 	
-	public static MagicBottle getUsableMBInToolsbar(Player p) {
-		for (int i = 0; i < 9; i++) {
-			ItemStack item = p.getInventory().getItem(i);
+	public static MagicBottle getUsableMBInInventory(Inventory inv) {
+		for (ItemStack item : inv) {
 			if (isUsableMagicBottle(item)) {
 				MagicBottle mb = new MagicBottle(item);
 				if (!mb.isEmpty())

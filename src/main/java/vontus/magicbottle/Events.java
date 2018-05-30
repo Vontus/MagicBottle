@@ -27,7 +27,7 @@ public class Events implements Listener {
 	private HashSet<UUID> wait;
 	private Plugin plugin;
 
-	public Events(Plugin plugin) {
+	Events(Plugin plugin) {
 		this.plugin = plugin;
 		this.wait = new HashSet<>();
 	}
@@ -103,7 +103,7 @@ public class Events implements Listener {
 					if (isEmptyBottleRecipe(e.getInventory())) {
 						Player player = (Player) e.getView().getPlayer();
 						if (player.hasPermission(Config.permCraft)) {
-							if (chargeNewBottleMoney(player)) {
+							if (tryChargeCraftBottleCost(player)) {
 								e.getInventory().setResult(new MagicBottle(0).getItem());
 								SoundEffect.newBottle(player);
 							} else {
@@ -129,10 +129,10 @@ public class Events implements Listener {
 			ItemStack i = e.getItem();
 			if (plugin.autoEnabled.contains(p) && i.getDurability() % 2 != 0) {
 				if (Config.canRepair(i)) {
-					MagicBottle mb = MagicBottle.getUsableMBInToolsbar(p);
+					MagicBottle mb = MagicBottle.getUsableMBInInventory(p.getInventory());
 					if (mb != null && !e.isCancelled()) {
 						i.setDurability((short) (i.getDurability() + e.getDamage()));
-						mb.repair(i);
+						mb.repair(i, false);
 						e.setCancelled(true);
 						p.updateInventory();
 					}
@@ -202,7 +202,7 @@ public class Events implements Listener {
 	private void onRecipeWithdraw(CraftItemEvent e) {
 		Player player = (Player) e.getView().getPlayer();
 		ItemStack i = getFirstIngredient(e.getInventory());
-		if (i.getAmount() == 1 && Config.recipePour && player.hasPermission(Config.permWithdraw)) {
+		if (i != null && i.getAmount() == 1 && Config.recipePour && player.hasPermission(Config.permWithdraw)) {
 			MagicBottle bottle = new MagicBottle(i);
 			bottle.withdraw(player, bottle.getExp());
 			e.getInventory().setResult(new MagicBottle(0).getItem());
@@ -213,8 +213,8 @@ public class Events implements Listener {
 
 	private void onRecipeDeposit(CraftItemEvent e) {
 		Player player = (Player) e.getView().getPlayer();
-		ItemStack ingr = getFirstIngredient(e.getInventory());
-		if (ingr.getAmount() == 1 && Exp.getPoints(player) > 0 && player.hasPermission(Config.permDeposit)
+		ItemStack ingredient = getFirstIngredient(e.getInventory());
+		if (ingredient != null && ingredient.getAmount() == 1 && Exp.getPoints(player) > 0 && player.hasPermission(Config.permDeposit)
 				&& Config.recipeFill) {
 			MagicBottle bottle = new MagicBottle(0);
 			bottle.deposit(player, Exp.getPoints(player));
@@ -260,7 +260,7 @@ public class Events implements Listener {
 		return true;
 	}
 
-	private boolean chargeNewBottleMoney(Player p) {
+	private boolean tryChargeCraftBottleCost(Player p) {
 		if (Config.costMoneyCraftNewBottle != 0 && !p.hasPermission(Config.permCraftCostExempt)) {
 			return plugin.econ.withdrawPlayer(p, Config.costMoneyCraftNewBottle).transactionSuccess();
 		} else {

@@ -1,14 +1,11 @@
 package vontus.magicbottle;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
-import net.md_5.bungee.api.ChatColor;
-import vontus.magicbottle.MagicBottle;
-import vontus.magicbottle.Plugin;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.util.Exp;
@@ -21,7 +18,7 @@ public class Commands implements CommandExecutor {
 	private final String USAGE_GIVE = "/magicbottle give <level> [amount] [player]";
 	private final String USAGE_RELOAD = "/magicbottle reload";
 
-	public Commands(Plugin plugin) {
+	Commands(Plugin plugin) {
 		this.plugin = plugin;
 	}
 
@@ -96,7 +93,7 @@ public class Commands implements CommandExecutor {
 
 				if (MagicBottle.isUsableMagicBottle(inHand)) {
 					MagicBottle mb = new MagicBottle(inHand);
-					Integer usedXP = mb.repair(p.getInventory());
+					Integer usedXP = mb.repair(p.getInventory(), true);
 					p.updateInventory();
 					p.sendMessage(Messages.repairInvRepaired.replace("[xp]", usedXP.toString()));
 				} else {

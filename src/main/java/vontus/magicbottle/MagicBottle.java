@@ -123,7 +123,7 @@ public class MagicBottle {
 		}
 		return usedXP;
 	}
-	
+
 	private int repairNoRecreate(ItemStack i, boolean fullRepair) {
 		if (Utils.getMaterial(i) != Material.AIR) {
 			if (Config.canRepair(i)) {
@@ -131,10 +131,9 @@ public class MagicBottle {
 				if (usedDurability >= DURABILITY_POINTS_PER_XP || fullRepair) {
 					int repairable = Math.min(exp * DURABILITY_POINTS_PER_XP, usedDurability);
 					int remainder = fullRepair ? repairable % 2 : 0;
-					int xpToUse = repairable / 2 + remainder;
+					int xpToUse = (int)Math.floor(repairable / 2) + remainder;
 					exp -= xpToUse;
 					i.setDurability((short) (i.getDurability() - repairable - remainder));
-					recreate();
 					return xpToUse;
 				}
 			}

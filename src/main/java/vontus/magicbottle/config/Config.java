@@ -90,7 +90,10 @@ public class Config {
 	}
 
 	public static boolean canRepair(ItemStack is) {
-		return (repairEnabled || repairAutoEnabled) && repairEnchantment.canRepair(is);
+		return (repairEnabled || repairAutoEnabled)
+				&& repairEnchantment.canRepair(is)
+				&& is.getType().getMaxDurability() > 0
+				&& is.getDurability() > 0;
 	}
 
 	public static Material getBottleRecipeIngredient(int pos) {

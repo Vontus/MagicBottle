@@ -1,8 +1,8 @@
 name: MagicBottle
 
 main: vontus.magicbottle.Plugin
-version: 1.4.3
-
+version: 1.5.1
+api-version: 1.13
 author: Vontus
 
 commands:

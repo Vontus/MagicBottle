@@ -5,7 +5,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.Plugin;
-import vontus.magicbottle.util.EnchantGlow;
 import vontus.magicbottle.util.Exp;
 
 import java.text.ParseException;
@@ -81,12 +80,13 @@ public class Config {
 			}
 		}
 
-		boolean compatDisableCustomEnchantments = plugin.getConfig().getBoolean("compatibility.disable custom enchantments");
-		if (compatDisableCustomEnchantments) {
-			bottleEnchantment = Enchantment.DIG_SPEED;
-		} else {
-			bottleEnchantment = EnchantGlow.getGlow();
-		}
+//		boolean compatDisableCustomEnchantments = plugin.getConfig().getBoolean("compatibility.disable custom enchantments");
+//		if (compatDisableCustomEnchantments) {
+//			bottleEnchantment = Enchantment.DIG_SPEED;
+//		} else {
+//			bottleEnchantment = EnchantGlow.getGlow();
+//		} TODO test
+		bottleEnchantment = Enchantment.DIG_SPEED;
 	}
 
 	public static boolean canRepair(ItemStack is) {

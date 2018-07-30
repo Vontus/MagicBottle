@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -16,7 +17,7 @@ import vontus.magicbottle.util.Utils;
 import java.util.ArrayList;
 
 public class MagicBottle {
-	public static final Material materialFilled = Material.DRAGONS_BREATH;
+	public static final Material materialFilled = Material.DRAGON_BREATH;
 	public static final Material materialEmpty = Material.GLASS_BOTTLE;
 	private static final int XP_LINE = 1;
 	private static final int DURABILITY_POINTS_PER_XP = 2;
@@ -174,6 +175,8 @@ public class MagicBottle {
 		String name = replaceVariables(Messages.bottleName);
 		meta.setDisplayName(name);
 		meta.setLore(tag);
+
+		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		meta.addEnchant(Config.bottleEnchantment, 1, true);
 		item.setItemMeta(meta);
 	}
@@ -252,6 +255,8 @@ public class MagicBottle {
 			}
 			meta.setLore(lore);
 			meta.addEnchant(Config.bottleEnchantment, 1, true);
+			meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+
 			is.setItemMeta(meta);
 		} else {
 			is = new MagicBottle(0).getItem();

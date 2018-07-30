@@ -18,12 +18,15 @@ recipe:
   deposit: true
   withdraw: true
   # Enable the ability to craft new MagicBottles.
-  # If you disable this, players won't be able to craft new bottles but existing ones will remain.
+  # If you disable this, players won't be able to craft new bottles but existing ones will remain usable.
   bottle:
     enabled: true
     # The recipe to craft a new empty MagicBottle.
     # Don't modify the numbers or the order, just the content.
-    # Each slot in the crafting table is numbered from left to right and top to bottom (1 to 9).
+    # Each slot in the crafting table is numbered from left to right and top to bottom:
+    # 1 2 3
+    # 4 5 6
+    # 7 8 9
     # You can see a complete list of possible item names here: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
     # You can set AIR for an empty slot.
     recipe:
@@ -76,13 +79,3 @@ costs:
     # Enable this if you set a cost. The custom lore is in messages.yml
     # Restart the server after changing this.
     change lore: false
-
-# These compatibility settings that will try to disable things in the plugin that may break with other plugins
-# You should only change them if you're having trouble
-compatibility:
-  # Set this to true if your bottles stop working
-  # Bottles will show the enchantment 'Efficiency I' instead
-  disable custom enchantments: false
-
-# DON'T TOUCH THIS
-config version: 0

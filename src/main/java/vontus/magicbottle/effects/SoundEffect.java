@@ -1,6 +1,7 @@
 package vontus.magicbottle.effects;
 
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -12,7 +13,7 @@ public class SoundEffect {
 		if (Config.effectSound)
 			player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1);
 		if (Config.effectParticles) {
-			ParticleEffect.SPELL_WITCH.display(0.1f, 0.1f, 0.1f, 0.1f, 50, player.getLocation(), 50);
+			player.spawnParticle(Particle.SPELL_WITCH, player.getLocation(), 50,0.1f, 0.1f, 0.1f);
 		}
 	}
 
@@ -22,7 +23,7 @@ public class SoundEffect {
 		if (Config.effectParticles) {
 			Location l = player.getLocation();
 			l.setY(l.getY() + 2);
-			ParticleEffect.ENCHANTMENT_TABLE.display(0.2f, 0.2f, 0.2f, 1, 50, l, 50);
+			player.spawnParticle(Particle.ENCHANTMENT_TABLE, l, 50,0.2f, 0.2f, 0.2f);
 		}
 	}
 	

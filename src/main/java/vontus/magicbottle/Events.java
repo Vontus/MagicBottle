@@ -230,7 +230,7 @@ public class Events implements Listener {
 					MagicBottle mb = MagicBottle.getUsableMBInInventory(p.getInventory());
 					if (mb != null && !e.isCancelled()) {
 						i.setDurability((short) (i.getDurability() + e.getDamage()));
-						mb.repair(i, false);
+						plugin.autoRepairFeedback.spent(p, mb.repair(i, false));
 						e.setCancelled(true);
 						p.updateInventory();
 					}
@@ -248,11 +248,13 @@ public class Events implements Listener {
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent e) {
 		plugin.autoEnabled.remove(e.getPlayer());
+		plugin.autoRepairFeedback.clear(e.getPlayer());
 	}
 
 	@EventHandler
 	public void onPlayerKicked(PlayerKickEvent e) {
 		plugin.autoEnabled.remove(e.getPlayer());
+		plugin.autoRepairFeedback.clear(e.getPlayer());
 	}
 
 	private void onInteractDeposit(MagicBottle bottle, Player p) {

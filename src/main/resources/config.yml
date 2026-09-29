@@ -67,7 +67,7 @@ max level:
 repair:
   # Enable or disable the '/mb repair' command
   enabled: true
-  # Enable or disable the '/mb repair auto' command
+  # Enable or disable the '/mb autorepair' command
   auto: true
   # Tools and armor will need this enchantment in order to be able to repair them (its Minecraft ID, e.g. MENDING or minecraft:mending)
   # Set this to ANY if you want MagicBottle to repair any repairable tool (unenchanted tools will be repaired too)

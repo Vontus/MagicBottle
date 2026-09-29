@@ -58,7 +58,9 @@ PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are creat
 - `onItemUse` — auto-repair of tools/armor using a usable bottle anywhere in the inventory if the player has
   enabled auto-repair (tracked in `Plugin.autoEnabled`) and `Config.canRepair` accepts the item (it has the
   configured `repair.enchantment`, Mending by default, or any item if set to `ANY`; parsed by `EnchantParser`
-  from an enchantment registry key).
+  from an enchantment registry key). The exp it spends is reported to `AutoRepairFeedback`, which debounces an
+  action bar message (`messages.repair.auto spent`): it is sent once the player has gone 3 seconds without
+  auto-repairing, with the total spent meanwhile.
 
 **Recipes** (`Recipes.java`): registers a single recipe on enable, if `recipe.bottle.enabled` is on: the shaped
 "new bottle" recipe (`magicbottle:bottle`, result `MagicBottle(0)`) whose datapack-style `shape`/`ingredients`
@@ -70,7 +72,7 @@ pouring are not recipes (see `Events`).
 
 **Commands** (`Commands.java`): the single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) is a Brigadier
 tree (`Commands#build`) registered from `Plugin.onEnable` through `LifecycleEvents.COMMANDS`; it is not in
-`plugin.yml`. Subcommands (`about`, `reload`, `give <level> [amount] [player]`, `recipe`, `repair [auto]`) are literal nodes
+`plugin.yml`. Subcommands (`about`, `reload`, `give <level> [amount] [player]`, `recipe`, `repair`, `autorepair [on|off]`) are literal nodes
 gated with `.requires(...)` on their permission in `Config`, so senders only see and can run what they may.
 `give` takes typed arguments (`level` >= 0, `amount` >= 1, `player` as Paper's player selector, which fails if
 nobody matches instead of falling back to the sender); the max level and the stack size are checked at run time

@@ -22,7 +22,8 @@ public class Commands {
 	private final Plugin plugin;
 
 	private static final String USAGE_ABOUT = "/magicbottle about";
-	private static final String USAGE_REPAIR = "/magicbottle repair [auto]";
+	private static final String USAGE_REPAIR = "/magicbottle repair";
+	private static final String USAGE_AUTOREPAIR = "/magicbottle autorepair [on|off]";
 	private static final String USAGE_GIVE = "/magicbottle give <level> [amount] [player]";
 	private static final String USAGE_RECIPE = "/magicbottle recipe";
 	private static final String USAGE_RELOAD = "/magicbottle reload";
@@ -71,11 +72,21 @@ public class Commands {
 						.executes(ctx -> {
 							repair(ctx.getSource().getSender());
 							return 1;
+						}))
+				.then(literal("autorepair")
+						.requires(s -> s.getSender().hasPermission(Config.permRepairAuto))
+						.executes(ctx -> {
+							repairAuto(ctx.getSource().getSender(), null);
+							return 1;
 						})
-						.then(literal("auto")
-								.requires(s -> s.getSender().hasPermission(Config.permRepairAuto))
+						.then(literal("on")
 								.executes(ctx -> {
-									repairAuto(ctx.getSource().getSender());
+									repairAuto(ctx.getSource().getSender(), true);
+									return 1;
+								}))
+						.then(literal("off")
+								.executes(ctx -> {
+									repairAuto(ctx.getSource().getSender(), false);
 									return 1;
 								})))
 				.build();
@@ -99,17 +110,22 @@ public class Commands {
 		}
 	}
 
-	private void repairAuto(CommandSender sender) {
+	// enable is null to toggle
+	private void repairAuto(CommandSender sender, Boolean enable) {
 		if (sender instanceof Player p) {
-			commandAutoRepair(p);
+			commandAutoRepair(p, enable);
 		} else {
 			sender.sendMessage(Messages.msgOnlyPlayersCommand);
 		}
 	}
 
-	private void commandAutoRepair(Player p) {
+	private void commandAutoRepair(Player p, Boolean enable) {
 		if (Config.repairAutoEnabled) {
-			if (plugin.autoEnabled.add(p)) {
+			if (enable == null) {
+				enable = !plugin.autoEnabled.contains(p);
+			}
+			if (enable) {
+				plugin.autoEnabled.add(p);
 				p.sendMessage(Messages.repairAutoEnabled);
 			} else {
 				plugin.autoEnabled.remove(p);
@@ -196,6 +212,9 @@ public class Commands {
 		}
 		if (sender.hasPermission(Config.permRepair)) {
 			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_REPAIR);
+		}
+		if (sender.hasPermission(Config.permRepairAuto)) {
+			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_AUTOREPAIR);
 		}
 	}
 

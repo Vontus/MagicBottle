@@ -55,6 +55,10 @@ PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are creat
   recipe (identified by its key) is allowed only if `recipe.bottle.allow crafters`
   (`Config.recipeNewBottleAllowCrafters`, reloadable) is on and no slot of the crafter holds a MagicBottle
   (otherwise it would be consumed as an ingredient). Crafters can't fill or pour.
+- `onClickInventory`/`onDragInventory`/`onMoveItem` — bottles can't enter anvils or brewing stands (dragon's breath
+  is a brewing ingredient). Clicks are cancelled when the clicked item is a bottle (pick up, shift-click) or, on a
+  top slot, when the cursor, the number-key hotbar item or the offhand item (F) is one; drags over the top
+  inventory and hopper moves into those inventories are cancelled too.
 - `onItemDamage` — auto-repair of tools/armor using a usable bottle anywhere in the inventory if the player has
   enabled auto-repair (tracked in `Plugin.autoEnabled`) and `Config.canRepair` accepts the item (it has the
   configured `repair.enchantment`, Mending by default, or any item if set to `ANY`; parsed by `EnchantParser`

@@ -1,5 +1,6 @@
 package vontus.magicbottle;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -14,6 +15,9 @@ import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.util.Exp;
+
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static io.papermc.paper.command.brigadier.Commands.argument;
 import static io.papermc.paper.command.brigadier.Commands.literal;
@@ -36,23 +40,11 @@ public class Commands {
 	 */
 	LiteralCommandNode<CommandSourceStack> build() {
 		return literal("magicbottle")
-				.executes(ctx -> {
-					sendMenu(ctx.getSource().getSender());
-					return 1;
-				})
-				.then(literal("about")
-						.executes(ctx -> {
-							about(ctx.getSource().getSender());
-							return 1;
-						}))
-				.then(literal("reload")
-						.requires(s -> s.getSender().hasPermission(Config.permReload))
-						.executes(ctx -> {
-							reload(ctx.getSource().getSender());
-							return 1;
-						}))
+				.executes(run(this::sendMenu))
+				.then(literal("about").executes(run(this::about)))
+				.then(literal("reload").requires(perm(Config.permReload)).executes(run(this::reload)))
 				.then(literal("give")
-						.requires(s -> s.getSender().hasPermission(Config.permGive))
+						.requires(perm(Config.permGive))
 						.then(argument("level", IntegerArgumentType.integer(0))
 								.executes(ctx -> give(ctx, 1, false))
 								.then(argument("amount", IntegerArgumentType.integer(1))
@@ -60,18 +52,21 @@ public class Commands {
 										.then(argument("player", ArgumentTypes.player())
 												.executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "amount"), true))))))
 				.then(literal("repair")
-						.requires(s -> s.getSender().hasPermission(Config.permRepair))
-						.executes(ctx -> {
-							repair(ctx.getSource().getSender());
-							return 1;
-						})
-						.then(literal("auto")
-								.requires(s -> s.getSender().hasPermission(Config.permRepairAuto))
-								.executes(ctx -> {
-									repairAuto(ctx.getSource().getSender());
-									return 1;
-								})))
+						.requires(perm(Config.permRepair))
+						.executes(run(this::repair))
+						.then(literal("auto").requires(perm(Config.permRepairAuto)).executes(run(this::repairAuto))))
 				.build();
+	}
+
+	private static Predicate<CommandSourceStack> perm(String permission) {
+		return source -> source.getSender().hasPermission(permission);
+	}
+
+	private static Command<CommandSourceStack> run(Consumer<CommandSender> action) {
+		return ctx -> {
+			action.accept(ctx.getSource().getSender());
+			return Command.SINGLE_SUCCESS;
+		};
 	}
 
 	private void repair(CommandSender sender) {
@@ -162,7 +157,7 @@ public class Commands {
 				.replace("[amount]", String.valueOf(amount))
 				.replace("[player]", player.getName())
 				.replace("[level]", String.valueOf(level)));
-		return 1;
+		return Command.SINGLE_SUCCESS;
 	}
 
 	private void sendMenu(CommandSender sender) {

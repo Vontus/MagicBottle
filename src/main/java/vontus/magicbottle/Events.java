@@ -1,7 +1,7 @@
 package vontus.magicbottle;
 
+import org.bukkit.Keyed;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.Crafter;
 import org.bukkit.entity.Player;
@@ -10,6 +10,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.CrafterCraftEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -21,6 +22,8 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.scheduler.BukkitRunnable;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
@@ -30,6 +33,7 @@ import vontus.magicbottle.util.Utils;
 
 import java.util.HashSet;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class Events implements Listener {
 	private HashSet<UUID> wait;
@@ -48,12 +52,80 @@ public class Events implements Listener {
 		}
 	}
 
-	// Crafters have no player, so they can't get their exp moved or have their permissions checked. The fill/pour
-	// recipes are always blocked in them; the new bottle recipe only if the config allows it.
+	// Filling and pouring in a crafting grid aren't registered recipes, and vanilla's result slot doesn't consume
+	// the ingredients right when no recipe matched (it would duplicate the bottle). So vanilla must never handle a
+	// click on the result while a lone bottle is in the grid: the transaction is done here, from the current state.
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onClickCraftResult(InventoryClickEvent e) {
+		InventoryType invType = e.getView().getType();
+		if (e.getSlotType() != InventoryType.SlotType.RESULT
+				|| (invType != InventoryType.CRAFTING && invType != InventoryType.WORKBENCH)
+				|| !(e.getView().getTopInventory() instanceof CraftingInventory inv)) {
+			return;
+		}
+		ItemStack lone = getLoneBottle(inv);
+		// Middle click only clones the result in creative, without consuming anything, so vanilla can handle it
+		if (lone == null || e.getClick() == ClickType.MIDDLE) {
+			return;
+		}
+
+		e.setCancelled(true);
+		Player player = (Player) e.getWhoClicked();
+		plugin.getServer().getScheduler().runTask(plugin, player::updateInventory);
+
+		// Pick the destination before changing anything, so no exp moves if the bottle can't be delivered
+		PlayerInventory playerInv = player.getInventory();
+		ClickType click = e.getClick();
+		Consumer<ItemStack> deliver = null;
+		if (click == ClickType.LEFT || click == ClickType.RIGHT) {
+			if (Utils.getMaterial(player.getItemOnCursor()) == Material.AIR) {
+				deliver = player::setItemOnCursor;
+			}
+		} else if (click == ClickType.SHIFT_LEFT || click == ClickType.SHIFT_RIGHT) {
+			int slot = playerInv.firstEmpty();
+			if (slot >= 0) {
+				deliver = item -> playerInv.setItem(slot, item);
+			}
+		} else if (click == ClickType.NUMBER_KEY) {
+			int button = e.getHotbarButton();
+			if (button >= 0 && button < 9 && Utils.getMaterial(playerInv.getItem(button)) == Material.AIR) {
+				deliver = item -> playerInv.setItem(button, item);
+			}
+		} else if (click == ClickType.DROP || click == ClickType.CONTROL_DROP) {
+			deliver = player::dropItem;
+		} else if (click == ClickType.SWAP_OFFHAND) {
+			if (Utils.getMaterial(playerInv.getItemInOffHand()) == Material.AIR) {
+				deliver = playerInv::setItemInOffHand;
+			}
+		}
+		// Other clicks (double click...) do nothing
+		if (deliver == null) {
+			return;
+		}
+
+		MagicBottle bottle = new MagicBottle(lone.clone());
+		if (bottle.isEmpty()) {
+			if (!canFillInGrid(player)) {
+				return;
+			}
+			bottle.deposit(player, Exp.getPoints(player));
+		} else {
+			if (!canPourInGrid(player)) {
+				return;
+			}
+			bottle.withdraw(player, bottle.getExp());
+		}
+
+		inv.setMatrix(new ItemStack[inv.getMatrix().length]);
+		inv.setResult(null);
+		deliver.accept(bottle.getItem());
+	}
+
+	// Crafters have no player, so they can't have their permissions checked: the new bottle recipe is only allowed if
+	// the config allows it. Filling and pouring aren't recipes, so crafters can't do them.
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onCrafterCraft(CrafterCraftEvent e) {
-		NamespacedKey key = e.getRecipe().getKey();
-		if (key.equals(Recipes.getKey(plugin, Recipes.nameBottle))) {
+		if (e.getRecipe().getKey().equals(Recipes.getKey(plugin, Recipes.nameBottle))) {
 			// Unlike in the crafting grid (isEmptyBottleRecipe), nothing else stops a MagicBottle from being used up
 			// as an ingredient here
 			if (Config.recipeNewBottleAllowCrafters && !containsMagicBottle(e.getBlock())) {
@@ -61,8 +133,6 @@ public class Events implements Listener {
 			} else {
 				e.setCancelled(true);
 			}
-		} else if (key.equals(Recipes.getKey(plugin, Recipes.nameFill)) || key.equals(Recipes.getKey(plugin, Recipes.namePour))) {
-			e.setCancelled(true);
 		}
 	}
 
@@ -89,48 +159,27 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPrepareCraft(PrepareItemCraftEvent event) {
-		if (event.getRecipe() != null) {
-			ItemStack r = event.getRecipe().getResult();
-			if (MagicBottle.isMagicBottle(r)) {
-				MagicBottle result = new MagicBottle(r);
-				if (MagicBottle.isMagicBottle(getFirstIngredient(event.getInventory()))) {
-					if (result.isEmpty()) {
-						onPrepareRecipeWithdraw(event);
-					} else {
-						onPrepareRecipeDeposit(event);
-					}
-				} else {
-					if (!isEmptyBottleRecipe(event.getInventory())) {
-						event.getInventory().setResult(null);
-					}
-				}
+		CraftingInventory inv = event.getInventory();
+		Player player = (Player) event.getView().getPlayer();
+		ItemStack lone = getLoneBottle(inv);
+		if (lone != null) {
+			// This event also fires when no recipe matched, which is always the case for filling and pouring
+			inv.setResult(getGridPreview(new MagicBottle(lone.clone()), player));
+		} else if (event.getRecipe() != null && MagicBottle.isMagicBottle(event.getRecipe().getResult())) {
+			if (!isEmptyBottleRecipe(event.getRecipe(), inv) || !player.hasPermission(Config.permCraft)) {
+				inv.setResult(null);
 			}
 		}
 	}
 
+	// The result was already removed by onPrepareCraft if the new bottle can't be crafted, so vanilla does the craft
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onCraft(CraftItemEvent e) {
 		if (MagicBottle.isMagicBottle(e.getRecipe().getResult())) {
-			MagicBottle result = new MagicBottle(e.getRecipe().getResult());
-			if (MagicBottle.isMagicBottle(getFirstIngredient(e.getInventory()))) {
-				if (result.isEmpty()) {
-					onRecipeWithdraw(e);
-				} else {
-					onRecipeDeposit(e);
-				}
-			} else {
-				if (MagicBottle.isMagicBottle(e.getRecipe().getResult())) {
-					if (isEmptyBottleRecipe(e.getInventory())) {
-						Player player = (Player) e.getView().getPlayer();
-						if (player.hasPermission(Config.permCraft)) {
-							e.getInventory().setResult(new MagicBottle(0).getItem());
-							SoundEffect.newBottle(player);
-						} else {
-							player.sendMessage(Messages.msgUnauthorizedToCraft);
-							e.setCancelled(true);
-						}
-					}
-				}
+			if (!isEmptyBottleRecipe(e.getRecipe(), e.getInventory())) {
+				e.setCancelled(true);
+			} else if (Utils.getMaterial(e.getCurrentItem()) != Material.AIR) {
+				SoundEffect.newBottle((Player) e.getView().getPlayer());
 			}
 		}
 	}
@@ -197,57 +246,44 @@ public class Events implements Listener {
 		}
 	}
 
-	private void onPrepareRecipeWithdraw(PrepareItemCraftEvent e) {
-		Player player = (Player) e.getView().getPlayer();
-		if (!Config.recipePour || !player.hasPermission(Config.permWithdraw)) {
-			e.getInventory().setResult(null);
-		}
+	private boolean canFillInGrid(Player player) {
+		return Config.recipeFill && player.hasPermission(Config.permDeposit) && Exp.getPoints(player) > 0;
 	}
 
-	private void onPrepareRecipeDeposit(PrepareItemCraftEvent e) {
-		Player player = (Player) e.getView().getPlayer();
-		if (Config.recipeFill && player.hasPermission(Config.permDeposit) && Exp.getPoints(player) > 0) {
-			MagicBottle bottle = new MagicBottle(0);
-			int playerPoints = Exp.getPoints(player);
-			int expCost = (int) Math.round(playerPoints * Config.costPercentageDeposit);
-			int maxPoints = bottle.getMaxFillablePoints(player, playerPoints - expCost);
-			bottle.setExp(maxPoints);
-			e.getInventory().setResult(bottle.getItem());
-		} else {
-			e.getInventory().setResult(null);
-		}
+	private boolean canPourInGrid(Player player) {
+		return Config.recipePour && player.hasPermission(Config.permWithdraw);
 	}
 
-	private void onRecipeWithdraw(CraftItemEvent e) {
-		Player player = (Player) e.getView().getPlayer();
-		ItemStack i = getFirstIngredient(e.getInventory());
-		if (i != null && i.getAmount() == 1 && Config.recipePour && player.hasPermission(Config.permWithdraw)) {
-			MagicBottle bottle = new MagicBottle(i);
-			bottle.withdraw(player, bottle.getExp());
-			e.getInventory().setResult(new MagicBottle(0).getItem());
-		} else {
-			e.setCancelled(true);
+	// What filling or pouring the lone bottle of a crafting grid would give, or null if the player can't do it
+	private ItemStack getGridPreview(MagicBottle ingredient, Player player) {
+		if (ingredient.isEmpty()) {
+			if (canFillInGrid(player)) {
+				MagicBottle bottle = new MagicBottle(0);
+				int playerPoints = Exp.getPoints(player);
+				int expCost = (int) Math.round(playerPoints * Config.costPercentageDeposit);
+				int maxPoints = bottle.getMaxFillablePoints(player, playerPoints - expCost);
+				bottle.setExp(maxPoints);
+				return bottle.getItem();
+			}
+		} else if (canPourInGrid(player)) {
+			return new MagicBottle(0).getItem();
 		}
+		return null;
 	}
 
-	private void onRecipeDeposit(CraftItemEvent e) {
-		Player player = (Player) e.getView().getPlayer();
-		ItemStack ingredient = getFirstIngredient(e.getInventory());
-		if (ingredient != null && ingredient.getAmount() == 1 && Exp.getPoints(player) > 0 && player.hasPermission(Config.permDeposit)
-				&& Config.recipeFill) {
-			MagicBottle bottle = new MagicBottle(0);
-			bottle.deposit(player, Exp.getPoints(player));
-			e.getInventory().setResult(bottle.getItem());
-		} else {
-			e.setCancelled(true);
-		}
-	}
-
-	private ItemStack getFirstIngredient(CraftingInventory inv) {
+	// The only item in the grid, if it's a single MagicBottle (not a stack)
+	private ItemStack getLoneBottle(CraftingInventory inv) {
+		ItemStack lone = null;
 		for (ItemStack i : inv.getMatrix()) {
 			if (Utils.getMaterial(i) != Material.AIR) {
-				return i;
+				if (lone != null) {
+					return null;
+				}
+				lone = i;
 			}
+		}
+		if (lone != null && lone.getAmount() == 1 && MagicBottle.isMagicBottle(lone)) {
+			return lone;
 		}
 		return null;
 	}
@@ -268,11 +304,14 @@ public class Events implements Listener {
 		}
 	}
 
-	private boolean isEmptyBottleRecipe(CraftingInventory inv) {
-		for (int i = 0; i < 9; i++) {
-			ItemStack item = inv.getMatrix()[i];
-			Material m = Config.getBottleRecipeIngredient(i + 1);
-			if (!Utils.getMaterial(item).equals(m) || MagicBottle.isMagicBottle(item)) {
+	// The new bottle recipe can match anywhere in the grid (and mirrored), so it's identified by its key. A MagicBottle
+	// can still match one of its ingredients (e.g. dragon_breath), but it must never be used up to craft a new one.
+	private boolean isEmptyBottleRecipe(Recipe recipe, CraftingInventory inv) {
+		if (!(recipe instanceof Keyed keyed) || !keyed.getKey().equals(Recipes.getKey(plugin, Recipes.nameBottle))) {
+			return false;
+		}
+		for (ItemStack item : inv.getMatrix()) {
+			if (MagicBottle.isMagicBottle(item)) {
 				return false;
 			}
 		}

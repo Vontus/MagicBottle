@@ -13,12 +13,13 @@ effect:
   particles: true
 
 recipe:
-  # Enable or disable the ability to fill or pour the bottle by using it in a crafting grid.
-  # You must restart your server after changing any of the recipes configurations.
+  # Enable or disable the ability to fill or pour the bottle by putting it alone in a crafting grid.
+  # These two options are applied with '/mb reload'.
   deposit: true
   withdraw: true
   # Enable the ability to craft new MagicBottles.
   # If you disable this, players won't be able to craft new bottles but existing ones will remain usable.
+  # You must restart your server after changing 'enabled' or 'recipe'.
   bottle:
     enabled: true
     # Allow crafters to craft new MagicBottles.

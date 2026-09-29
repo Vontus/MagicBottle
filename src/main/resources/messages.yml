@@ -29,7 +29,6 @@ messages:
     deposit: '&cYou do not have permission to save experience.'
     withdraw: '&cYou do not have permission to take experience.'
     command: '&cYou do not have permission to use that command.'
-    craft: '&cYou do not have permission to craft that.'
     
   commands:
     correct use: '&cCorrect use: [use]'

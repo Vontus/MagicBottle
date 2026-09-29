@@ -1,6 +1,7 @@
 package vontus.magicbottle;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -43,8 +44,9 @@ class LegacyBottle {
 
 	private static Integer parseExp(ItemStack item) {
 		try {
-			String line = item.getItemMeta().getLore().get(XP_LINE);
-			return Integer.parseInt(ChatColor.stripColor(line).trim().replace(",", ""));
+			// The lore was written with legacy color codes; only its text matters
+			Component line = item.lore().get(XP_LINE);
+			return Integer.parseInt(PlainTextComponentSerializer.plainText().serialize(line).trim().replace(",", ""));
 		} catch (Exception e) {
 			return null;
 		}

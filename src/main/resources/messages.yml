@@ -1,51 +1,56 @@
+
 # --------------------- MagicBottle Messages ---------------------
 # Customize texts and colors MagicBottle uses when messaging players
-# Use & for formatting. To see how to use it visit http://minecraft.gamepedia.com/Formatting_codes
+# Messages use MiniMessage, e.g. '<gold>Level <level></gold>'. To see how to use it visit
+# https://docs.advntr.dev/minimessage/format.html
 # For an explanation of how to edit this file, see config.yml
 # -------------------------------------------------------------
 
 # Messages:
 
-# '[levels]' represents level number:
-# '[xpbar]' is a bar that shows the current xp progression to the next level
+# Placeholders are written between < and >:
+# '<level>' represents level number
+# '<points>' represents the experience points
+# '<xpbar>' is a bar that shows the current xp progression to the next level
+# Item texts are not italic unless you add <italic>.
 bottle text:
-  name: '&5&lMagicBottle &7| &eLevel [level] &7| [xpbar]'
-  experience text: '&5Experience points:'
-  experience color: ' &e' #If you put more than colors and spaces here, bottles won't work.
-  filled bar color: '&5'
-  empty bar color: '&e'
+  name: '<dark_purple><bold>MagicBottle</bold> <gray>| <yellow>Level <level> <gray>| <xpbar>'
+  experience text: '<dark_purple>Experience points:'
+  experience: ' <yellow><points>'
+  filled bar color: '<dark_purple>' # Put before each filled part of <xpbar>. Use only colors and formatting tags.
+  empty bar color: '<yellow>' # Put before each empty part of <xpbar>. Use only colors and formatting tags.
   lore:
-    - '&5Instructions:'
-    - ' &eSave XP: &7(Shift +) Left Click.'
-    - ' &eTake XP: &7(Shift +) Right Click.'
-    - ' &eYou can also put the bottle in a crafting grid'
-    - ' &eto save or take all the experience.'
+    - '<dark_purple>Instructions:'
+    - ' <yellow>Save XP: <gray>(Shift +) Left Click.'
+    - ' <yellow>Take XP: <gray>(Shift +) Right Click.'
+    - ' <yellow>You can also put the bottle in a crafting grid'
+    - ' <yellow>to save or take all the experience.'
 
 messages:
-  max level reached: '&cThe maximum level you can save in a MagicBottle is [level].'
-  only players command: '&cOnly players can use this command.'
+  max level reached: '<red>The maximum level you can save in a MagicBottle is <level>.'
+  only players command: '<red>Only players can use this command.'
 
   unauthorized:
-    deposit: '&cYou do not have permission to save experience.'
-    withdraw: '&cYou do not have permission to take experience.'
-    command: '&cYou do not have permission to use that command.'
-    
+    deposit: '<red>You do not have permission to save experience.'
+    withdraw: '<red>You do not have permission to take experience.'
+    command: '<red>You do not have permission to use that command.'
+
   commands:
-    correct use: '&cCorrect use: [use]'
-    reload completed: '&eConfiguration reloaded.'
-    level not valid: '&cLevel must be a number between 0 and 20,000.'
-    amount not valid: '&cAmount must be between 1 and [max].'
-    given bottle: '&eGiven [amount] MagicBottle(s) to [player] with [level] levels.'
-    
+    correct use: '<red>Correct use: <use>'
+    reload completed: '<yellow>Configuration reloaded.'
+    level not valid: '<red>Level must be a number between 0 and 20,000.'
+    amount not valid: '<red>Amount must be between 1 and <max>.'
+    given bottle: '<yellow>Given <amount> MagicBottle(s) to <player> with <level> levels.'
+
   recipe:
-    title: '&5New MagicBottle recipe'
-    disabled: '&cCrafting new MagicBottles is disabled in this server.'
+    title: '<dark_purple>New MagicBottle recipe'
+    disabled: '<red>Crafting new MagicBottles is disabled in this server.'
 
   repair:
-    inventory repaired: '&eSpent &5[xp] &eXP in repairing your tools.'
-    enabled autorepair: '&eAutorepair has been &aenabled&e.'
-    disabled autorepair: '&eAutorepair has been &cdisabled&e.'
-    auto spent: '&eAutorepair spent &5[xp] &eXP.'
-    config repairing disabled: '&cRepairing is disabled in this server.'
-    config auto repairing disabled: '&cAutomatic repairing is disabled in this server.'
-    mb not in hand: '&cYou must have a MagicBottle with experience in your main hand to use this command.'
+    inventory repaired: '<yellow>Spent <dark_purple><xp></dark_purple> XP in repairing your tools.'
+    enabled autorepair: '<yellow>Autorepair has been <green>enabled</green>.'
+    disabled autorepair: '<yellow>Autorepair has been <red>disabled</red>.'
+    auto spent: '<yellow>Autorepair spent <dark_purple><xp></dark_purple> XP.'
+    config repairing disabled: '<red>Repairing is disabled in this server.'
+    config auto repairing disabled: '<red>Automatic repairing is disabled in this server.'
+    mb not in hand: '<red>You must have a MagicBottle with experience in your main hand to use this command.'

@@ -92,6 +92,14 @@ is `MagicBottle.createDisplayItem()`, a bottle without the PDC markers, so it is
 all game logic reads these static fields rather than touching the config files directly. Permission node
 strings are also defined as constants on `Config`.
 
+**Messages**: `messages.yml` is written in MiniMessage (no `&` codes, no `ChatColor`), and everything player-facing is
+sent as Adventure components. `Messages` parses the messages without placeholders into `Component`s on load; the
+ones with placeholders stay raw strings and are rendered with `Messages.render(msg, TagResolver...)`, passing
+`Placeholder.unparsed` for values (player names, numbers) and `Placeholder.parsed` only for trusted MiniMessage
+(the bottle's `<xpbar>`), never `String.replace`. Bottle name and lore use `Messages.renderItemText`, which turns
+italics off unless the message asks for them (vanilla shows custom item text italic). Legacy 1.5.x lore is read
+
+
 **XP math** (`util/Exp.java`): ported from EssentialsX. Bukkit's built-in level/exp handling only tracks the
 in-progress level, so this class recomputes true total XP points and implements the get/set/give/take API
 plus the level↔exp conversion formulas (`getLevelFromExp`, `getExpAtLevel`) that vanilla Minecraft uses.

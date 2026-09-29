@@ -7,7 +7,9 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -144,7 +146,7 @@ public class Commands {
 				MagicBottle mb = new MagicBottle(inHand);
 				Integer usedXP = mb.repair(p.getInventory(), true);
 				p.updateInventory();
-				p.sendMessage(Messages.repairInvRepaired.replace("[xp]", usedXP.toString()));
+				p.sendMessage(Messages.render(Messages.repairInvRepaired, Placeholder.unparsed("xp", usedXP.toString())));
 			} else {
 				p.sendMessage(Messages.repairMbNotInHand);
 			}
@@ -154,8 +156,8 @@ public class Commands {
 	}
 
 	private void about(CommandSender sender) {
-		sender.sendMessage(ChatColor.GOLD + plugin.getDescription().getFullName() + " by Vontus");
-		sender.sendMessage(ChatColor.YELLOW + "https://www.spigotmc.org/resources/magicbottle.40039/");
+		sender.sendMessage(Component.text(plugin.getDescription().getFullName() + " by Vontus", NamedTextColor.GOLD));
+		sender.sendMessage(Component.text("https://www.spigotmc.org/resources/magicbottle.40039/", NamedTextColor.YELLOW));
 	}
 
 	private void reload(CommandSender sender) {
@@ -186,35 +188,36 @@ public class Commands {
 
 		int maxAmount = new MagicBottle(Exp.getExpAtLevel(level)).getItem().getMaxStackSize();
 		if (amount > maxAmount) {
-			sender.sendMessage(Messages.cmdMsgAmountNotValid.replace("[max]", String.valueOf(maxAmount)));
+			sender.sendMessage(Messages.render(Messages.cmdMsgAmountNotValid,
+					Placeholder.unparsed("max", String.valueOf(maxAmount))));
 			return 0;
 		}
 
 		giveBottlesWithLevel(level, amount, player);
-		sender.sendMessage(Messages.cmdMsgGivenMagicBottle
-				.replace("[amount]", String.valueOf(amount))
-				.replace("[player]", player.getName())
-				.replace("[level]", String.valueOf(level)));
+		sender.sendMessage(Messages.render(Messages.cmdMsgGivenMagicBottle,
+				Placeholder.unparsed("amount", String.valueOf(amount)),
+				Placeholder.unparsed("player", player.getName()),
+				Placeholder.unparsed("level", String.valueOf(level))));
 		return 1;
 	}
 
 	private void sendMenu(CommandSender sender) {
-		sender.sendMessage(ChatColor.GOLD + "- MagicBottle Commands -");
-		sender.sendMessage(ChatColor.YELLOW + " " + USAGE_ABOUT);
+		sender.sendMessage(Component.text("- MagicBottle Commands -", NamedTextColor.GOLD));
+		sender.sendMessage(Component.text(" " + USAGE_ABOUT, NamedTextColor.YELLOW));
 		if (sender.hasPermission(Config.permGive)) {
-			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_GIVE);
+			sender.sendMessage(Component.text(" " + USAGE_GIVE, NamedTextColor.YELLOW));
 		}
 		if (sender.hasPermission(Config.permReload)) {
-			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_RELOAD);
+			sender.sendMessage(Component.text(" " + USAGE_RELOAD, NamedTextColor.YELLOW));
 		}
 		if (sender.hasPermission(Config.permRecipe)) {
-			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_RECIPE);
+			sender.sendMessage(Component.text(" " + USAGE_RECIPE, NamedTextColor.YELLOW));
 		}
 		if (sender.hasPermission(Config.permRepair)) {
-			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_REPAIR);
+			sender.sendMessage(Component.text(" " + USAGE_REPAIR, NamedTextColor.YELLOW));
 		}
 		if (sender.hasPermission(Config.permRepairAuto)) {
-			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_AUTOREPAIR);
+			sender.sendMessage(Component.text(" " + USAGE_AUTOREPAIR, NamedTextColor.YELLOW));
 		}
 	}
 

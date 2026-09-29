@@ -27,8 +27,10 @@ executor, sets up Vault economy (optional), and starts bStats metrics.
 **Core domain object**: `MagicBottle` wraps a Bukkit `ItemStack` and is the single source of truth for how
 XP is represented on an item. Bottles are identified by a `magicbottle:bottle` PersistentDataContainer marker
 and the XP amount is stored in `magicbottle:exp` (see `isMagicBottle`/`calculateExp`); the glint comes from
-`setEnchantmentGlintOverride`. The lore only displays the XP. There is no support for bottles made by older
-plugin versions (lore/enchantment based); nobody uses them anymore. The item's material
+`setEnchantmentGlintOverride`. The lore only displays the XP. Everything about the 1.5.x format (hidden
+Efficiency enchantment, XP parsed from lore line 1) lives in `LegacyBottle`: those bottles are recognized by
+`isMagicBottle` and rewritten in the current format when a `MagicBottle` is built from them or when their owner
+joins (inventory and ender chest), so no other code has to know about it. The item's material
 switches between `materialEmpty` (`GLASS_BOTTLE`) and `materialFilled` (`DRAGON_BREATH`) depending on whether
 it holds XP. Any code creating/mutating a bottle must go through `MagicBottle` so the item's
 PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are created in `MagicBottle.init`, which

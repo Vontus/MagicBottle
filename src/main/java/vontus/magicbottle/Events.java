@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.CraftingInventory;
@@ -145,6 +146,12 @@ public class Events implements Listener {
 				}
 			}
 		}
+	}
+
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent e) {
+		LegacyBottle.migrateInventory(e.getPlayer().getInventory());
+		LegacyBottle.migrateInventory(e.getPlayer().getEnderChest());
 	}
 
 	@EventHandler

@@ -37,10 +37,22 @@ public class MagicBottle {
 	}
 
 	MagicBottle(ItemStack expContainer) {
+		LegacyBottle.migrateIfLegacy(expContainer);
 		item = expContainer;
 		exp = calculateExp(expContainer);
 	}
-	
+
+	private MagicBottle(ItemStack expContainer, int exp) {
+		item = expContainer;
+		this.exp = exp;
+		recreate();
+	}
+
+	// Writes the given exp into an existing item in the current bottle format
+	static void rewrite(ItemStack item, int exp) {
+		new MagicBottle(item, exp);
+	}
+
 	private void recreate() {
 		Material mat;
 		if (exp > 0) {
@@ -219,10 +231,14 @@ public class MagicBottle {
 		return item.getItemMeta().getPersistentDataContainer().getOrDefault(keyExp, PersistentDataType.INTEGER, 0);
 	}
 
+	static boolean hasBottleMarker(ItemStack item) {
+		return item.getItemMeta().getPersistentDataContainer().has(keyBottle, PersistentDataType.BYTE);
+	}
+
 	public static boolean isMagicBottle(ItemStack item) {
 		return item != null &&
 				(item.getType() == materialFilled || item.getType() == materialEmpty) &&
-				item.getItemMeta().getPersistentDataContainer().has(keyBottle, PersistentDataType.BYTE);
+				(hasBottleMarker(item) || LegacyBottle.isLegacyBottle(item));
 	}
 	
 	public static boolean isUsableMagicBottle(ItemStack item) {

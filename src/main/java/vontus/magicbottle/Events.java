@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Crafter;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -13,6 +14,8 @@ import org.bukkit.event.block.CrafterCraftEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -45,6 +48,32 @@ public class Events implements Listener {
 	Events(Plugin plugin) {
 		this.plugin = plugin;
 		this.lastClick = new HashMap<>();
+	}
+
+	// The recipe menu is read-only. Every click is cancelled while it is the top inventory, including the ones
+	// in the player's own inventory (shift-click, number keys, offhand swap, double click collecting items...)
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onClickRecipeMenu(InventoryClickEvent e) {
+		if (RecipeMenu.isRecipeMenu(e.getView().getTopInventory())) {
+			e.setResult(Event.Result.DENY);
+			e.setCancelled(true);
+		}
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onDragRecipeMenu(InventoryDragEvent e) {
+		if (RecipeMenu.isRecipeMenu(e.getView().getTopInventory())) {
+			e.setResult(Event.Result.DENY);
+			e.setCancelled(true);
+		}
+	}
+
+	// Nothing in it is real, so it is emptied before the server can return any item to the player
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onCloseRecipeMenu(InventoryCloseEvent e) {
+		if (RecipeMenu.isRecipeMenu(e.getInventory())) {
+			e.getInventory().clear();
+		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)

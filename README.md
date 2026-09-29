@@ -22,7 +22,7 @@ You can find the default configuration [here](https://github.com/Vontus/MagicBot
 Everything you need to know is documented in it.
 ## Permissions
 - **magicbottle.action.craft**
-	- Allows you to craft MagicBottles.
+	- Allows you to craft MagicBottles and see their recipe with `/mb recipe`.
 	- Players have this permission by default.
 - **magicbottle.action.deposit**
 	- Allows you to deposit experience in MagicBottles.

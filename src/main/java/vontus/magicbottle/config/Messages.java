@@ -28,6 +28,9 @@ public class Messages {
     public static String bottleEmptyBarColor;
     public static ArrayList<String> bottleLore;
 
+    public static String recipeTitle;
+    public static String recipeDisabled;
+
     public static String repairInvRepaired;
     public static String repairAutoEnabled;
     public static String repairAutoDisabled;
@@ -56,6 +59,9 @@ public class Messages {
         bottleFilledBarColor = prepMsg("bottle text.filled bar color");
         bottleEmptyBarColor = prepMsg("bottle text.empty bar color");
         bottleLore = getStringList("bottle text.lore");
+
+        recipeTitle = prepMsg("messages.recipe.title");
+        recipeDisabled = prepMsg("messages.recipe.disabled");
 
         repairInvRepaired = prepMsg("messages.repair.inventory repaired");
         repairAutoEnabled = prepMsg("messages.repair.enabled autorepair");

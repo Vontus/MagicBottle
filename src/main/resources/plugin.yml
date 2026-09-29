@@ -7,7 +7,7 @@ author: Vontus
 
 permissions:
   magicbottle.action.craft:
-    description: 'Allows a player to craft MagicBottles'
+    description: 'Allows a player to craft MagicBottles and see their recipe'
     default: true
   magicbottle.action.deposit:
     description: 'Allows a player to save experience in MagicBottles'

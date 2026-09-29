@@ -141,7 +141,7 @@ public class Commands {
 		int level = getInteger(ctx, "level");
 
 		if (!(target instanceof Player player)) {
-			sender.sendMessage("You must specify a connected player");
+			sender.sendMessage(Messages.cmdMsgPlayerRequired);
 			return 0;
 		}
 

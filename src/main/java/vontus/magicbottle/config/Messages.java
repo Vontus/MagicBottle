@@ -19,6 +19,7 @@ public class Messages {
 	
 	public static String cmdMsgReloadCompleted;
 	public static String cmdMsgGivenMagicBottle;
+	public static String cmdMsgPlayerRequired;
 	
     public static String bottleName;
     public static String bottleLevelText;
@@ -47,6 +48,7 @@ public class Messages {
 		
 		cmdMsgReloadCompleted = prepMsg("messages.commands.reload completed");
 		cmdMsgGivenMagicBottle = prepMsg("messages.commands.given bottle");
+		cmdMsgPlayerRequired = prepMsg("messages.commands.player required");
 
         bottleName = prepMsg("bottle text.name");
         bottleLevelText = prepMsg("bottle text.experience text");

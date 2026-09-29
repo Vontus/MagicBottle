@@ -31,6 +31,7 @@ messages:
   commands:
     reload completed: '&eConfiguration reloaded.'
     given bottle: '&eGiven [amount] MagicBottle(s) to [player] with [level] levels.'
+    player required: '&cYou must specify a connected player.'
     
   repair:
     inventory repaired: '&eSpent &5[xp] &eXP in repairing your tools.'

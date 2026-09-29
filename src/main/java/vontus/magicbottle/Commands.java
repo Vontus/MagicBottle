@@ -1,15 +1,14 @@
 package vontus.magicbottle;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.config.Config;
@@ -19,6 +18,8 @@ import vontus.magicbottle.util.Exp;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
+import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static io.papermc.paper.command.brigadier.Commands.argument;
 import static io.papermc.paper.command.brigadier.Commands.literal;
 
@@ -48,12 +49,15 @@ public class Commands {
 				.then(literal("reload").requires(perm(Config.permReload)).executes(run(this::reload)))
 				.then(literal("give")
 						.requires(perm(Config.permGive))
-						.then(argument("level", IntegerArgumentType.integer(0))
-								.executes(ctx -> give(ctx, 1, false))
-								.then(argument("amount", IntegerArgumentType.integer(1, MAX_GIVE_AMOUNT))
-										.executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "amount"), false))
+						.then(argument("level", integer(0))
+								.executes(ctx -> give(ctx, 1, ctx.getSource().getExecutor()))
+								.then(argument("amount", integer(1, MAX_GIVE_AMOUNT))
+										.executes(ctx -> give(ctx, getInteger(ctx, "amount"), ctx.getSource().getExecutor()))
 										.then(argument("player", ArgumentTypes.player())
-												.executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "amount"), true))))))
+												// Fails if the selector matches nobody, it never falls back to the executor
+												.executes(ctx -> give(ctx, getInteger(ctx, "amount"), ctx
+														.getArgument("player", PlayerSelectorArgumentResolver.class)
+														.resolve(ctx.getSource()).getFirst()))))))
 				.then(literal("repair")
 						.requires(perm(Config.permRepair).and(isPlayer()))
 						.executes(asPlayer(this::repair))
@@ -120,23 +124,17 @@ public class Commands {
 		sender.sendMessage(Messages.cmdMsgReloadCompleted);
 	}
 
-	private int give(CommandContext<CommandSourceStack> ctx, int amount, boolean withPlayer) throws CommandSyntaxException {
+	/** Gives the bottles to {@code target}, which is the executor unless a player was specified. */
+	private int give(CommandContext<CommandSourceStack> ctx, int amount, Entity target) {
 		CommandSender sender = ctx.getSource().getSender();
-		int level = IntegerArgumentType.getInteger(ctx, "level");
+		int level = getInteger(ctx, "level");
 
 		// The max level is configurable (and reloadable), so it can't be a fixed bound of the argument
 		if (level > Config.maxLevel) {
 			sender.sendMessage(Messages.cmdMsgLevelNotValid);
 			return 0;
 		}
-
-		Player player;
-		if (withPlayer) {
-			// Fails if the selector matches nobody, it never falls back to the sender
-			player = ctx.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(ctx.getSource()).getFirst();
-		} else if (sender instanceof Player p) {
-			player = p;
-		} else {
+		if (!(target instanceof Player player)) {
 			sender.sendMessage("You must specify a connected player");
 			return 0;
 		}

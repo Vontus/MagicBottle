@@ -1,5 +1,6 @@
 package vontus.magicbottle;
 
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -7,6 +8,7 @@ import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class Plugin extends JavaPlugin {
@@ -20,7 +22,9 @@ public class Plugin extends JavaPlugin {
 		loadConfig();
 		new Recipes(this);
 		this.getServer().getPluginManager().registerEvents(new Events(this), this);
-		this.getCommand("magicbottle").setExecutor(new Commands(this));
+		Commands commands = new Commands(this);
+		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event ->
+				event.registrar().register(commands.build(), "Main plugin command", List.of("mb", "magicb", "mbottle")));
 		new Metrics(this);
 	}
 

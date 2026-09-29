@@ -5,11 +5,6 @@ version: ${version}
 api-version: '26.2'
 author: Vontus
 
-commands:
-  magicbottle:
-    description: 'Main plugin command'
-    aliases: [mb, magicb, mbottle]
-
 permissions:
   magicbottle.action.craft:
     description: 'Allows a player to craft MagicBottles'

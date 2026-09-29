@@ -47,7 +47,7 @@ public class Config {
 	public static boolean repairAutoEnabled;
 
 	private static int defaultRankMaxLevel;
-	public static int maxLevel = 20000;
+	public static final int maxLevel = 20000;
 
 	public static double costPercentageDeposit;
 

@@ -28,22 +28,18 @@ bottle text:
 
 messages:
   max level reached: '<red>The maximum level you can save in a MagicBottle is <level>.'
-  only players command: '<red>Only players can use this command.'
 
   unauthorized:
     deposit: '<red>You do not have permission to save experience.'
     withdraw: '<red>You do not have permission to take experience.'
-    command: '<red>You do not have permission to use that command.'
 
   commands:
-    correct use: '<red>Correct use: <use>'
     reload completed: '<yellow>Configuration reloaded.'
-    level not valid: '<red>Level must be a number between 0 and 20,000.'
-    amount not valid: '<red>Amount must be between 1 and <max>.'
     given bottle: '<yellow>Given <amount> MagicBottle(s) to <player> with <level> levels.'
+    player required: '<red>You must specify a connected player.'
 
   recipe:
-    title: '<dark_purple>New MagicBottle recipe'
+    title: '<dark_purple>MagicBottle recipe'
     disabled: '<red>Crafting new MagicBottles is disabled in this server.'
 
   repair:

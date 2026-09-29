@@ -24,20 +24,14 @@ public class Messages {
 
 	// Placeholders: <level>
 	public static String msgMaxLevelReached;
-	public static Component msgOnlyPlayersCommand;
 
 	public static Component msgUnauthorizedToDeposit;
 	public static Component msgUnauthorizedToWithdraw;
-	public static Component msgUnauthorizedToUseCommand;
 
-	// Placeholders: <use>
-	public static String cmdMsgCorrectUse;
 	public static Component cmdMsgReloadCompleted;
-	public static Component cmdMsgLevelNotValid;
-	// Placeholders: <max>
-	public static String cmdMsgAmountNotValid;
 	// Placeholders: <amount>, <player>, <level>
 	public static String cmdMsgGivenMagicBottle;
+	public static Component cmdMsgPlayerRequired;
 
 	// Placeholders of the bottle texts: <level>, <points>, <xpbar>
 	public static String bottleName;
@@ -68,17 +62,13 @@ public class Messages {
 		// ************************************************
 
 		msgMaxLevelReached = file.getString("messages.max level reached");
-		msgOnlyPlayersCommand = component("messages.only players command");
 
 		msgUnauthorizedToDeposit = component("messages.unauthorized.deposit");
 		msgUnauthorizedToWithdraw = component("messages.unauthorized.withdraw");
-		msgUnauthorizedToUseCommand = component("messages.unauthorized.command");
 
-		cmdMsgCorrectUse = file.getString("messages.commands.correct use");
 		cmdMsgReloadCompleted = component("messages.commands.reload completed");
-		cmdMsgLevelNotValid = component("messages.commands.level not valid");
-		cmdMsgAmountNotValid = file.getString("messages.commands.amount not valid");
 		cmdMsgGivenMagicBottle = file.getString("messages.commands.given bottle");
+		cmdMsgPlayerRequired = component("messages.commands.player required");
 
 		bottleName = file.getString("bottle text.name");
 		bottleLevelText = file.getString("bottle text.experience text");

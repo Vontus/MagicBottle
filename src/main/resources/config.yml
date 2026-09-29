@@ -69,6 +69,8 @@ repair:
   enabled: true
   # Enable or disable the '/mb autorepair' command
   auto: true
+  # Show an action bar message with the experience spent by autorepair (sent once you stop repairing for 3 seconds)
+  auto feedback: true
   # Tools and armor will need this enchantment in order to be able to repair them (its Minecraft ID, e.g. MENDING or minecraft:mending)
   # Set this to ANY if you want MagicBottle to repair any repairable tool (unenchanted tools will be repaired too)
   enchantment: MENDING

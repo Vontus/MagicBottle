@@ -3,6 +3,7 @@ package vontus.magicbottle;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
+import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 
 import java.util.HashMap;
@@ -29,7 +30,7 @@ class AutoRepairFeedback {
 	}
 
 	void spent(Player player, int xp) {
-		if (xp <= 0) {
+		if (xp <= 0 || !Config.repairAutoFeedback) {
 			return;
 		}
 		Pending p = pending.computeIfAbsent(player.getUniqueId(), id -> new Pending());

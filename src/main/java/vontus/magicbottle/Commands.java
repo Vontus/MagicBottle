@@ -1,34 +1,48 @@
 package vontus.magicbottle;
 
-import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.util.Exp;
 
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
+import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
+import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static io.papermc.paper.command.brigadier.Commands.argument;
 import static io.papermc.paper.command.brigadier.Commands.literal;
+import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.format.NamedTextColor.GOLD;
+import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
 
 public class Commands {
 	private final Plugin plugin;
+	private LiteralCommandNode<CommandSourceStack> root;
 
-	private static final String USAGE_ABOUT = "/magicbottle about";
-	private static final String USAGE_REPAIR = "/magicbottle repair";
-	private static final String USAGE_AUTOREPAIR = "/magicbottle autorepair [on|off]";
-	private static final String USAGE_GIVE = "/magicbottle give <level> [amount] [player]";
-	private static final String USAGE_RECIPE = "/magicbottle recipe";
-	private static final String USAGE_RELOAD = "/magicbottle reload";
+	// Usage shown in the menu for each subcommand node
+	private static final Map<String, String> USAGES = Map.of(
+			"about", "/magicbottle about",
+			"reload", "/magicbottle reload",
+			"give", "/magicbottle give <level> [amount] [player]",
+			"recipe", "/magicbottle recipe",
+			"repair", "/magicbottle repair",
+			"autorepair", "/magicbottle autorepair [on|off]");
+
+	// One stack: both bottle materials stack up to 64
+	private static final int MAX_GIVE_AMOUNT = 64;
 
 	Commands(Plugin plugin) {
 		this.plugin = plugin;
@@ -36,128 +50,107 @@ public class Commands {
 
 	/**
 	 * Builds the /magicbottle command tree. Each subcommand is a literal node, and it is hidden from (and refused
-	 * to) senders lacking its permission, so new subcommands are added here.
+	 * to) senders lacking its permission, so new subcommands are added here along with their entry in USAGES.
 	 */
 	LiteralCommandNode<CommandSourceStack> build() {
-		return literal("magicbottle")
+		root = literal("magicbottle")
 				.executes(ctx -> {
-					sendMenu(ctx.getSource().getSender());
-					return 1;
+					sendMenu(ctx.getSource());
+					return Command.SINGLE_SUCCESS;
 				})
-				.then(literal("about")
-						.executes(ctx -> {
-							about(ctx.getSource().getSender());
-							return 1;
-						}))
-				.then(literal("reload")
-						.requires(s -> s.getSender().hasPermission(Config.permReload))
-						.executes(ctx -> {
-							reload(ctx.getSource().getSender());
-							return 1;
-						}))
+				.then(literal("about").executes(run(this::about)))
+				.then(literal("reload").requires(perm(Config.permReload)).executes(run(this::reload)))
 				.then(literal("give")
-						.requires(s -> s.getSender().hasPermission(Config.permGive))
-						.then(argument("level", IntegerArgumentType.integer(0))
-								.executes(ctx -> give(ctx, 1, false))
-								.then(argument("amount", IntegerArgumentType.integer(1))
-										.executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "amount"), false))
+						.requires(perm(Config.permGive))
+						.then(argument("level", integer(0, Config.maxLevel))
+								.executes(ctx -> give(ctx, 1, ctx.getSource().getExecutor()))
+								.then(argument("amount", integer(1, MAX_GIVE_AMOUNT))
+										.executes(ctx -> give(ctx, getInteger(ctx, "amount"), ctx.getSource().getExecutor()))
 										.then(argument("player", ArgumentTypes.player())
-												.executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "amount"), true))))))
-				.then(literal("recipe")
-						.requires(s -> s.getSender().hasPermission(Config.permRecipe))
-						.executes(ctx -> {
-							recipe(ctx.getSource().getSender());
-							return 1;
-						}))
+												// Fails if the selector matches nobody, it never falls back to the executor
+												.executes(ctx -> give(ctx, getInteger(ctx, "amount"), ctx
+														.getArgument("player", PlayerSelectorArgumentResolver.class)
+														.resolve(ctx.getSource()).getFirst()))))))
+				.then(literal("recipe").requires(perm(Config.permCraft).and(isPlayer())).executes(asPlayer(this::recipe)))
 				.then(literal("repair")
-						.requires(s -> s.getSender().hasPermission(Config.permRepair))
-						.executes(ctx -> {
-							repair(ctx.getSource().getSender());
-							return 1;
-						}))
+						.requires(perm(Config.permRepair).and(isPlayer()))
+						.executes(asPlayer(this::repair)))
 				.then(literal("autorepair")
-						.requires(s -> s.getSender().hasPermission(Config.permRepairAuto))
-						.executes(ctx -> {
-							repairAuto(ctx.getSource().getSender(), null);
-							return 1;
-						})
-						.then(literal("on")
-								.executes(ctx -> {
-									repairAuto(ctx.getSource().getSender(), true);
-									return 1;
-								}))
-						.then(literal("off")
-								.executes(ctx -> {
-									repairAuto(ctx.getSource().getSender(), false);
-									return 1;
-								})))
+						.requires(perm(Config.permRepairAuto).and(isPlayer()))
+						.executes(asPlayer(p -> setAutoRepair(p, null)))
+						.then(literal("on").executes(asPlayer(p -> setAutoRepair(p, true))))
+						.then(literal("off").executes(asPlayer(p -> setAutoRepair(p, false)))))
 				.build();
+		return root;
 	}
 
-	private void recipe(CommandSender sender) {
-		if (!(sender instanceof Player p)) {
-			sender.sendMessage(Messages.msgOnlyPlayersCommand);
-		} else if (Config.recipeNewBottleEnabled) {
+	private static Predicate<CommandSourceStack> perm(String permission) {
+		return source -> source.getSender().hasPermission(permission);
+	}
+
+	private static Command<CommandSourceStack> run(Consumer<CommandSender> action) {
+		return ctx -> {
+			action.accept(ctx.getSource().getSender());
+			return Command.SINGLE_SUCCESS;
+		};
+	}
+
+	/** Runs the action on the executing player; the node must require {@link #isPlayer()}. */
+	private static Command<CommandSourceStack> asPlayer(Consumer<Player> action) {
+		return ctx -> {
+			action.accept((Player) ctx.getSource().getExecutor());
+			return Command.SINGLE_SUCCESS;
+		};
+	}
+
+	private static Predicate<CommandSourceStack> isPlayer() {
+		return source -> source.getExecutor() instanceof Player;
+	}
+
+	private void repair(Player p) {
+		if (!Config.repairEnabled) {
+			p.sendMessage(Messages.repairDisabledConfig);
+			return;
+		}
+		ItemStack inHand = p.getInventory().getItemInMainHand();
+		if (!MagicBottle.isUsableMagicBottle(inHand)) {
+			p.sendMessage(Messages.repairMbNotInHand);
+			return;
+		}
+		int usedXP = new MagicBottle(inHand).repair(p.getInventory(), true);
+		p.updateInventory();
+		p.sendMessage(Messages.render(Messages.repairInvRepaired, Placeholder.unparsed("xp", String.valueOf(usedXP))));
+	}
+
+	private void recipe(Player p) {
+		if (Config.recipeNewBottleEnabled) {
 			RecipeMenu.open(plugin, p);
 		} else {
 			p.sendMessage(Messages.recipeDisabled);
 		}
 	}
 
-	private void repair(CommandSender sender) {
-		if (sender instanceof Player p) {
-			commandRepairInventory(p);
-		} else {
-			sender.sendMessage(Messages.msgOnlyPlayersCommand);
-		}
-	}
-
 	// enable is null to toggle
-	private void repairAuto(CommandSender sender, Boolean enable) {
-		if (sender instanceof Player p) {
-			commandAutoRepair(p, enable);
-		} else {
-			sender.sendMessage(Messages.msgOnlyPlayersCommand);
-		}
-	}
-
-	private void commandAutoRepair(Player p, Boolean enable) {
-		if (Config.repairAutoEnabled) {
-			if (enable == null) {
-				enable = !plugin.autoEnabled.contains(p);
-			}
-			if (enable) {
-				plugin.autoEnabled.add(p);
-				p.sendMessage(Messages.repairAutoEnabled);
-			} else {
-				plugin.autoEnabled.remove(p);
-				p.sendMessage(Messages.repairAutoDisabled);
-			}
-		} else {
+	private void setAutoRepair(Player p, Boolean enable) {
+		if (!Config.repairAutoEnabled) {
 			p.sendMessage(Messages.repairAutoDisabledConfig);
+			return;
 		}
-	}
-
-	private void commandRepairInventory(Player p) {
-		if (Config.repairEnabled) {
-			ItemStack inHand = p.getInventory().getItemInMainHand();
-
-			if (MagicBottle.isUsableMagicBottle(inHand)) {
-				MagicBottle mb = new MagicBottle(inHand);
-				Integer usedXP = mb.repair(p.getInventory(), true);
-				p.updateInventory();
-				p.sendMessage(Messages.render(Messages.repairInvRepaired, Placeholder.unparsed("xp", usedXP.toString())));
-			} else {
-				p.sendMessage(Messages.repairMbNotInHand);
-			}
+		if (enable == null) {
+			enable = !plugin.autoEnabled.contains(p);
+		}
+		if (enable) {
+			plugin.autoEnabled.add(p);
+			p.sendMessage(Messages.repairAutoEnabled);
 		} else {
-			p.sendMessage(Messages.repairDisabledConfig);
+			plugin.autoEnabled.remove(p);
+			p.sendMessage(Messages.repairAutoDisabled);
 		}
 	}
 
 	private void about(CommandSender sender) {
-		sender.sendMessage(Component.text(plugin.getDescription().getFullName() + " by Vontus", NamedTextColor.GOLD));
-		sender.sendMessage(Component.text("https://www.spigotmc.org/resources/magicbottle.40039/", NamedTextColor.YELLOW));
+		sender.sendMessage(text(plugin.getPluginMeta().getDisplayName() + " by Vontus", GOLD));
+		sender.sendMessage(text("https://www.spigotmc.org/resources/magicbottle.40039/", YELLOW));
 	}
 
 	private void reload(CommandSender sender) {
@@ -165,31 +158,13 @@ public class Commands {
 		sender.sendMessage(Messages.cmdMsgReloadCompleted);
 	}
 
-	private int give(CommandContext<CommandSourceStack> ctx, int amount, boolean withPlayer) throws CommandSyntaxException {
+	/** Gives the bottles to {@code target}, which is the executor unless a player was specified. */
+	private int give(CommandContext<CommandSourceStack> ctx, int amount, Entity target) {
 		CommandSender sender = ctx.getSource().getSender();
-		int level = IntegerArgumentType.getInteger(ctx, "level");
+		int level = getInteger(ctx, "level");
 
-		// The max level is configurable (and reloadable), so it can't be a fixed bound of the argument
-		if (level > Config.maxLevel) {
-			sender.sendMessage(Messages.cmdMsgLevelNotValid);
-			return 0;
-		}
-
-		Player player;
-		if (withPlayer) {
-			// Fails if the selector matches nobody, it never falls back to the sender
-			player = ctx.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(ctx.getSource()).getFirst();
-		} else if (sender instanceof Player p) {
-			player = p;
-		} else {
-			sender.sendMessage("You must specify a connected player");
-			return 0;
-		}
-
-		int maxAmount = new MagicBottle(Exp.getExpAtLevel(level)).getItem().getMaxStackSize();
-		if (amount > maxAmount) {
-			sender.sendMessage(Messages.render(Messages.cmdMsgAmountNotValid,
-					Placeholder.unparsed("max", String.valueOf(maxAmount))));
+		if (!(target instanceof Player player)) {
+			sender.sendMessage(Messages.cmdMsgPlayerRequired);
 			return 0;
 		}
 
@@ -198,26 +173,17 @@ public class Commands {
 				Placeholder.unparsed("amount", String.valueOf(amount)),
 				Placeholder.unparsed("player", player.getName()),
 				Placeholder.unparsed("level", String.valueOf(level))));
-		return 1;
+		return Command.SINGLE_SUCCESS;
 	}
 
-	private void sendMenu(CommandSender sender) {
-		sender.sendMessage(Component.text("- MagicBottle Commands -", NamedTextColor.GOLD));
-		sender.sendMessage(Component.text(" " + USAGE_ABOUT, NamedTextColor.YELLOW));
-		if (sender.hasPermission(Config.permGive)) {
-			sender.sendMessage(Component.text(" " + USAGE_GIVE, NamedTextColor.YELLOW));
-		}
-		if (sender.hasPermission(Config.permReload)) {
-			sender.sendMessage(Component.text(" " + USAGE_RELOAD, NamedTextColor.YELLOW));
-		}
-		if (sender.hasPermission(Config.permRecipe)) {
-			sender.sendMessage(Component.text(" " + USAGE_RECIPE, NamedTextColor.YELLOW));
-		}
-		if (sender.hasPermission(Config.permRepair)) {
-			sender.sendMessage(Component.text(" " + USAGE_REPAIR, NamedTextColor.YELLOW));
-		}
-		if (sender.hasPermission(Config.permRepairAuto)) {
-			sender.sendMessage(Component.text(" " + USAGE_AUTOREPAIR, NamedTextColor.YELLOW));
+	/** Lists the subcommands the source can use, as the tree's requirements decide. */
+	private void sendMenu(CommandSourceStack source) {
+		CommandSender sender = source.getSender();
+		sender.sendMessage(text("- MagicBottle Commands -", GOLD));
+		for (CommandNode<CommandSourceStack> node : root.getChildren()) {
+			if (node.canUse(source)) {
+				sender.sendMessage(text(" " + USAGES.get(node.getName()), YELLOW));
+			}
 		}
 	}
 

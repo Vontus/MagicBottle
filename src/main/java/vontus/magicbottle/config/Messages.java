@@ -13,7 +13,6 @@ public class Messages {
 	public static final String xpBarReplacer = "[xpbar]";
 
 	public static String msgMaxLevelReached;
-	public static String msgOnlyPlayersCommand;
 	
 	public static String msgUnauthorizedToDeposit;
 	public static String msgUnauthorizedToWithdraw;
@@ -44,7 +43,6 @@ public class Messages {
 		// ************************************************
 
 		msgMaxLevelReached = prepMsg("messages.max level reached");
-		msgOnlyPlayersCommand = prepMsg("messages.only players command");
 		
 		msgUnauthorizedToDeposit = prepMsg("messages.unauthorized.deposit");
 		msgUnauthorizedToWithdraw = prepMsg("messages.unauthorized.withdraw");

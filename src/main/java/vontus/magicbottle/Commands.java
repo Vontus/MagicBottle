@@ -52,9 +52,9 @@ public class Commands {
 										.then(argument("player", ArgumentTypes.player())
 												.executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "amount"), true))))))
 				.then(literal("repair")
-						.requires(perm(Config.permRepair))
-						.executes(run(this::repair))
-						.then(literal("auto").requires(perm(Config.permRepairAuto)).executes(run(this::repairAuto))))
+						.requires(perm(Config.permRepair).and(isPlayer()))
+						.executes(asPlayer(this::repair))
+						.then(literal("auto").requires(perm(Config.permRepairAuto)).executes(asPlayer(this::toggleAutoRepair))))
 				.build();
 	}
 
@@ -69,49 +69,41 @@ public class Commands {
 		};
 	}
 
-	private void repair(CommandSender sender) {
-		if (sender instanceof Player p) {
-			commandRepairInventory(p);
-		} else {
-			sender.sendMessage(Messages.msgOnlyPlayersCommand);
-		}
+	/** Runs the action on the executing player; the node must require {@link #isPlayer()}. */
+	private static Command<CommandSourceStack> asPlayer(Consumer<Player> action) {
+		return ctx -> {
+			action.accept((Player) ctx.getSource().getExecutor());
+			return Command.SINGLE_SUCCESS;
+		};
 	}
 
-	private void repairAuto(CommandSender sender) {
-		if (sender instanceof Player p) {
-			commandAutoRepair(p);
-		} else {
-			sender.sendMessage(Messages.msgOnlyPlayersCommand);
-		}
+	private static Predicate<CommandSourceStack> isPlayer() {
+		return source -> source.getExecutor() instanceof Player;
 	}
 
-	private void commandAutoRepair(Player p) {
-		if (Config.repairAutoEnabled) {
-			if (plugin.autoEnabled.add(p)) {
-				p.sendMessage(Messages.repairAutoEnabled);
-			} else {
-				plugin.autoEnabled.remove(p);
-				p.sendMessage(Messages.repairAutoDisabled);
-			}
-		} else {
-			p.sendMessage(Messages.repairAutoDisabledConfig);
-		}
-	}
-
-	private void commandRepairInventory(Player p) {
-		if (Config.repairEnabled) {
-			ItemStack inHand = p.getInventory().getItemInMainHand();
-
-			if (MagicBottle.isUsableMagicBottle(inHand)) {
-				MagicBottle mb = new MagicBottle(inHand);
-				Integer usedXP = mb.repair(p.getInventory(), true);
-				p.updateInventory();
-				p.sendMessage(Messages.repairInvRepaired.replace("[xp]", usedXP.toString()));
-			} else {
-				p.sendMessage(Messages.repairMbNotInHand);
-			}
-		} else {
+	private void repair(Player p) {
+		if (!Config.repairEnabled) {
 			p.sendMessage(Messages.repairDisabledConfig);
+			return;
+		}
+		ItemStack inHand = p.getInventory().getItemInMainHand();
+		if (!MagicBottle.isUsableMagicBottle(inHand)) {
+			p.sendMessage(Messages.repairMbNotInHand);
+			return;
+		}
+		int usedXP = new MagicBottle(inHand).repair(p.getInventory(), true);
+		p.updateInventory();
+		p.sendMessage(Messages.repairInvRepaired.replace("[xp]", String.valueOf(usedXP)));
+	}
+
+	private void toggleAutoRepair(Player p) {
+		if (!Config.repairAutoEnabled) {
+			p.sendMessage(Messages.repairAutoDisabledConfig);
+		} else if (plugin.autoEnabled.add(p)) {
+			p.sendMessage(Messages.repairAutoEnabled);
+		} else {
+			plugin.autoEnabled.remove(p);
+			p.sendMessage(Messages.repairAutoDisabled);
 		}
 	}
 

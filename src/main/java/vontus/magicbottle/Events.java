@@ -205,15 +205,17 @@ public class Events implements Listener {
 		ItemStack i = e.getItem();
 		// 1 exp repairs 2 durability points (like Mending), so only repair when the accumulated damage is odd: an even
 		// value would spend 1 exp on a single point. Intentional, not a bug.
-		if (i.getDurability() % 2 != 0 && !e.isCancelled() && Config.canRepair(i)) {
-			MagicBottle mb = MagicBottle.getUsableMBInInventory(p.getInventory());
-			if (mb != null) {
-				i.setDurability((short) (i.getDurability() + e.getDamage()));
-				mb.repair(i, false);
-				e.setCancelled(true);
-				p.updateInventory();
-			}
+		if (i.getDurability() % 2 == 0 || e.isCancelled() || !Config.canRepair(i)) {
+			return;
 		}
+		MagicBottle mb = MagicBottle.getUsableMBInInventory(p.getInventory());
+		if (mb == null) {
+			return;
+		}
+		i.setDurability((short) (i.getDurability() + e.getDamage()));
+		mb.repair(i, false);
+		e.setCancelled(true);
+		p.updateInventory();
 	}
 
 	@EventHandler

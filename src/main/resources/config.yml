@@ -28,8 +28,8 @@ recipe:
     #   crafted in the player's inventory.
     # ingredients: the item for each character of the shape. Use item IDs (e.g. blaze_powder or minecraft:blaze_powder)
     #   or item tags, which accept any item in the tag (e.g. "#minecraft:planks"; tags must be quoted because of the #).
-    # You can see a complete list of item IDs here: https://jd.papermc.io/paper/org/bukkit/Material.html
-    # and of item tags here: https://jd.papermc.io/paper/org/bukkit/Tag.html
+    # You can see a complete list of item IDs here: https://jd.papermc.io/paper/26.2/org/bukkit/Material.html
+    # and of item tags here: https://jd.papermc.io/paper/26.2/org/bukkit/Tag.html
     shape:
       - "BEB"
       - "GDG"

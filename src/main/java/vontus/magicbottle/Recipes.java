@@ -9,19 +9,23 @@ import org.bukkit.inventory.ShapelessRecipe;
 import vontus.magicbottle.config.Config;
 
 public class Recipes {
+	public static final String nameFill = "fill";
+	public static final String namePour = "pour";
+	public static final String nameBottle = "bottle";
+
 	private Plugin plugin;
 
 	public Recipes(Plugin plugin) {
 		this.plugin = plugin;
 
 		if (Config.recipeFill) {
-			ShapelessRecipe recipeFill = getShapelessRecipe(1, "fill");
+			ShapelessRecipe recipeFill = getShapelessRecipe(1, nameFill);
 			recipeFill.addIngredient(1, MagicBottle.materialEmpty);
 			plugin.getServer().addRecipe(recipeFill);
 		}
 
 		if (Config.recipePour) {
-			ShapelessRecipe recipePour = getShapelessRecipe(0, "pour");
+			ShapelessRecipe recipePour = getShapelessRecipe(0, namePour);
 			recipePour.addIngredient(1, MagicBottle.materialFilled);
 			plugin.getServer().addRecipe(recipePour);
 		}
@@ -49,13 +53,15 @@ public class Recipes {
 
 	private ShapelessRecipe getShapelessRecipe(int level, String name) {
 		ItemStack item = new MagicBottle(level).getItem();
-		NamespacedKey key = new NamespacedKey(plugin, name);
-		return new ShapelessRecipe(key, item);
+		return new ShapelessRecipe(getKey(plugin, name), item);
 	}
 
 	private ShapedRecipe getNewBottleRecipe() {
-		ItemStack item = MagicBottle.getPreMagicBottle();
-		NamespacedKey key = new NamespacedKey(plugin, "bottle");
-		return new ShapedRecipe(key, item);
+		ItemStack item = new MagicBottle(0).getItem();
+		return new ShapedRecipe(getKey(plugin, nameBottle), item);
+	}
+
+	public static NamespacedKey getKey(Plugin plugin, String name) {
+		return new NamespacedKey(plugin, name);
 	}
 }

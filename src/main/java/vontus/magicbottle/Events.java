@@ -1,6 +1,9 @@
 package vontus.magicbottle;
 
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
+import org.bukkit.block.Crafter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -45,10 +48,20 @@ public class Events implements Listener {
 		}
 	}
 
-	// Crafters have no player, so they can't pay costs or get their exp moved. Block every bottle recipe in them.
+	// Crafters have no player, so they can't get their exp moved or have their permissions checked. The fill/pour
+	// recipes are always blocked in them; the new bottle recipe only if the config allows it.
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onCrafterCraft(CrafterCraftEvent e) {
-		if (MagicBottle.isMagicBottle(e.getRecipe().getResult())) {
+		NamespacedKey key = e.getRecipe().getKey();
+		if (key.equals(Recipes.getKey(plugin, Recipes.nameBottle))) {
+			// Unlike in the crafting grid (isEmptyBottleRecipe), nothing else stops a MagicBottle from being used up
+			// as an ingredient here
+			if (Config.recipeNewBottleAllowCrafters && !containsMagicBottle(e.getBlock())) {
+				e.setResult(new MagicBottle(0).getItem());
+			} else {
+				e.setCancelled(true);
+			}
+		} else if (key.equals(Recipes.getKey(plugin, Recipes.nameFill)) || key.equals(Recipes.getKey(plugin, Recipes.namePour))) {
 			e.setCancelled(true);
 		}
 	}
@@ -110,15 +123,8 @@ public class Events implements Listener {
 					if (isEmptyBottleRecipe(e.getInventory())) {
 						Player player = (Player) e.getView().getPlayer();
 						if (player.hasPermission(Config.permCraft)) {
-							if (tryChargeCraftBottleCost(player)) {
-								e.getInventory().setResult(new MagicBottle(0).getItem());
-								SoundEffect.newBottle(player);
-							} else {
-								SoundEffect.forbidden(player);
-								player.sendMessage(Messages.msgNotEnoughMoney.replace(Messages.moneyReplacer,
-										Double.toString(Config.costMoneyCraftNewBottle)));
-								e.setCancelled(true);
-							}
+							e.getInventory().setResult(new MagicBottle(0).getItem());
+							SoundEffect.newBottle(player);
 						} else {
 							player.sendMessage(Messages.msgUnauthorizedToCraft);
 							e.setCancelled(true);
@@ -273,11 +279,16 @@ public class Events implements Listener {
 		return true;
 	}
 
-	private boolean tryChargeCraftBottleCost(Player p) {
-		if (Config.costMoneyCraftNewBottle != 0 && !p.hasPermission(Config.permCraftCostExempt)) {
-			return plugin.econ.withdrawPlayer(p, Config.costMoneyCraftNewBottle).transactionSuccess();
-		} else {
-			return true;
+	// The ingredients are still in the crafter when CrafterCraftEvent is called
+	private boolean containsMagicBottle(Block block) {
+		if (block.getState(false) instanceof Crafter crafter) {
+			for (ItemStack item : crafter.getInventory()) {
+				if (MagicBottle.isMagicBottle(item)) {
+					return true;
+				}
+			}
+			return false;
 		}
+		return true;
 	}
 }

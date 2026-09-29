@@ -202,15 +202,10 @@ public class MagicBottle {
 	private String replaceVariables(String line) {
 		String level = Utils.roundInt((int)getLevel());
 		String points = Utils.roundDouble(getExp());
-		line = replaceStaticVariables(line);
-		
+
 		return line.replace(Messages.levelReplacer, level)
 				.replace(Messages.xpPointsReplacer, points)
 				.replace(Messages.xpBarReplacer, getXpBar());
-	}
-	
-	private static String replaceStaticVariables(String line) {
-		return line.replace(Messages.moneyReplacer, Double.toString(Config.costMoneyCraftNewBottle));
 	}
 	
 	public Integer getMaxFillablePoints(Player p, int points) {
@@ -259,28 +254,5 @@ public class MagicBottle {
 			}
 		}
 		return null;
-	}
-	
-	public static ItemStack getPreMagicBottle() {
-		ItemStack is;
-		if (Config.costCraftNewBottleChangeLore) {
-			is = new ItemStack(materialEmpty);
-			ItemMeta meta = is.getItemMeta();
-			meta.setDisplayName(replaceStaticVariables(Messages.newBottleName));
-			ArrayList<String> lore = new ArrayList<>();
-
-			for (String line : Messages.newBottleLore) {
-				line = replaceStaticVariables(line);
-				lore.add(line);
-			}
-			meta.setLore(lore);
-			markAsBottle(meta);
-
-			is.setItemMeta(meta);
-		} else {
-			is = new MagicBottle(0).getItem();
-		}
-		
-		return is;
 	}
 }

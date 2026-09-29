@@ -30,7 +30,6 @@ messages:
     
   commands:
     reload completed: '&eConfiguration reloaded.'
-    level not valid: '&cLevel must be a number between 0 and 20,000.'
     given bottle: '&eGiven [amount] MagicBottle(s) to [player] with [level] levels.'
     
   repair:

@@ -59,7 +59,7 @@ public class Commands {
 				.then(literal("reload").requires(perm(Config.permReload)).executes(run(this::reload)))
 				.then(literal("give")
 						.requires(perm(Config.permGive))
-						.then(argument("level", integer(0))
+						.then(argument("level", integer(0, Config.maxLevel))
 								.executes(ctx -> give(ctx, 1, ctx.getSource().getExecutor()))
 								.then(argument("amount", integer(1, MAX_GIVE_AMOUNT))
 										.executes(ctx -> give(ctx, getInteger(ctx, "amount"), ctx.getSource().getExecutor()))
@@ -140,11 +140,6 @@ public class Commands {
 		CommandSender sender = ctx.getSource().getSender();
 		int level = getInteger(ctx, "level");
 
-		// The max level is configurable (and reloadable), so it can't be a fixed bound of the argument
-		if (level > Config.maxLevel) {
-			sender.sendMessage(Messages.cmdMsgLevelNotValid);
-			return 0;
-		}
 		if (!(target instanceof Player player)) {
 			sender.sendMessage("You must specify a connected player");
 			return 0;

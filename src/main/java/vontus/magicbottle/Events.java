@@ -74,51 +74,58 @@ public class Events implements Listener {
 		plugin.getServer().getScheduler().runTask(plugin, player::updateInventory);
 
 		// Pick the destination before changing anything, so no exp moves if the bottle can't be delivered
-		PlayerInventory playerInv = player.getInventory();
-		ClickType click = e.getClick();
-		Consumer<ItemStack> deliver = null;
-		if (click == ClickType.LEFT || click == ClickType.RIGHT) {
-			if (Utils.getMaterial(player.getItemOnCursor()) == Material.AIR) {
-				deliver = player::setItemOnCursor;
-			}
-		} else if (click == ClickType.SHIFT_LEFT || click == ClickType.SHIFT_RIGHT) {
-			int slot = playerInv.firstEmpty();
-			if (slot >= 0) {
-				deliver = item -> playerInv.setItem(slot, item);
-			}
-		} else if (click == ClickType.NUMBER_KEY) {
-			int button = e.getHotbarButton();
-			if (button >= 0 && button < 9 && Utils.getMaterial(playerInv.getItem(button)) == Material.AIR) {
-				deliver = item -> playerInv.setItem(button, item);
-			}
-		} else if (click == ClickType.DROP || click == ClickType.CONTROL_DROP) {
-			deliver = player::dropItem;
-		} else if (click == ClickType.SWAP_OFFHAND) {
-			if (Utils.getMaterial(playerInv.getItemInOffHand()) == Material.AIR) {
-				deliver = playerInv::setItemInOffHand;
-			}
-		}
-		// Other clicks (double click...) do nothing
-		if (deliver == null) {
+		Consumer<ItemStack> destination = getResultDestination(e, player);
+		if (destination == null) {
 			return;
 		}
-
-		MagicBottle bottle = new MagicBottle(lone.clone());
-		if (bottle.isEmpty()) {
-			if (!canFillInGrid(player)) {
-				return;
-			}
-			bottle.deposit(player, Exp.getPoints(player));
-		} else {
-			if (!canPourInGrid(player)) {
-				return;
-			}
-			bottle.withdraw(player, bottle.getExp());
+		ItemStack result = fillOrPour(player, lone.clone());
+		if (result == null) {
+			return;
 		}
 
 		inv.setMatrix(new ItemStack[inv.getMatrix().length]);
 		inv.setResult(null);
-		deliver.accept(bottle.getItem());
+		destination.accept(result);
+	}
+
+	// Where a click on the crafting result puts the bottle, like vanilla would, or null if it has nowhere to go
+	private Consumer<ItemStack> getResultDestination(InventoryClickEvent e, Player player) {
+		PlayerInventory inv = player.getInventory();
+		return switch (e.getClick()) {
+			case LEFT, RIGHT -> isAir(player.getItemOnCursor()) ? player::setItemOnCursor : null;
+			case SHIFT_LEFT, SHIFT_RIGHT -> {
+				int slot = inv.firstEmpty();
+				yield slot >= 0 ? item -> inv.setItem(slot, item) : null;
+			}
+			case NUMBER_KEY -> {
+				int slot = e.getHotbarButton();
+				yield slot >= 0 && slot < 9 && isAir(inv.getItem(slot)) ? item -> inv.setItem(slot, item) : null;
+			}
+			case DROP, CONTROL_DROP -> player::dropItem;
+			case SWAP_OFFHAND -> isAir(inv.getItemInOffHand()) ? inv::setItemInOffHand : null;
+			default -> null;
+		};
+	}
+
+	// Fills the bottle with all the player's exp or pours all of it, if still allowed. Returns the resulting bottle.
+	private ItemStack fillOrPour(Player player, ItemStack bottleItem) {
+		MagicBottle bottle = new MagicBottle(bottleItem);
+		if (bottle.isEmpty()) {
+			if (!canFillInGrid(player)) {
+				return null;
+			}
+			bottle.deposit(player, Exp.getPoints(player));
+		} else {
+			if (!canPourInGrid(player)) {
+				return null;
+			}
+			bottle.withdraw(player, bottle.getExp());
+		}
+		return bottle.getItem();
+	}
+
+	private static boolean isAir(ItemStack item) {
+		return Utils.getMaterial(item) == Material.AIR;
 	}
 
 	// Crafters have no player, so they can't have their permissions checked: the new bottle recipe is only allowed if

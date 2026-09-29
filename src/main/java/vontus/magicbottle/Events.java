@@ -154,7 +154,7 @@ public class Events implements Listener {
 
 		if (MagicBottle.isMagicBottle(item)) {
 			MagicBottle mb = new MagicBottle(item);
-			if (item.getAmount() == 1 && timeOut(player)) {
+			if (item.getAmount() == 1 && throttle(player)) {
 				if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK) {
 					onInteractDeposit(mb, player);
 				} else if (act == Action.RIGHT_CLICK_AIR || act == Action.RIGHT_CLICK_BLOCK) {
@@ -195,7 +195,7 @@ public class Events implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onItemUse(PlayerItemDamageEvent e) {
+	public void onItemDamage(PlayerItemDamageEvent e) {
 		Player p = e.getPlayer();
 		// Cheap checks first: this fires for every durability loss of every player. It doesn't use the click cooldown,
 		// so it neither blocks nor is blocked by bottle clicks.
@@ -304,7 +304,7 @@ public class Events implements Listener {
 	}
 
 	// Bottle clicks are ignored for a few ticks after an accepted one. Returns true (and starts the cooldown) if allowed.
-	private boolean timeOut(Player p) {
+	private boolean throttle(Player p) {
 		int now = plugin.getServer().getCurrentTick();
 		Integer last = lastClick.get(p.getUniqueId());
 		if (last != null && now - last < CLICK_COOLDOWN_TICKS) {

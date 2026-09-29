@@ -38,7 +38,7 @@ PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are creat
 
 **Interaction flow** (`Events.java`): all player-facing behavior is driven by Bukkit events, not GUIs:
 - `onInteract` — left-click deposits, right-click withdraws, holding the bottle in hand (shift = 10 levels,
-  no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`timeOut`, a map of last click ticks).
+  no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`throttle`, a map of last click ticks).
 - `onPrepareCraft`/`onClickCraftResult` — a single MagicBottle (amount 1) alone in a crafting grid (3x3 or the
   2x2 inventory grid) withdraws/deposits *all* XP. These aren't registered recipes (the recipe book would autofill
   any glass bottle or dragon's breath), so `onPrepareCraft` sets the preview itself (PrepareItemCraftEvent fires
@@ -55,7 +55,7 @@ PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are creat
   recipe (identified by its key) is allowed only if `recipe.bottle.allow crafters`
   (`Config.recipeNewBottleAllowCrafters`, reloadable) is on and no slot of the crafter holds a MagicBottle
   (otherwise it would be consumed as an ingredient). Crafters can't fill or pour.
-- `onItemUse` — auto-repair of tools/armor using a usable bottle anywhere in the inventory if the player has
+- `onItemDamage` — auto-repair of tools/armor using a usable bottle anywhere in the inventory if the player has
   enabled auto-repair (tracked in `Plugin.autoEnabled`) and `Config.canRepair` accepts the item (it has the
   configured `repair.enchantment`, Mending by default, or any item if set to `ANY`; parsed by `EnchantParser`
   from an enchantment registry key). It checks the cheap conditions first, has no cooldown (it must not interfere

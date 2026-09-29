@@ -24,24 +24,27 @@ import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
-import org.bukkit.scheduler.BukkitRunnable;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.effects.SoundEffect;
 import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
 
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 public class Events implements Listener {
-	private HashSet<UUID> wait;
+	private static final int CLICK_COOLDOWN_TICKS = 3;
+
+	// Tick of each player's last accepted bottle click
+	private Map<UUID, Integer> lastClick;
 	private Plugin plugin;
 
 	Events(Plugin plugin) {
 		this.plugin = plugin;
-		this.wait = new HashSet<>();
+		this.lastClick = new HashMap<>();
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -151,7 +154,7 @@ public class Events implements Listener {
 
 		if (MagicBottle.isMagicBottle(item)) {
 			MagicBottle mb = new MagicBottle(item);
-			if (item.getAmount() == 1 && timeOut(player)) {
+			if (item.getAmount() == 1 && throttle(player)) {
 				if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK) {
 					onInteractDeposit(mb, player);
 				} else if (act == Action.RIGHT_CLICK_AIR || act == Action.RIGHT_CLICK_BLOCK) {
@@ -192,22 +195,27 @@ public class Events implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onItemUse(PlayerItemDamageEvent e) {
+	public void onItemDamage(PlayerItemDamageEvent e) {
 		Player p = e.getPlayer();
-		if (Config.repairAutoEnabled && timeOut(p)) {
-			ItemStack i = e.getItem();
-			if (plugin.autoEnabled.contains(p) && i.getDurability() % 2 != 0) {
-				if (Config.canRepair(i)) {
-					MagicBottle mb = MagicBottle.getUsableMBInInventory(p.getInventory());
-					if (mb != null && !e.isCancelled()) {
-						i.setDurability((short) (i.getDurability() + e.getDamage()));
-						mb.repair(i, false);
-						e.setCancelled(true);
-						p.updateInventory();
-					}
-				}
-			}
+		// Cheap checks first: this fires for every durability loss of every player. It doesn't use the click cooldown,
+		// so it neither blocks nor is blocked by bottle clicks.
+		if (!Config.repairAutoEnabled || !plugin.autoEnabled.contains(p)) {
+			return;
 		}
+		ItemStack i = e.getItem();
+		// 1 exp repairs 2 durability points (like Mending), so only repair when the accumulated damage is odd: an even
+		// value would spend 1 exp on a single point. Intentional, not a bug.
+		if (i.getDurability() % 2 == 0 || e.isCancelled() || !Config.canRepair(i)) {
+			return;
+		}
+		MagicBottle mb = MagicBottle.getUsableMBInInventory(p.getInventory());
+		if (mb == null) {
+			return;
+		}
+		i.setDurability((short) (i.getDurability() + e.getDamage()));
+		mb.repair(i, false);
+		e.setCancelled(true);
+		p.updateInventory();
 	}
 
 	@EventHandler
@@ -218,11 +226,13 @@ public class Events implements Listener {
 
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent e) {
+		lastClick.remove(e.getPlayer().getUniqueId());
 		plugin.autoEnabled.remove(e.getPlayer());
 	}
 
 	@EventHandler
 	public void onPlayerKicked(PlayerKickEvent e) {
+		lastClick.remove(e.getPlayer().getUniqueId());
 		plugin.autoEnabled.remove(e.getPlayer());
 	}
 
@@ -295,20 +305,15 @@ public class Events implements Listener {
 		return null;
 	}
 
-	private boolean timeOut(Player p) {
-		if (!wait.contains(p.getUniqueId())) {
-			wait.add(p.getUniqueId());
-			new BukkitRunnable() {
-
-				@Override
-				public void run() {
-					wait.remove(p.getUniqueId());
-				}
-			}.runTaskLater(this.plugin, 3);
-			return true;
-		} else {
+	// Bottle clicks are ignored for a few ticks after an accepted one. Returns true (and starts the cooldown) if allowed.
+	private boolean throttle(Player p) {
+		int now = plugin.getServer().getCurrentTick();
+		Integer last = lastClick.get(p.getUniqueId());
+		if (last != null && now - last < CLICK_COOLDOWN_TICKS) {
 			return false;
 		}
+		lastClick.put(p.getUniqueId(), now);
+		return true;
 	}
 
 	// The new bottle recipe can match anywhere in the grid (and mirrored), so it's identified by its key. A MagicBottle

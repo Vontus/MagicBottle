@@ -19,7 +19,7 @@ recipe:
   withdraw: true
   # Enable the ability to craft new MagicBottles.
   # If you disable this, players won't be able to craft new bottles but existing ones will remain usable.
-  # You must restart your server after changing 'enabled' or 'recipe'.
+  # You must restart your server after changing 'enabled', 'shape' or 'ingredients'.
   bottle:
     enabled: true
     # Allow crafters to craft new MagicBottles.
@@ -28,24 +28,25 @@ recipe:
     # anyone can craft bottles through a crafter even without the permission.
     # Set this to false if you use the permission to restrict who can craft bottles (e.g. only VIPs).
     allow crafters: true
-    # The recipe to craft a new empty MagicBottle.
-    # Don't modify the numbers or the order, just the content.
-    # Each slot in the crafting table is numbered from left to right and top to bottom:
-    # 1 2 3
-    # 4 5 6
-    # 7 8 9
-    # You can see a complete list of possible item names here: https://jd.papermc.io/paper/org/bukkit/Material.html
-    # You can set AIR for an empty slot.
-    recipe:
-      1: BLAZE_POWDER
-      2: ENDER_CHEST
-      3: BLAZE_POWDER
-      4: GLOWSTONE_DUST
-      5: DRAGON_BREATH
-      6: GLOWSTONE_DUST
-      7: GOLD_BLOCK
-      8: GOLD_BLOCK
-      9: GOLD_BLOCK
+    # The recipe to craft a new empty MagicBottle, written like a shaped recipe in a datapack.
+    # shape: 1 to 3 rows of up to 3 characters, all the rows with the same length. Each character is a slot of the
+    #   crafting grid and a space is an empty slot. Every other character must be defined in ingredients.
+    #   Like any shaped recipe, it can be crafted anywhere in the grid, so a recipe of 2x2 or smaller can also be
+    #   crafted in the player's inventory.
+    # ingredients: the item for each character of the shape. Use item IDs (e.g. blaze_powder or minecraft:blaze_powder)
+    #   or item tags, which accept any item in the tag (e.g. "#minecraft:planks"; tags must be quoted because of the #).
+    # You can see a complete list of item IDs here: https://jd.papermc.io/paper/26.2/org/bukkit/Material.html
+    # and of item tags here: https://jd.papermc.io/paper/26.2/org/bukkit/Tag.html
+    shape:
+      - "BEB"
+      - "GDG"
+      - "OOO"
+    ingredients:
+      B: blaze_powder
+      E: ender_chest
+      G: glowstone_dust
+      D: dragon_breath
+      O: gold_block
 
 # Set the maximum level a player can save in a single MagicBottle.
 # TIP: Set this depending on how difficult you made the recipe.

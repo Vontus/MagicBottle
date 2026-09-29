@@ -34,7 +34,7 @@ messages:
     player required: '&cYou must specify a connected player.'
     
   recipe:
-    title: '&5New MagicBottle recipe'
+    title: '&5MagicBottle recipe'
     disabled: '&cCrafting new MagicBottles is disabled in this server.'
 
   repair:

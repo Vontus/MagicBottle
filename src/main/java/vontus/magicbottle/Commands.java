@@ -24,6 +24,7 @@ public class Commands {
 	private static final String USAGE_ABOUT = "/magicbottle about";
 	private static final String USAGE_REPAIR = "/magicbottle repair [auto]";
 	private static final String USAGE_GIVE = "/magicbottle give <level> [amount] [player]";
+	private static final String USAGE_RECIPE = "/magicbottle recipe";
 	private static final String USAGE_RELOAD = "/magicbottle reload";
 
 	Commands(Plugin plugin) {
@@ -59,6 +60,12 @@ public class Commands {
 										.executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "amount"), false))
 										.then(argument("player", ArgumentTypes.player())
 												.executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "amount"), true))))))
+				.then(literal("recipe")
+						.requires(s -> s.getSender().hasPermission(Config.permRecipe))
+						.executes(ctx -> {
+							recipe(ctx.getSource().getSender());
+							return 1;
+						}))
 				.then(literal("repair")
 						.requires(s -> s.getSender().hasPermission(Config.permRepair))
 						.executes(ctx -> {
@@ -72,6 +79,16 @@ public class Commands {
 									return 1;
 								})))
 				.build();
+	}
+
+	private void recipe(CommandSender sender) {
+		if (!(sender instanceof Player p)) {
+			sender.sendMessage(Messages.msgOnlyPlayersCommand);
+		} else if (Config.recipeNewBottleEnabled) {
+			RecipeMenu.open(plugin, p);
+		} else {
+			p.sendMessage(Messages.recipeDisabled);
+		}
 	}
 
 	private void repair(CommandSender sender) {
@@ -173,6 +190,9 @@ public class Commands {
 		}
 		if (sender.hasPermission(Config.permReload)) {
 			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_RELOAD);
+		}
+		if (sender.hasPermission(Config.permRecipe)) {
+			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_RECIPE);
 		}
 		if (sender.hasPermission(Config.permRepair)) {
 			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_REPAIR);

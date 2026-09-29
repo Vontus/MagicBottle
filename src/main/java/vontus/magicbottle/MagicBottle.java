@@ -71,6 +71,16 @@ public class MagicBottle {
 		print();
 	}
 
+	// A copy of an empty bottle without the bottle markers, so it can't be used as one: for display only
+	static ItemStack createDisplayItem() {
+		ItemStack item = new MagicBottle(0).getItem();
+		item.editMeta(meta -> {
+			meta.getPersistentDataContainer().remove(keyBottle);
+			meta.getPersistentDataContainer().remove(keyExp);
+		});
+		return item;
+	}
+
 	public ItemStack getItem() {
 		return item;
 	}

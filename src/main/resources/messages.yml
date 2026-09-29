@@ -37,6 +37,10 @@ messages:
     amount not valid: '&cAmount must be between 1 and [max].'
     given bottle: '&eGiven [amount] MagicBottle(s) to [player] with [level] levels.'
     
+  recipe:
+    title: '&5New MagicBottle recipe'
+    disabled: '&cCrafting new MagicBottles is disabled in this server.'
+
   repair:
     inventory repaired: '&eSpent &5[xp] &eXP in repairing your tools.'
     enabled autorepair: '&eAutorepair has been &aenabled&e.'

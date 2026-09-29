@@ -70,11 +70,19 @@ pouring are not recipes (see `Events`).
 
 **Commands** (`Commands.java`): the single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) is a Brigadier
 tree (`Commands#build`) registered from `Plugin.onEnable` through `LifecycleEvents.COMMANDS`; it is not in
-`plugin.yml`. Subcommands (`about`, `reload`, `give <level> [amount] [player]`, `repair [auto]`) are literal nodes
+`plugin.yml`. Subcommands (`about`, `reload`, `give <level> [amount] [player]`, `recipe`, `repair [auto]`) are literal nodes
 gated with `.requires(...)` on their permission in `Config`, so senders only see and can run what they may.
 `give` takes typed arguments (`level` >= 0, `amount` >= 1, `player` as Paper's player selector, which fails if
 nobody matches instead of falling back to the sender); the max level and the stack size are checked at run time
 since `Config.maxLevel` is reloadable. New subcommands are added as nodes in `build`.
+
+**Recipe menu** (`RecipeMenu.java`): `/mb recipe` (`magicbottle.command.recipe`) opens a chest inventory showing
+the configured new-bottle recipe (any shape up to 3x3; ingredients that accept several items, i.e. tags, cycle
+through them every second). It must stay strictly read-only: the inventory has a custom `InventoryHolder`
+(`RecipeMenu`), `Events` cancels every `InventoryClickEvent`/`InventoryDragEvent` while it is the *top* inventory of
+the view (which also covers shift-clicks, number keys, offhand swaps and double clicks from the player's own
+inventory) and clears it on `InventoryCloseEvent`; `Plugin.onDisable` closes it for whoever has it open. The result
+is `MagicBottle.createDisplayItem()`, a bottle without the PDC markers, so it is never a real MagicBottle.
 
 **Config layer** (`config/`): `PluginFile` is a generic wrapper around a Bukkit `YamlConfiguration` file
 (load/save/defaults-from-jar). `Config` and `Messages` are static classes populated once from

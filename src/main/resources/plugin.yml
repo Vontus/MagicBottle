@@ -15,6 +15,9 @@ permissions:
   magicbottle.action.withdraw:
     description: 'Allows a player to take experience from MagicBottles'
     default: true
+  magicbottle.command.recipe:
+    description: 'Allows a player to see the recipe of a new bottle'
+    default: true
   magicbottle.command.repair:
     description: 'Allows a player to repair tools using bottled XP'
     default: true

@@ -19,7 +19,6 @@ public class Messages {
 	
 	public static String cmdMsgReloadCompleted;
 	public static String cmdMsgLevelNotValid;
-	public static String cmdMsgAmountNotValid;
 	public static String cmdMsgGivenMagicBottle;
 	
     public static String bottleName;
@@ -49,7 +48,6 @@ public class Messages {
 		
 		cmdMsgReloadCompleted = prepMsg("messages.commands.reload completed");
 		cmdMsgLevelNotValid = prepMsg("messages.commands.level not valid");
-		cmdMsgAmountNotValid = prepMsg("messages.commands.amount not valid");
 		cmdMsgGivenMagicBottle = prepMsg("messages.commands.given bottle");
 
         bottleName = prepMsg("bottle text.name");

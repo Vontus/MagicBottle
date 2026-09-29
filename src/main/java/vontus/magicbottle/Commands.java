@@ -30,6 +30,9 @@ public class Commands {
 	private static final String USAGE_GIVE = "/magicbottle give <level> [amount] [player]";
 	private static final String USAGE_RELOAD = "/magicbottle reload";
 
+	// One stack: both bottle materials stack up to 64
+	private static final int MAX_GIVE_AMOUNT = 64;
+
 	Commands(Plugin plugin) {
 		this.plugin = plugin;
 	}
@@ -47,7 +50,7 @@ public class Commands {
 						.requires(perm(Config.permGive))
 						.then(argument("level", IntegerArgumentType.integer(0))
 								.executes(ctx -> give(ctx, 1, false))
-								.then(argument("amount", IntegerArgumentType.integer(1))
+								.then(argument("amount", IntegerArgumentType.integer(1, MAX_GIVE_AMOUNT))
 										.executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "amount"), false))
 										.then(argument("player", ArgumentTypes.player())
 												.executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "amount"), true))))))
@@ -135,12 +138,6 @@ public class Commands {
 			player = p;
 		} else {
 			sender.sendMessage("You must specify a connected player");
-			return 0;
-		}
-
-		int maxAmount = new MagicBottle(Exp.getExpAtLevel(level)).getItem().getMaxStackSize();
-		if (amount > maxAmount) {
-			sender.sendMessage(Messages.cmdMsgAmountNotValid.replace("[max]", String.valueOf(maxAmount)));
 			return 0;
 		}
 

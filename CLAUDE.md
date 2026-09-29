@@ -39,24 +39,34 @@ PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are creat
 **Interaction flow** (`Events.java`): all player-facing behavior is driven by Bukkit events, not GUIs:
 - `onInteract` — left-click deposits, right-click withdraws, holding the bottle in hand (shift = 10 levels,
   no shift = 1 level).
-- `onPrepareCraft`/`onCraft` — placing a bottle in a crafting grid alone withdraws/deposits *all* XP; the
-  three crafting recipes (fill/pour/craft new bottle) are conditionally offered based on `Config` toggles.
-- `onCrafterCraft` — crafter blocks have no player, so they bypass the player crafting checks. Recipes are
-  identified by their `NamespacedKey` (`Recipes.getKey`): fill/pour are always cancelled; the new bottle recipe is
-  allowed only if `recipe.bottle.allow crafters` (`Config.recipeNewBottleAllowCrafters`, reloadable) is on and no
-  slot of the crafter holds a MagicBottle (otherwise it would be consumed as an ingredient).
+- `onPrepareCraft`/`onClickCraftResult` — a single MagicBottle (amount 1) alone in a crafting grid (3x3 or the
+  2x2 inventory grid) withdraws/deposits *all* XP. These aren't registered recipes (the recipe book would autofill
+  any glass bottle or dragon's breath), so `onPrepareCraft` sets the preview itself (PrepareItemCraftEvent fires
+  even when no recipe matches) and `onClickCraftResult` always cancels clicks on that result slot (vanilla would
+  duplicate the bottle, since no recipe consumes it) and does the transaction by hand: it picks the destination
+  first (empty cursor, free inventory slot on shift-click, empty hotbar slot on number key, dropped on Q/Ctrl+Q, empty offhand on F; creative middle click is left to vanilla), re-checks
+  `recipe.deposit`/`recipe.withdraw` (`Config.recipeFill`/`recipePour`, reloadable) and permissions, and only
+  then moves the XP, so a click that can't deliver the bottle moves nothing.
+- `onPrepareCraft`/`onCraft` — the new bottle recipe is crafted by vanilla. `onPrepareCraft` removes its result if
+  the player lacks `magicbottle.action.craft` or `isEmptyBottleRecipe` fails (identified by its `NamespacedKey`,
+  `Recipes.getKey`, and no grid item may be a MagicBottle); `onCraft` only plays the sound (and cancels as a
+  safety net).
+- `onCrafterCraft` — crafter blocks have no player, so they bypass the player crafting checks. The new bottle
+  recipe (identified by its key) is allowed only if `recipe.bottle.allow crafters`
+  (`Config.recipeNewBottleAllowCrafters`, reloadable) is on and no slot of the crafter holds a MagicBottle
+  (otherwise it would be consumed as an ingredient). Crafters can't fill or pour.
 - `onItemUse` — auto-repair of tools/armor using a usable bottle anywhere in the inventory if the player has
   enabled auto-repair (tracked in `Plugin.autoEnabled`) and `Config.canRepair` accepts the item (it has the
   configured `repair.enchantment`, Mending by default, or any item if set to `ANY`; parsed by `EnchantParser`
   from an enchantment registry key).
 
-**Recipes** (`Recipes.java`): registers up to three recipes on enable, each gated by a `Config` flag —
-shapeless "fill" (empty bottle → filled), shapeless "pour" (filled → empty + XP), and a shaped "new bottle"
-recipe (`magicbottle:bottle`) whose datapack-style `shape`/`ingredients` (item IDs or `#` item tags) come from
-config. `Config.loadNewBottleRecipe` parses and validates them into `recipeNewBottleShape`/
-`recipeNewBottleIngredients`; if they're invalid it logs the problem and disables the recipe. Like any shaped
-recipe it matches anywhere in the grid (and mirrored), so `Events` identifies it by its key
-(`Recipes.getKey`), never by grid positions, and refuses it when a MagicBottle is in the grid.
+**Recipes** (`Recipes.java`): registers a single recipe on enable, if `recipe.bottle.enabled` is on: the shaped
+"new bottle" recipe (`magicbottle:bottle`, result `MagicBottle(0)`) whose datapack-style `shape`/`ingredients`
+(item IDs or `#` item tags) come from config. `Config.loadNewBottleRecipe` parses and validates them into
+`recipeNewBottleShape`/`recipeNewBottleIngredients`; if they're invalid it logs the problem and disables the
+recipe. Like any shaped recipe it matches anywhere in the grid (and mirrored), so `Events` identifies it by its
+key (`Recipes.getKey`), never by grid positions, and refuses it when a MagicBottle is in the grid. Filling and
+pouring are not recipes (see `Events`).
 
 **Commands** (`Commands.java`): single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) dispatched
 by subcommand string (`about`, `reload`, `give`, `repair [auto]`), each gated by its own permission in

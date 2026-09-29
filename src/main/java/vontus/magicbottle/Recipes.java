@@ -4,33 +4,20 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
 
 import vontus.magicbottle.config.Config;
 
 import java.util.Map;
 
 public class Recipes {
-	public static final String nameFill = "fill";
-	public static final String namePour = "pour";
 	public static final String nameBottle = "bottle";
 
 	private Plugin plugin;
 
+	// Filling and pouring a bottle in a crafting grid aren't recipes, or the recipe book would autofill any glass
+	// bottle or dragon's breath. Events handles them by hand (onPrepareCraft/onClickCraftResult).
 	public Recipes(Plugin plugin) {
 		this.plugin = plugin;
-
-		if (Config.recipeFill) {
-			ShapelessRecipe recipeFill = getShapelessRecipe(1, nameFill);
-			recipeFill.addIngredient(1, MagicBottle.materialEmpty);
-			plugin.getServer().addRecipe(recipeFill);
-		}
-
-		if (Config.recipePour) {
-			ShapelessRecipe recipePour = getShapelessRecipe(0, namePour);
-			recipePour.addIngredient(1, MagicBottle.materialFilled);
-			plugin.getServer().addRecipe(recipePour);
-		}
 
 		// The shape and ingredients were already validated by Config, which disables the recipe if they're invalid
 		if (Config.recipeNewBottleEnabled) {
@@ -41,11 +28,6 @@ public class Recipes {
 			}
 			plugin.getServer().addRecipe(craftBottle);
 		}
-	}
-
-	private ShapelessRecipe getShapelessRecipe(int level, String name) {
-		ItemStack item = new MagicBottle(level).getItem();
-		return new ShapelessRecipe(getKey(plugin, name), item);
 	}
 
 	private ShapedRecipe getNewBottleRecipe() {

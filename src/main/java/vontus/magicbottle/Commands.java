@@ -2,6 +2,7 @@ package vontus.magicbottle;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
@@ -15,6 +16,7 @@ import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.util.Exp;
 
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -25,11 +27,14 @@ import static io.papermc.paper.command.brigadier.Commands.literal;
 
 public class Commands {
 	private final Plugin plugin;
+	private LiteralCommandNode<CommandSourceStack> root;
 
-	private static final String USAGE_ABOUT = "/magicbottle about";
-	private static final String USAGE_REPAIR = "/magicbottle repair [auto]";
-	private static final String USAGE_GIVE = "/magicbottle give <level> [amount] [player]";
-	private static final String USAGE_RELOAD = "/magicbottle reload";
+	// Usage shown in the menu for each subcommand node
+	private static final Map<String, String> USAGES = Map.of(
+			"about", "/magicbottle about",
+			"reload", "/magicbottle reload",
+			"give", "/magicbottle give <level> [amount] [player]",
+			"repair", "/magicbottle repair [auto]");
 
 	// One stack: both bottle materials stack up to 64
 	private static final int MAX_GIVE_AMOUNT = 64;
@@ -40,11 +45,14 @@ public class Commands {
 
 	/**
 	 * Builds the /magicbottle command tree. Each subcommand is a literal node, and it is hidden from (and refused
-	 * to) senders lacking its permission, so new subcommands are added here.
+	 * to) senders lacking its permission, so new subcommands are added here along with their entry in USAGES.
 	 */
 	LiteralCommandNode<CommandSourceStack> build() {
-		return literal("magicbottle")
-				.executes(run(this::sendMenu))
+		root = literal("magicbottle")
+				.executes(ctx -> {
+					sendMenu(ctx.getSource());
+					return Command.SINGLE_SUCCESS;
+				})
 				.then(literal("about").executes(run(this::about)))
 				.then(literal("reload").requires(perm(Config.permReload)).executes(run(this::reload)))
 				.then(literal("give")
@@ -63,6 +71,7 @@ public class Commands {
 						.executes(asPlayer(this::repair))
 						.then(literal("auto").requires(perm(Config.permRepairAuto)).executes(asPlayer(this::toggleAutoRepair))))
 				.build();
+		return root;
 	}
 
 	private static Predicate<CommandSourceStack> perm(String permission) {
@@ -147,17 +156,14 @@ public class Commands {
 		return Command.SINGLE_SUCCESS;
 	}
 
-	private void sendMenu(CommandSender sender) {
+	/** Lists the subcommands the source can use, as the tree's requirements decide. */
+	private void sendMenu(CommandSourceStack source) {
+		CommandSender sender = source.getSender();
 		sender.sendMessage(ChatColor.GOLD + "- MagicBottle Commands -");
-		sender.sendMessage(ChatColor.YELLOW + " " + USAGE_ABOUT);
-		if (sender.hasPermission(Config.permGive)) {
-			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_GIVE);
-		}
-		if (sender.hasPermission(Config.permReload)) {
-			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_RELOAD);
-		}
-		if (sender.hasPermission(Config.permRepair)) {
-			sender.sendMessage(ChatColor.YELLOW + " " + USAGE_REPAIR);
+		for (CommandNode<CommandSourceStack> node : root.getChildren()) {
+			if (node.canUse(source)) {
+				sender.sendMessage(ChatColor.YELLOW + " " + USAGES.get(node.getName()));
+			}
 		}
 	}
 

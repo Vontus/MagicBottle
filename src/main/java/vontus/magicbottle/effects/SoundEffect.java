@@ -13,7 +13,7 @@ public class SoundEffect {
 		if (Config.effectSound)
 			player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1);
 		if (Config.effectParticles) {
-			player.spawnParticle(Particle.SPELL_WITCH, player.getLocation(), 50,0.1f, 0.1f, 0.1f);
+			player.spawnParticle(Particle.WITCH, player.getLocation(), 50,0.1f, 0.1f, 0.1f);
 		}
 	}
 
@@ -23,7 +23,7 @@ public class SoundEffect {
 		if (Config.effectParticles) {
 			Location l = player.getLocation();
 			l.setY(l.getY() + 2);
-			player.spawnParticle(Particle.ENCHANTMENT_TABLE, l, 50,0.2f, 0.2f, 0.2f);
+			player.spawnParticle(Particle.ENCHANT, l, 50,0.2f, 0.2f, 0.2f);
 		}
 	}
 	

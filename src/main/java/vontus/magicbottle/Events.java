@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.CrafterCraftEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -40,6 +41,14 @@ public class Events implements Listener {
 		InventoryType invType = e.getView().getType();
 		if (invType == InventoryType.ANVIL || invType == InventoryType.BREWING) {
 			e.setCancelled(MagicBottle.isMagicBottle(e.getCurrentItem()));
+		}
+	}
+
+	// Crafters have no player, so they can't pay costs or get their exp moved. Block every bottle recipe in them.
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onCrafterCraft(CrafterCraftEvent e) {
+		if (MagicBottle.isMagicBottle(e.getRecipe().getResult())) {
+			e.setCancelled(true);
 		}
 	}
 

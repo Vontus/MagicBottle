@@ -27,7 +27,7 @@ recipe:
     # 1 2 3
     # 4 5 6
     # 7 8 9
-    # You can see a complete list of possible item names here: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
+    # You can see a complete list of possible item names here: https://jd.papermc.io/paper/org/bukkit/Material.html
     # You can set AIR for an empty slot.
     recipe:
       1: BLAZE_POWDER
@@ -61,7 +61,7 @@ repair:
   enabled: true
   # Enable or disable the '/mb repair auto' command
   auto: true
-  # Tools and armor will need this enchantment in order to be able to repair them
+  # Tools and armor will need this enchantment in order to be able to repair them (its Minecraft ID, e.g. MENDING or minecraft:mending)
   # Set this to ANY if you want MagicBottle to repair any repairable tool (unenchanted tools will be repaired too)
   enchantment: MENDING
 

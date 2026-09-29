@@ -1,7 +1,6 @@
 package vontus.magicbottle.config;
 
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.Plugin;
@@ -44,7 +43,6 @@ public class Config {
 	public static double costMoneyCraftNewBottle;
 	public static boolean costCraftNewBottleChangeLore;
 
-	public static Enchantment bottleEnchantment;
 	public static EnchantParser repairEnchantment;
 
 	public static void load(Plugin plugin) {
@@ -79,14 +77,6 @@ public class Config {
 				Plugin.logger.severe(e.getMessage() + ". Repairing has been disabled.");
 			}
 		}
-
-//		boolean compatDisableCustomEnchantments = plugin.getConfig().getBoolean("compatibility.disable custom enchantments");
-//		if (compatDisableCustomEnchantments) {
-//			bottleEnchantment = Enchantment.DIG_SPEED;
-//		} else {
-//			bottleEnchantment = EnchantGlow.getGlow();
-//		} TODO test
-		bottleEnchantment = Enchantment.DIG_SPEED;
 	}
 
 	public static boolean canRepair(ItemStack is) {

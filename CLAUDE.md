@@ -21,8 +21,8 @@ The plugin version lives only in `build.gradle`; `plugin.yml` gets it through `p
 ## Architecture
 
 **Entry point**: `Plugin.java` (`onEnable`) wires everything together: loads config/messages, registers the
-`magicbottle` crafting recipes, registers `Events` as a listener, registers `Commands` as the command
-executor, and starts bStats metrics.
+`magicbottle` crafting recipes, registers `Events` as a listener, registers the `Commands` tree
+through `LifecycleEvents.COMMANDS`, and starts bStats metrics.
 
 **Core domain object**: `MagicBottle` wraps a Bukkit `ItemStack` and is the single source of truth for how
 XP is represented on an item. Bottles are identified by a `magicbottle:bottle` PersistentDataContainer marker
@@ -68,9 +68,13 @@ recipe. Like any shaped recipe it matches anywhere in the grid (and mirrored), s
 key (`Recipes.getKey`), never by grid positions, and refuses it when a MagicBottle is in the grid. Filling and
 pouring are not recipes (see `Events`).
 
-**Commands** (`Commands.java`): single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) dispatched
-by subcommand string (`about`, `reload`, `give`, `repair [auto]`), each gated by its own permission in
-`Config`.
+**Commands** (`Commands.java`): the single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) is a Brigadier
+tree (`Commands#build`) registered from `Plugin.onEnable` through `LifecycleEvents.COMMANDS`; it is not in
+`plugin.yml`. Subcommands (`about`, `reload`, `give <level> [amount] [player]`, `repair [auto]`) are literal nodes
+gated with `.requires(...)` on their permission in `Config`, so senders only see and can run what they may.
+`give` takes typed arguments (`level` >= 0, `amount` >= 1, `player` as Paper's player selector, which fails if
+nobody matches instead of falling back to the sender); the max level and the stack size are checked at run time
+since `Config.maxLevel` is reloadable. New subcommands are added as nodes in `build`.
 
 **Config layer** (`config/`): `PluginFile` is a generic wrapper around a Bukkit `YamlConfiguration` file
 (load/save/defaults-from-jar). `Config` and `Messages` are static classes populated once from

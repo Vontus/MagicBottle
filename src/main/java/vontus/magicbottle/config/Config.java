@@ -1,15 +1,15 @@
 package vontus.magicbottle.config;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
-
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-
-import vontus.magicbottle.MagicBottle;
+import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.util.Exp;
+
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 public class Config {
 	private static HashMap<String, Integer> maxLevelsPermission;
@@ -26,8 +26,8 @@ public class Config {
 	public static final String permCraftCostExempt = "magicbottle.action.craft.cost.exempt";
 	public static final String permDepositCostExempt = "magicbottle.action.deposit.cost.exempt";
 
-	public static final String maxLevelsBasePermission = "magicbottle.maxlevel.";
-	public static final String maxLevelsUnlimitedPermission = "magicbottle.maxlevel.unlimited";
+	private static final String maxLevelsBasePermission = "magicbottle.maxlevel.";
+	private static final String maxLevelsUnlimitedPermission = "magicbottle.maxlevel.unlimited";
 
 	public static boolean effectSound;
 	public static boolean effectParticles;
@@ -37,16 +37,17 @@ public class Config {
 	public static boolean repairEnabled;
 	public static boolean repairAutoEnabled;
 
-	public static int defaultRankMaxLevel;
+	private static int defaultRankMaxLevel;
 	public static int maxLevel = 20000;
-	
+
 	public static double costPercentageDeposit;
 	public static double costMoneyCraftNewBottle;
 	public static boolean costCraftNewBottleChangeLore;
 
-	//public static boolean compatDisableCustomEnchantments;
+	public static Enchantment bottleEnchantment;
+	public static EnchantParser repairEnchantment;
 
-	public Config(Plugin plugin) {
+	public static void load(Plugin plugin) {
 		Config.plugin = plugin;
 		maxLevelsPermission = new HashMap<>();
 
@@ -61,18 +62,38 @@ public class Config {
 			int value = plugin.getConfig().getInt("max level.permissions." + parent);
 			maxLevelsPermission.put(parent, value);
 		}
-		
+
 		repairEnabled = plugin.getConfig().getBoolean("repair.enabled");
 		repairAutoEnabled = plugin.getConfig().getBoolean("repair.auto");
-		
+
 		costPercentageDeposit = plugin.getConfig().getDouble("costs.deposit.exp-percentage") / 100;
 		costMoneyCraftNewBottle = plugin.getConfig().getDouble("costs.craft new bottle.money");
 		costCraftNewBottleChangeLore = plugin.getConfig().getBoolean("costs.craft new bottle.change lore");
 
-		boolean compatDisableCustomEnchantments = plugin.getConfig().getBoolean("compatibility.disable custom enchantments");
-		if (compatDisableCustomEnchantments) {
-			MagicBottle.bottleEnchantment = Enchantment.DIG_SPEED;
+		try {
+			repairEnchantment = EnchantParser.parseForBukkit(plugin.getConfig().getString("repair.enchantment"));
+		} catch (ParseException e) {
+			if (repairEnabled || repairAutoEnabled) {
+				repairEnabled = false;
+				repairAutoEnabled = false;
+				Plugin.logger.severe(e.getMessage() + ". Repairing has been disabled.");
+			}
 		}
+
+//		boolean compatDisableCustomEnchantments = plugin.getConfig().getBoolean("compatibility.disable custom enchantments");
+//		if (compatDisableCustomEnchantments) {
+//			bottleEnchantment = Enchantment.DIG_SPEED;
+//		} else {
+//			bottleEnchantment = EnchantGlow.getGlow();
+//		} TODO test
+		bottleEnchantment = Enchantment.DIG_SPEED;
+	}
+
+	public static boolean canRepair(ItemStack is) {
+		return (repairEnabled || repairAutoEnabled)
+				&& repairEnchantment.canRepair(is)
+				&& is.getType().getMaxDurability() > 0
+				&& is.getDurability() > 0;
 	}
 
 	public static Material getBottleRecipeIngredient(int pos) {
@@ -82,7 +103,7 @@ public class Config {
 	public static int getMaxFillPointsFor(final Player p) {
 		return Exp.getExpAtLevel(getMaxLevelsFor(p));
 	}
-	
+
 	public static int getMaxLevelsFor(final Player p) {
 		int max = -1;
 

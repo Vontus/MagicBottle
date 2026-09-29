@@ -71,10 +71,11 @@ pouring are not recipes (see `Events`).
 **Commands** (`Commands.java`): the single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) is a Brigadier
 tree (`Commands#build`) registered from `Plugin.onEnable` through `LifecycleEvents.COMMANDS`; it is not in
 `plugin.yml`. Subcommands (`about`, `reload`, `give <level> [amount] [player]`, `repair [auto]`) are literal nodes
-gated with `.requires(...)` on their permission in `Config`, so senders only see and can run what they may.
-`give` takes typed arguments (`level` >= 0, `amount` >= 1, `player` as Paper's player selector, which fails if
-nobody matches instead of falling back to the sender); the max level and the stack size are checked at run time
-since `Config.maxLevel` is reloadable. New subcommands are added as nodes in `build`.
+gated with `.requires(...)` on their permission in `Config` (`repair` also requires a player executor), so senders
+only see and can run what they may; the menu shown by the bare command lists the nodes the source can use.
+`give` takes bounded arguments (`level` 0..`Config.maxLevel`, `amount` 1..64, `player` as Paper's player selector,
+which fails if nobody matches); without `player` it targets the executor, so `/execute as` works. New subcommands
+are added as nodes in `build`, with their line in `USAGES`.
 
 **Config layer** (`config/`): `PluginFile` is a generic wrapper around a Bukkit `YamlConfiguration` file
 (load/save/defaults-from-jar). `Config` and `Messages` are static classes populated once from

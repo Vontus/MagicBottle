@@ -6,11 +6,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 
-import vontus.magicbottle.Plugin;
 import vontus.magicbottle.config.Config;
 
 public class Recipes {
-	Plugin plugin;
+	private Plugin plugin;
 
 	public Recipes(Plugin plugin) {
 		this.plugin = plugin;
@@ -28,31 +27,35 @@ public class Recipes {
 		}
 
 		if (Config.recipeNewBottleEnabled) {
-			ShapedRecipe craftBottle = getNewBottleRecipe(0, "bottle");
+			ShapedRecipe craftBottle = getNewBottleRecipe();
 			// AIR can't be an ingredient, so empty slots are left as spaces in the shape
-			StringBuilder shape = new StringBuilder();
+			char[] shape = "123456789".toCharArray();
 			for (int i = 1; i < 10; i++) {
 				Material m = Config.getBottleRecipeIngredient(i);
-				shape.append(m == null || m == Material.AIR ? ' ' : (char) (i + 48));
+				if (m == null || m == Material.AIR) {
+					shape[i - 1] = ' ';
+				}
 			}
-			craftBottle.shape(shape.substring(0, 3), shape.substring(3, 6), shape.substring(6, 9));
+			String s = new String(shape);
+			craftBottle.shape(s.substring(0, 3), s.substring(3, 6), s.substring(6, 9));
 			for (int i = 1; i < 10; i++) {
-				Material m = Config.getBottleRecipeIngredient(i);
-				if (m != null && m != Material.AIR) {
-					craftBottle.setIngredient((char) (i + 48), m);
+				if (shape[i - 1] != ' ') {
+					craftBottle.setIngredient(shape[i - 1], Config.getBottleRecipeIngredient(i));
 				}
 			}
 			plugin.getServer().addRecipe(craftBottle);
 		}
 	}
 
-	public ShapelessRecipe getShapelessRecipe(int level, String name) {
+	private ShapelessRecipe getShapelessRecipe(int level, String name) {
 		ItemStack item = new MagicBottle(level).getItem();
-		return new ShapelessRecipe(new NamespacedKey(plugin, name), item);
+		NamespacedKey key = new NamespacedKey(plugin, name);
+		return new ShapelessRecipe(key, item);
 	}
 
-	public ShapedRecipe getNewBottleRecipe(int level, String name) {
+	private ShapedRecipe getNewBottleRecipe() {
 		ItemStack item = MagicBottle.getPreMagicBottle();
-		return new ShapedRecipe(new NamespacedKey(plugin, name), item);
+		NamespacedKey key = new NamespacedKey(plugin, "bottle");
+		return new ShapedRecipe(key, item);
 	}
 }

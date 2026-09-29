@@ -37,7 +37,8 @@ public class Commands {
 			"reload", "/magicbottle reload",
 			"give", "/magicbottle give <level> [amount] [player]",
 			"recipe", "/magicbottle recipe",
-			"repair", "/magicbottle repair [auto]");
+			"repair", "/magicbottle repair",
+			"autorepair", "/magicbottle autorepair [on|off]");
 
 	// One stack: both bottle materials stack up to 64
 	private static final int MAX_GIVE_AMOUNT = 64;
@@ -72,8 +73,12 @@ public class Commands {
 				.then(literal("recipe").requires(perm(Config.permCraft).and(isPlayer())).executes(asPlayer(this::recipe)))
 				.then(literal("repair")
 						.requires(perm(Config.permRepair).and(isPlayer()))
-						.executes(asPlayer(this::repair))
-						.then(literal("auto").requires(perm(Config.permRepairAuto)).executes(asPlayer(this::toggleAutoRepair))))
+						.executes(asPlayer(this::repair)))
+				.then(literal("autorepair")
+						.requires(perm(Config.permRepairAuto).and(isPlayer()))
+						.executes(asPlayer(p -> setAutoRepair(p, null)))
+						.then(literal("on").executes(asPlayer(p -> setAutoRepair(p, true))))
+						.then(literal("off").executes(asPlayer(p -> setAutoRepair(p, false)))))
 				.build();
 		return root;
 	}
@@ -124,10 +129,17 @@ public class Commands {
 		}
 	}
 
-	private void toggleAutoRepair(Player p) {
+	// enable is null to toggle
+	private void setAutoRepair(Player p, Boolean enable) {
 		if (!Config.repairAutoEnabled) {
 			p.sendMessage(Messages.repairAutoDisabledConfig);
-		} else if (plugin.autoEnabled.add(p)) {
+			return;
+		}
+		if (enable == null) {
+			enable = !plugin.autoEnabled.contains(p);
+		}
+		if (enable) {
+			plugin.autoEnabled.add(p);
 			p.sendMessage(Messages.repairAutoEnabled);
 		} else {
 			plugin.autoEnabled.remove(p);

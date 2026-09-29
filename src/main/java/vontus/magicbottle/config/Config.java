@@ -45,6 +45,7 @@ public class Config {
 	public static Map<Character, RecipeChoice> recipeNewBottleIngredients;
 	public static boolean repairEnabled;
 	public static boolean repairAutoEnabled;
+	public static boolean repairAutoFeedback;
 
 	private static int defaultRankMaxLevel;
 	public static final int maxLevel = 20000;
@@ -80,6 +81,7 @@ public class Config {
 
 		repairEnabled = plugin.getConfig().getBoolean("repair.enabled");
 		repairAutoEnabled = plugin.getConfig().getBoolean("repair.auto");
+		repairAutoFeedback = plugin.getConfig().getBoolean("repair.auto feedback", true);
 
 		costPercentageDeposit = plugin.getConfig().getDouble("costs.deposit.exp-percentage") / 100;
 

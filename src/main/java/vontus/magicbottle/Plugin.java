@@ -14,10 +14,12 @@ import java.util.logging.Logger;
 public class Plugin extends JavaPlugin {
 	public static Logger logger;
 	public HashSet<Player> autoEnabled = new HashSet<>();
+	public AutoRepairFeedback autoRepairFeedback;
 
 	@Override
 	public void onEnable() {
 		logger = getLogger();
+		autoRepairFeedback = new AutoRepairFeedback(this);
 		MagicBottle.init(this);
 		loadConfig();
 		new Recipes(this);

@@ -79,9 +79,9 @@ nodes the source can use.
 which fails if nobody matches); without `player` it targets the executor, so `/execute as` works. New subcommands
 are added as nodes in `build`, with their line in `USAGES`.
 
-**Recipe menu** (`RecipeMenu.java`): `/mb recipe` (`magicbottle.command.recipe`) opens a chest inventory showing
-the configured new-bottle recipe (any shape up to 3x3; ingredients that accept several items, i.e. tags, cycle
-through them every second). It must stay strictly read-only: the inventory has a custom `InventoryHolder`
+**Recipe menu** (`RecipeMenu.java`): `/mb recipe` (`magicbottle.action.craft`, the same permission as crafting it)
+opens a chest inventory showing the configured new-bottle recipe (any shape up to 3x3; ingredients that accept
+several items, i.e. tags, cycle through them every second). It must stay strictly read-only: the inventory has a custom `InventoryHolder`
 (`RecipeMenu`), `Events` cancels every `InventoryClickEvent`/`InventoryDragEvent` while it is the *top* inventory of
 the view (which also covers shift-clicks, number keys, offhand swaps and double clicks from the player's own
 inventory) and clears it on `InventoryCloseEvent`; `Plugin.onDisable` closes it for whoever has it open. The result

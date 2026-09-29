@@ -69,7 +69,7 @@ public class Commands {
 												.executes(ctx -> give(ctx, getInteger(ctx, "amount"), ctx
 														.getArgument("player", PlayerSelectorArgumentResolver.class)
 														.resolve(ctx.getSource()).getFirst()))))))
-				.then(literal("recipe").requires(perm(Config.permRecipe).and(isPlayer())).executes(asPlayer(this::recipe)))
+				.then(literal("recipe").requires(perm(Config.permCraft).and(isPlayer())).executes(asPlayer(this::recipe)))
 				.then(literal("repair")
 						.requires(perm(Config.permRepair).and(isPlayer()))
 						.executes(asPlayer(this::repair))

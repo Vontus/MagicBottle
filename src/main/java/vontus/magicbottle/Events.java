@@ -64,7 +64,8 @@ public class Events implements Listener {
 			return;
 		}
 		ItemStack lone = getLoneBottle(inv);
-		if (lone == null) {
+		// Middle click only clones the result in creative, without consuming anything, so vanilla can handle it
+		if (lone == null || e.getClick() == ClickType.MIDDLE) {
 			return;
 		}
 
@@ -97,7 +98,7 @@ public class Events implements Listener {
 				deliver = playerInv::setItemInOffHand;
 			}
 		}
-		// Other clicks (double click, creative middle click...) do nothing
+		// Other clicks (double click...) do nothing
 		if (deliver == null) {
 			return;
 		}

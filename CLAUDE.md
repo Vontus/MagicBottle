@@ -44,7 +44,7 @@ PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are creat
   any glass bottle or dragon's breath), so `onPrepareCraft` sets the preview itself (PrepareItemCraftEvent fires
   even when no recipe matches) and `onClickCraftResult` always cancels clicks on that result slot (vanilla would
   duplicate the bottle, since no recipe consumes it) and does the transaction by hand: it picks the destination
-  first (empty cursor, free inventory slot on shift-click, empty hotbar slot on number key, dropped on Q/Ctrl+Q, empty offhand on F), re-checks
+  first (empty cursor, free inventory slot on shift-click, empty hotbar slot on number key, dropped on Q/Ctrl+Q, empty offhand on F; creative middle click is left to vanilla), re-checks
   `recipe.deposit`/`recipe.withdraw` (`Config.recipeFill`/`recipePour`, reloadable) and permissions, and only
   then moves the XP, so a click that can't deliver the bottle moves nothing.
 - `onPrepareCraft`/`onCraft` — the new bottle recipe is crafted by vanilla. `onPrepareCraft` removes its result if

@@ -150,8 +150,8 @@ public class Events implements Listener {
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent e) {
-		MagicBottle.migrateLegacyBottles(e.getPlayer().getInventory());
-		MagicBottle.migrateLegacyBottles(e.getPlayer().getEnderChest());
+		LegacyBottle.migrateInventory(e.getPlayer().getInventory());
+		LegacyBottle.migrateInventory(e.getPlayer().getEnderChest());
 	}
 
 	@EventHandler

@@ -7,16 +7,13 @@ author: Vontus
 
 permissions:
   magicbottle.action.craft:
-    description: 'Allows a player to craft MagicBottles'
+    description: 'Allows a player to craft MagicBottles and see their recipe'
     default: true
   magicbottle.action.deposit:
     description: 'Allows a player to save experience in MagicBottles'
     default: true
   magicbottle.action.withdraw:
     description: 'Allows a player to take experience from MagicBottles'
-    default: true
-  magicbottle.command.recipe:
-    description: 'Allows a player to see the recipe of a new bottle'
     default: true
   magicbottle.command.repair:
     description: 'Allows a player to repair tools using bottled XP'

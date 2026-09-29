@@ -28,7 +28,6 @@ public class Config {
 	public static final String permCraft = "magicbottle.action.craft";
 	public static final String permGive = "magicbottle.command.give";
 	public static final String permReload = "magicbottle.command.reload";
-	public static final String permRecipe = "magicbottle.command.recipe";
 	public static final String permRepair = "magicbottle.command.repair";
 	public static final String permRepairAuto = "magicbottle.command.repair.auto";
 	public static final String permDepositCostExempt = "magicbottle.action.deposit.cost.exempt";
@@ -48,7 +47,7 @@ public class Config {
 	public static boolean repairAutoEnabled;
 
 	private static int defaultRankMaxLevel;
-	public static int maxLevel = 20000;
+	public static final int maxLevel = 20000;
 
 	public static double costPercentageDeposit;
 

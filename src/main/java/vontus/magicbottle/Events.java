@@ -33,6 +33,7 @@ import vontus.magicbottle.util.Utils;
 
 import java.util.HashSet;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class Events implements Listener {
 	private HashSet<UUID> wait;
@@ -74,19 +75,30 @@ public class Events implements Listener {
 		// Pick the destination before changing anything, so no exp moves if the bottle can't be delivered
 		PlayerInventory playerInv = player.getInventory();
 		ClickType click = e.getClick();
-		boolean toCursor = false;
-		int invSlot = -1;
+		Consumer<ItemStack> deliver = null;
 		if (click == ClickType.LEFT || click == ClickType.RIGHT) {
-			toCursor = Utils.getMaterial(player.getItemOnCursor()) == Material.AIR;
+			if (Utils.getMaterial(player.getItemOnCursor()) == Material.AIR) {
+				deliver = player::setItemOnCursor;
+			}
 		} else if (click == ClickType.SHIFT_LEFT || click == ClickType.SHIFT_RIGHT) {
-			invSlot = playerInv.firstEmpty();
+			int slot = playerInv.firstEmpty();
+			if (slot >= 0) {
+				deliver = item -> playerInv.setItem(slot, item);
+			}
 		} else if (click == ClickType.NUMBER_KEY) {
 			int button = e.getHotbarButton();
 			if (button >= 0 && button < 9 && Utils.getMaterial(playerInv.getItem(button)) == Material.AIR) {
-				invSlot = button;
+				deliver = item -> playerInv.setItem(button, item);
+			}
+		} else if (click == ClickType.DROP || click == ClickType.CONTROL_DROP) {
+			deliver = player::dropItem;
+		} else if (click == ClickType.SWAP_OFFHAND) {
+			if (Utils.getMaterial(playerInv.getItemInOffHand()) == Material.AIR) {
+				deliver = playerInv::setItemInOffHand;
 			}
 		}
-		if (!toCursor && invSlot < 0) {
+		// Other clicks (double click, creative middle click...) do nothing
+		if (deliver == null) {
 			return;
 		}
 
@@ -105,11 +117,7 @@ public class Events implements Listener {
 
 		inv.setMatrix(new ItemStack[inv.getMatrix().length]);
 		inv.setResult(null);
-		if (toCursor) {
-			player.setItemOnCursor(bottle.getItem());
-		} else {
-			playerInv.setItem(invSlot, bottle.getItem());
-		}
+		deliver.accept(bottle.getItem());
 	}
 
 	// Crafters have no player, so they can't have their permissions checked: the new bottle recipe is only allowed if

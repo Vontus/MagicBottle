@@ -3,7 +3,8 @@
 .settings/
 .gradle/
 target/
-gradle/
+gradle/*
+!gradle/wrapper/
 build/
 out/
 .classpath

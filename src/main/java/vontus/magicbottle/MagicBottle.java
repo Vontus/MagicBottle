@@ -2,12 +2,13 @@ package vontus.magicbottle;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.effects.SoundEffect;
@@ -19,10 +20,16 @@ import java.util.ArrayList;
 public class MagicBottle {
 	public static final Material materialFilled = Material.DRAGON_BREATH;
 	public static final Material materialEmpty = Material.GLASS_BOTTLE;
-	private static final int XP_LINE = 1;
 	private static final int DURABILITY_POINTS_PER_XP = 2;
+	private static NamespacedKey keyBottle;
+	private static NamespacedKey keyExp;
 	private ItemStack item;
 	private Integer exp;
+
+	static void init(Plugin plugin) {
+		keyBottle = new NamespacedKey(plugin, "bottle");
+		keyExp = new NamespacedKey(plugin, "exp");
+	}
 
 	MagicBottle(int exp) {
 		this.exp = exp;
@@ -175,9 +182,8 @@ public class MagicBottle {
 		String name = replaceVariables(Messages.bottleName);
 		meta.setDisplayName(name);
 		meta.setLore(tag);
-
-		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		meta.addEnchant(Config.bottleEnchantment, 1, true);
+		markAsBottle(meta);
+		meta.getPersistentDataContainer().set(keyExp, PersistentDataType.INTEGER, exp);
 		item.setItemMeta(meta);
 	}
 	
@@ -204,21 +210,19 @@ public class MagicBottle {
 		return points;
 	}
 
+	private static void markAsBottle(ItemMeta meta) {
+		meta.getPersistentDataContainer().set(keyBottle, PersistentDataType.BYTE, (byte) 1);
+		meta.setEnchantmentGlintOverride(true);
+	}
+
 	private static int calculateExp(ItemStack item) {
-		int exp;
-		try {
-			exp = Integer.valueOf(ChatColor.stripColor((item.getItemMeta().getLore().get(XP_LINE).trim())).replace(",", ""));
-		} catch (Exception exception) {
-			exp = 0;
-		}
-		return exp;
+		return item.getItemMeta().getPersistentDataContainer().getOrDefault(keyExp, PersistentDataType.INTEGER, 0);
 	}
 
 	public static boolean isMagicBottle(ItemStack item) {
-		return  item != null &&
-				item.containsEnchantment(Config.bottleEnchantment) &&
-				(item.getType() == materialFilled || item.getType() == materialEmpty)
-				;
+		return item != null &&
+				(item.getType() == materialFilled || item.getType() == materialEmpty) &&
+				item.getItemMeta().getPersistentDataContainer().has(keyBottle, PersistentDataType.BYTE);
 	}
 	
 	public static boolean isUsableMagicBottle(ItemStack item) {
@@ -254,8 +258,7 @@ public class MagicBottle {
 				lore.add(line);
 			}
 			meta.setLore(lore);
-			meta.addEnchant(Config.bottleEnchantment, 1, true);
-			meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+			markAsBottle(meta);
 
 			is.setItemMeta(meta);
 		} else {

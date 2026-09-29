@@ -19,6 +19,7 @@ public class Plugin extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		logger = getLogger();
+		MagicBottle.init(this);
 		setupEconomy();
 		loadConfig();
 		new Recipes(this);

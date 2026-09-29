@@ -3,11 +3,14 @@ package vontus.magicbottle;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
@@ -21,6 +24,9 @@ public class MagicBottle {
 	public static final Material materialFilled = Material.DRAGON_BREATH;
 	public static final Material materialEmpty = Material.GLASS_BOTTLE;
 	private static final int DURABILITY_POINTS_PER_XP = 2;
+	// Bottles made by 1.5.x were marked with a hidden Efficiency enchantment and kept their exp in this lore line
+	private static final Enchantment LEGACY_ENCHANTMENT = Enchantment.EFFICIENCY;
+	private static final int LEGACY_XP_LINE = 1;
 	private static NamespacedKey keyBottle;
 	private static NamespacedKey keyExp;
 	private ItemStack item;
@@ -39,6 +45,10 @@ public class MagicBottle {
 	MagicBottle(ItemStack expContainer) {
 		item = expContainer;
 		exp = calculateExp(expContainer);
+		if (isLegacyBottle(expContainer)) {
+			// Legacy bottle: rewrite it in the current format
+			recreate();
+		}
 	}
 	
 	private void recreate() {
@@ -184,6 +194,8 @@ public class MagicBottle {
 		meta.setLore(tag);
 		markAsBottle(meta);
 		meta.getPersistentDataContainer().set(keyExp, PersistentDataType.INTEGER, exp);
+		meta.removeEnchant(LEGACY_ENCHANTMENT);
+		meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
 		item.setItemMeta(meta);
 	}
 	
@@ -216,15 +228,48 @@ public class MagicBottle {
 	}
 
 	private static int calculateExp(ItemStack item) {
-		return item.getItemMeta().getPersistentDataContainer().getOrDefault(keyExp, PersistentDataType.INTEGER, 0);
+		PersistentDataContainer pdc = item.getItemMeta().getPersistentDataContainer();
+		Integer stored = pdc.get(keyExp, PersistentDataType.INTEGER);
+		if (stored != null) {
+			return stored;
+		}
+		Integer legacyExp = parseLegacyExp(item);
+		return legacyExp != null ? legacyExp : 0;
+	}
+
+	private static Integer parseLegacyExp(ItemStack item) {
+		try {
+			String line = item.getItemMeta().getLore().get(LEGACY_XP_LINE);
+			return Integer.parseInt(ChatColor.stripColor(line).trim().replace(",", ""));
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	private static boolean hasBottleMarker(ItemStack item) {
+		return item.getItemMeta().getPersistentDataContainer().has(keyBottle, PersistentDataType.BYTE);
+	}
+
+	private static boolean isLegacyBottle(ItemStack item) {
+		return !hasBottleMarker(item) &&
+				item.containsEnchantment(LEGACY_ENCHANTMENT) &&
+				parseLegacyExp(item) != null;
 	}
 
 	public static boolean isMagicBottle(ItemStack item) {
 		return item != null &&
 				(item.getType() == materialFilled || item.getType() == materialEmpty) &&
-				item.getItemMeta().getPersistentDataContainer().has(keyBottle, PersistentDataType.BYTE);
+				(hasBottleMarker(item) || isLegacyBottle(item));
 	}
 	
+	public static void migrateLegacyBottles(Inventory inv) {
+		for (ItemStack item : inv) {
+			if (item != null && isMagicBottle(item) && isLegacyBottle(item)) {
+				new MagicBottle(item);
+			}
+		}
+	}
+
 	public static boolean isUsableMagicBottle(ItemStack item) {
 		if (isMagicBottle(item) && item.getAmount() == 1) {
 			MagicBottle mb = new MagicBottle(item);

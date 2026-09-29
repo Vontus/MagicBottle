@@ -1,5 +1,6 @@
 package vontus.magicbottle;
 
+import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,6 +19,7 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.scheduler.BukkitRunnable;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
@@ -87,7 +89,7 @@ public class Events implements Listener {
 						onPrepareRecipeDeposit(event);
 					}
 				} else {
-					if (!isEmptyBottleRecipe(event.getInventory())) {
+					if (!isEmptyBottleRecipe(event.getRecipe(), event.getInventory())) {
 						event.getInventory().setResult(null);
 					}
 				}
@@ -107,7 +109,7 @@ public class Events implements Listener {
 				}
 			} else {
 				if (MagicBottle.isMagicBottle(e.getRecipe().getResult())) {
-					if (isEmptyBottleRecipe(e.getInventory())) {
+					if (isEmptyBottleRecipe(e.getRecipe(), e.getInventory())) {
 						Player player = (Player) e.getView().getPlayer();
 						if (player.hasPermission(Config.permCraft)) {
 							if (tryChargeCraftBottleCost(player)) {
@@ -262,11 +264,14 @@ public class Events implements Listener {
 		}
 	}
 
-	private boolean isEmptyBottleRecipe(CraftingInventory inv) {
-		for (int i = 0; i < 9; i++) {
-			ItemStack item = inv.getMatrix()[i];
-			Material m = Config.getBottleRecipeIngredient(i + 1);
-			if (!Utils.getMaterial(item).equals(m) || MagicBottle.isMagicBottle(item)) {
+	// The new bottle recipe can match anywhere in the grid (and mirrored), so it's identified by its key. A MagicBottle
+	// can still match one of its ingredients (e.g. dragon_breath), but it must never be used up to craft a new one.
+	private boolean isEmptyBottleRecipe(Recipe recipe, CraftingInventory inv) {
+		if (!(recipe instanceof Keyed keyed) || !keyed.getKey().equals(Recipes.getKey(plugin, Recipes.nameBottle))) {
+			return false;
+		}
+		for (ItemStack item : inv.getMatrix()) {
+			if (MagicBottle.isMagicBottle(item)) {
 				return false;
 			}
 		}

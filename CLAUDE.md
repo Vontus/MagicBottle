@@ -49,7 +49,11 @@ PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are creat
 
 **Recipes** (`Recipes.java`): registers up to three recipes on enable, each gated by a `Config` flag —
 shapeless "fill" (empty bottle → filled), shapeless "pour" (filled → empty + XP), and a shaped "new bottle"
-recipe whose 3x3 ingredient layout comes entirely from config (`Config.getBottleRecipeIngredient`).
+recipe (`magicbottle:bottle`) whose datapack-style `shape`/`ingredients` (item IDs or `#` item tags) come from
+config. `Config.loadNewBottleRecipe` parses and validates them into `recipeNewBottleShape`/
+`recipeNewBottleIngredients`; if they're invalid it logs the problem and disables the recipe. Like any shaped
+recipe it matches anywhere in the grid (and mirrored), so `Events` identifies it by its key
+(`Recipes.getKey`), never by grid positions, and refuses it when a MagicBottle is in the grid.
 
 **Commands** (`Commands.java`): single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) dispatched
 by subcommand string (`about`, `reload`, `give`, `repair [auto]`), each gated by its own permission in

@@ -1,14 +1,18 @@
 package vontus.magicbottle;
 
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 
 import vontus.magicbottle.config.Config;
 
+import java.util.Map;
+
 public class Recipes {
+	public static final String nameBottle = "bottle";
+
 	private Plugin plugin;
 
 	public Recipes(Plugin plugin) {
@@ -26,22 +30,12 @@ public class Recipes {
 			plugin.getServer().addRecipe(recipePour);
 		}
 
+		// The shape and ingredients were already validated by Config, which disables the recipe if they're invalid
 		if (Config.recipeNewBottleEnabled) {
 			ShapedRecipe craftBottle = getNewBottleRecipe();
-			// AIR can't be an ingredient, so empty slots are left as spaces in the shape
-			char[] shape = "123456789".toCharArray();
-			for (int i = 1; i < 10; i++) {
-				Material m = Config.getBottleRecipeIngredient(i);
-				if (m == null || m == Material.AIR) {
-					shape[i - 1] = ' ';
-				}
-			}
-			String s = new String(shape);
-			craftBottle.shape(s.substring(0, 3), s.substring(3, 6), s.substring(6, 9));
-			for (int i = 1; i < 10; i++) {
-				if (shape[i - 1] != ' ') {
-					craftBottle.setIngredient(shape[i - 1], Config.getBottleRecipeIngredient(i));
-				}
+			craftBottle.shape(Config.recipeNewBottleShape);
+			for (Map.Entry<Character, RecipeChoice> ingredient : Config.recipeNewBottleIngredients.entrySet()) {
+				craftBottle.setIngredient(ingredient.getKey(), ingredient.getValue());
 			}
 			plugin.getServer().addRecipe(craftBottle);
 		}
@@ -55,7 +49,10 @@ public class Recipes {
 
 	private ShapedRecipe getNewBottleRecipe() {
 		ItemStack item = MagicBottle.getPreMagicBottle();
-		NamespacedKey key = new NamespacedKey(plugin, "bottle");
-		return new ShapedRecipe(key, item);
+		return new ShapedRecipe(getKey(plugin, nameBottle), item);
+	}
+
+	public static NamespacedKey getKey(Plugin plugin, String name) {
+		return new NamespacedKey(plugin, name);
 	}
 }

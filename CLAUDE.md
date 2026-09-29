@@ -39,6 +39,10 @@ PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are creat
 **Interaction flow** (`Events.java`): all player-facing behavior is driven by Bukkit events, not GUIs:
 - `onInteract` — left-click deposits, right-click withdraws, holding the bottle in hand (shift = 10 levels,
   no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`timeOut`, a map of last click ticks).
+  A left click in the air is deposited one tick later (`depositAfterSwing`) and skipped if `onDrop`
+  (`PlayerDropItemEvent`) saw that player drop an item meanwhile: throwing an item from a container screen makes
+  the client swing its arm, and that swing arrives before the drop. Left click on a block and right clicks are
+  immediate. The cooldown starts when the deposit actually runs.
 - `onPrepareCraft`/`onClickCraftResult` — a single MagicBottle (amount 1) alone in a crafting grid (3x3 or the
   2x2 inventory grid) withdraws/deposits *all* XP. These aren't registered recipes (the recipe book would autofill
   any glass bottle or dragon's breath), so `onPrepareCraft` sets the preview itself (PrepareItemCraftEvent fires

@@ -15,6 +15,7 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -40,11 +41,14 @@ public class Events implements Listener {
 
 	// Tick of each player's last accepted bottle click
 	private Map<UUID, Integer> lastClick;
+	// Tick of each player's last item drop
+	private Map<UUID, Integer> lastDrop;
 	private Plugin plugin;
 
 	Events(Plugin plugin) {
 		this.plugin = plugin;
 		this.lastClick = new HashMap<>();
+		this.lastDrop = new HashMap<>();
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -154,16 +158,42 @@ public class Events implements Listener {
 
 		if (MagicBottle.isMagicBottle(item)) {
 			MagicBottle mb = new MagicBottle(item);
-			if (item.getAmount() == 1 && timeOut(player)) {
-				if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK) {
-					onInteractDeposit(mb, player);
-				} else if (act == Action.RIGHT_CLICK_AIR || act == Action.RIGHT_CLICK_BLOCK) {
-					onInteractWithdraw(mb, player);
+			if (item.getAmount() == 1) {
+				if (act == Action.LEFT_CLICK_AIR) {
+					// Also sent by the client's arm swing when it drops an item from a container screen, and that swing
+					// arrives before the drop, so it can only be told apart a tick later
+					int swingTick = plugin.getServer().getCurrentTick();
+					plugin.getServer().getScheduler().runTask(plugin, () -> depositAfterSwing(player, swingTick));
+				} else if (timeOut(player)) {
+					if (act == Action.LEFT_CLICK_BLOCK) {
+						onInteractDeposit(mb, player);
+					} else if (act == Action.RIGHT_CLICK_AIR || act == Action.RIGHT_CLICK_BLOCK) {
+						onInteractWithdraw(mb, player);
+					}
 				}
 			}
 
 			event.setCancelled(true);
 			player.updateInventory();
+		}
+	}
+
+	// Covers Q, Ctrl+Q and throwing the cursor item out of a container screen
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onDrop(PlayerDropItemEvent e) {
+		lastDrop.put(e.getPlayer().getUniqueId(), plugin.getServer().getCurrentTick());
+	}
+
+	// Deposit of a left click in the air, delayed a tick to skip the swing of a drop (see onInteract). The cooldown is
+	// only started here, so a skipped swing doesn't consume it.
+	private void depositAfterSwing(Player player, int swingTick) {
+		Integer dropTick = lastDrop.get(player.getUniqueId());
+		if (!player.isOnline() || (dropTick != null && dropTick >= swingTick)) {
+			return;
+		}
+		ItemStack item = player.getInventory().getItemInMainHand();
+		if (MagicBottle.isMagicBottle(item) && item.getAmount() == 1 && timeOut(player)) {
+			onInteractDeposit(new MagicBottle(item), player);
 		}
 	}
 
@@ -225,12 +255,14 @@ public class Events implements Listener {
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent e) {
 		lastClick.remove(e.getPlayer().getUniqueId());
+		lastDrop.remove(e.getPlayer().getUniqueId());
 		plugin.autoEnabled.remove(e.getPlayer());
 	}
 
 	@EventHandler
 	public void onPlayerKicked(PlayerKickEvent e) {
 		lastClick.remove(e.getPlayer().getUniqueId());
+		lastDrop.remove(e.getPlayer().getUniqueId());
 		plugin.autoEnabled.remove(e.getPlayer());
 	}
 

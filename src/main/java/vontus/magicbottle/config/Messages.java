@@ -11,7 +11,6 @@ public class Messages {
 	public static final String levelReplacer = "[level]";
 	public static final String xpPointsReplacer = "[points]";
 	public static final String xpBarReplacer = "[xpbar]";
-	public static final String moneyReplacer = "[money]";
 
 	public static String msgMaxLevelReached;
 	public static String msgOnlyPlayersCommand;
@@ -32,18 +31,13 @@ public class Messages {
     public static String bottleFilledBarColor;
     public static String bottleEmptyBarColor;
     public static ArrayList<String> bottleLore;
-	
-    public static String newBottleName;
-    public static ArrayList<String> newBottleLore;
-    
+
     public static String repairInvRepaired;
     public static String repairAutoEnabled;
     public static String repairAutoDisabled;
     public static String repairDisabledConfig;
     public static String repairAutoDisabledConfig;
     public static String repairMbNotInHand;
-    
-	public static String msgNotEnoughMoney;
 
 	public static void load(Plugin plugin) {
 		PluginFile lang = new PluginFile(plugin, "messages.yml");
@@ -70,18 +64,13 @@ public class Messages {
         bottleFilledBarColor = prepMsg("bottle text.filled bar color");
         bottleEmptyBarColor = prepMsg("bottle text.empty bar color");
         bottleLore = getStringList("bottle text.lore");
-        
-        newBottleName = prepMsg("new bottle text.name");
-        newBottleLore = getStringList("new bottle text.lore");
-        
+
         repairInvRepaired = prepMsg("messages.repair.inventory repaired");
         repairAutoEnabled = prepMsg("messages.repair.enabled autorepair");
         repairAutoDisabled = prepMsg("messages.repair.disabled autorepair");
         repairDisabledConfig = prepMsg("messages.repair.config repairing disabled");
         repairAutoDisabledConfig = prepMsg("messages.repair.config auto repairing disabled");
         repairMbNotInHand = prepMsg("messages.repair.mb not in hand");
-        
-		msgNotEnoughMoney = prepMsg("messages.costs.not enough money");
 	}
 
 	private static String prepMsg(String config) {

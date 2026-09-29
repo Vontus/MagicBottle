@@ -3,7 +3,6 @@ name: MagicBottle
 main: vontus.magicbottle.Plugin
 version: ${version}
 api-version: '26.2'
-softdepend: [Vault]
 author: Vontus
 
 commands:
@@ -33,9 +32,6 @@ permissions:
     description: 'Admin command. Reloads the plugin config'
   magicbottle.maxlevel.unlimited:
     description: 'Allows a player to save up to 20,000 levels in a single MagicBottle'
-    default: false
-  magicbottle.action.craft.cost.exempt:
-    description: 'Exempts the player from paying the cost of crafting a new bottle'
     default: false
   magicbottle.action.deposit.cost.exempt:
     description: 'Exempts the player from paying the cost of saving experience into a bottle'

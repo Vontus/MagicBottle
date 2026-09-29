@@ -21,14 +21,6 @@ bottle text:
     - ' &eYou can also put the bottle in a crafting grid'
     - ' &eto save or take all the experience.'
 
-# This text will be displayed in a crafting table when the player is about to craft a new bottle.
-new bottle text:
-  name: '&5&lMagicBottle'
-  lore:
-    - '&eClick to craft a new &5MagicBottle&e.'
-    # You can delete this line if you didn't set a cost for new bottles.
-    - '&5[money]$ &ewill be charged when creating it.'
-
 messages:
   max level reached: '&cThe maximum level you can save in a MagicBottle is [level].'
   only players command: '&cOnly players can use this command.'
@@ -52,6 +44,3 @@ messages:
     config repairing disabled: '&cRepairing is disabled in this server.'
     config auto repairing disabled: '&cAutomatic repairing is disabled in this server.'
     mb not in hand: '&cYou must have a MagicBottle with experience in your main hand to use this command.'
-
-  costs:
-    not enough money: '&cYou need [money]$ to create a new MagicBottle.'

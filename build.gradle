@@ -21,9 +21,6 @@ repositories {
 
 dependencies {
     compileOnly 'io.papermc.paper:paper-api:26.2.build.129-stable'
-    compileOnly('net.milkbowl.vault:VaultAPI:1.7') {
-        transitive = false
-    }
     implementation 'org.bstats:bstats-bukkit:1.6'
 }
 

@@ -21,6 +21,12 @@ recipe:
   # If you disable this, players won't be able to craft new bottles but existing ones will remain usable.
   bottle:
     enabled: true
+    # Allow crafters to craft new MagicBottles.
+    # Crafting a bottle by hand requires the 'magicbottle.action.craft' permission, which is checked for each player.
+    # Crafters are not operated by a player, so that permission can't be checked: with this enabled,
+    # anyone can craft bottles through a crafter even without the permission.
+    # Set this to false if you use the permission to restrict who can craft bottles (e.g. only VIPs).
+    allow crafters: true
     # The recipe to craft a new empty MagicBottle, written like a shaped recipe in a datapack.
     # shape: 1 to 3 rows of up to 3 characters, all the rows with the same length. Each character is a slot of the
     #   crafting grid and a space is an empty slot. Every other character must be defined in ingredients.
@@ -73,10 +79,3 @@ costs:
     # Values from 50 to 100 might take experience without saving any in the bottle.
     # I'd recommend using a value from 0 to 49.
     exp-percentage: 0
-  craft new bottle:
-    # Money needed to create a new bottle. Vault is required for this to take effect.
-    money: 0
-    # Whether to change the bottle lore when it is about to be crafted to tell the player how much it will cost.
-    # Enable this if you set a cost. The custom lore is in messages.yml
-    # Restart the server after changing this.
-    change lore: false

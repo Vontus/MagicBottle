@@ -22,7 +22,7 @@ The plugin version lives only in `build.gradle`; `plugin.yml` gets it through `p
 
 **Entry point**: `Plugin.java` (`onEnable`) wires everything together: loads config/messages, registers the
 `magicbottle` crafting recipes, registers `Events` as a listener, registers `Commands` as the command
-executor, sets up Vault economy (optional), and starts bStats metrics.
+executor, and starts bStats metrics.
 
 **Core domain object**: `MagicBottle` wraps a Bukkit `ItemStack` and is the single source of truth for how
 XP is represented on an item. Bottles are identified by a `magicbottle:bottle` PersistentDataContainer marker
@@ -41,7 +41,10 @@ PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are creat
   no shift = 1 level).
 - `onPrepareCraft`/`onCraft` — placing a bottle in a crafting grid alone withdraws/deposits *all* XP; the
   three crafting recipes (fill/pour/craft new bottle) are conditionally offered based on `Config` toggles.
-- `onCrafterCraft` — blocks every bottle recipe in crafter blocks, which bypass the player crafting checks.
+- `onCrafterCraft` — crafter blocks have no player, so they bypass the player crafting checks. Recipes are
+  identified by their `NamespacedKey` (`Recipes.getKey`): fill/pour are always cancelled; the new bottle recipe is
+  allowed only if `recipe.bottle.allow crafters` (`Config.recipeNewBottleAllowCrafters`, reloadable) is on and no
+  slot of the crafter holds a MagicBottle (otherwise it would be consumed as an ingredient).
 - `onItemUse` — auto-repair of tools/armor using a usable bottle anywhere in the inventory if the player has
   enabled auto-repair (tracked in `Plugin.autoEnabled`) and `Config.canRepair` accepts the item (it has the
   configured `repair.enchantment`, Mending by default, or any item if set to `ANY`; parsed by `EnchantParser`
@@ -74,7 +77,7 @@ actions.
 
 ## Notes
 
-- Economy costs (crafting a new bottle) are optional and require Vault; if Vault isn't present,
-  `Plugin.loadConfig` forces the cost to 0 and logs a warning instead of failing.
+- Crafting a new bottle has no money cost (Vault support was removed). In a crafting grid it requires the
+  `magicbottle.action.craft` permission; crafters can't check it, hence the `allow crafters` option.
 - There is a single supported line: current Paper. The old per-Minecraft-version branches were removed; their
   tips are kept as `archive/*` tags.

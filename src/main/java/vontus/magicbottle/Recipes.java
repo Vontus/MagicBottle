@@ -11,6 +11,8 @@ import vontus.magicbottle.config.Config;
 import java.util.Map;
 
 public class Recipes {
+	public static final String nameFill = "fill";
+	public static final String namePour = "pour";
 	public static final String nameBottle = "bottle";
 
 	private Plugin plugin;
@@ -19,13 +21,13 @@ public class Recipes {
 		this.plugin = plugin;
 
 		if (Config.recipeFill) {
-			ShapelessRecipe recipeFill = getShapelessRecipe(1, "fill");
+			ShapelessRecipe recipeFill = getShapelessRecipe(1, nameFill);
 			recipeFill.addIngredient(1, MagicBottle.materialEmpty);
 			plugin.getServer().addRecipe(recipeFill);
 		}
 
 		if (Config.recipePour) {
-			ShapelessRecipe recipePour = getShapelessRecipe(0, "pour");
+			ShapelessRecipe recipePour = getShapelessRecipe(0, namePour);
 			recipePour.addIngredient(1, MagicBottle.materialFilled);
 			plugin.getServer().addRecipe(recipePour);
 		}
@@ -43,12 +45,11 @@ public class Recipes {
 
 	private ShapelessRecipe getShapelessRecipe(int level, String name) {
 		ItemStack item = new MagicBottle(level).getItem();
-		NamespacedKey key = new NamespacedKey(plugin, name);
-		return new ShapelessRecipe(key, item);
+		return new ShapelessRecipe(getKey(plugin, name), item);
 	}
 
 	private ShapedRecipe getNewBottleRecipe() {
-		ItemStack item = MagicBottle.getPreMagicBottle();
+		ItemStack item = new MagicBottle(0).getItem();
 		return new ShapedRecipe(getKey(plugin, nameBottle), item);
 	}
 

@@ -1,9 +1,7 @@
 package vontus.magicbottle;
 
-import net.milkbowl.vault.economy.Economy;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
@@ -14,13 +12,11 @@ import java.util.logging.Logger;
 public class Plugin extends JavaPlugin {
 	public static Logger logger;
 	public HashSet<Player> autoEnabled = new HashSet<>();
-	Economy econ = null;
 
 	@Override
 	public void onEnable() {
 		logger = getLogger();
 		MagicBottle.init(this);
-		setupEconomy();
 		loadConfig();
 		new Recipes(this);
 		this.getServer().getPluginManager().registerEvents(new Events(this), this);
@@ -34,19 +30,5 @@ public class Plugin extends JavaPlugin {
 		this.saveDefaultConfig();
 		Config.load(this);
 		Messages.load(this);
-		
-		if (Config.costMoneyCraftNewBottle != 0 && econ == null) {
-			logger.warning("Vault is required to set economy costs. Add Vault or set the recipe cost to 0 to disable this warning.");
-			Config.costMoneyCraftNewBottle = 0;
-		}
-	}
-
-	private void setupEconomy() {
-		if (getServer().getPluginManager().getPlugin("Vault") != null) {
-			RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-			if (rsp != null) {
-				econ = rsp.getProvider();
-			}
-		}
 	}
 }

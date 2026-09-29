@@ -30,7 +30,6 @@ public class Config {
 	public static final String permReload = "magicbottle.command.reload";
 	public static final String permRepair = "magicbottle.command.repair";
 	public static final String permRepairAuto = "magicbottle.command.repair.auto";
-	public static final String permCraftCostExempt = "magicbottle.action.craft.cost.exempt";
 	public static final String permDepositCostExempt = "magicbottle.action.deposit.cost.exempt";
 
 	private static final String maxLevelsBasePermission = "magicbottle.maxlevel.";
@@ -41,6 +40,7 @@ public class Config {
 	public static boolean recipeFill;
 	public static boolean recipePour;
 	public static boolean recipeNewBottleEnabled;
+	public static boolean recipeNewBottleAllowCrafters;
 	public static String[] recipeNewBottleShape;
 	public static Map<Character, RecipeChoice> recipeNewBottleIngredients;
 	public static boolean repairEnabled;
@@ -50,8 +50,6 @@ public class Config {
 	public static int maxLevel = 20000;
 
 	public static double costPercentageDeposit;
-	public static double costMoneyCraftNewBottle;
-	public static boolean costCraftNewBottleChangeLore;
 
 	public static EnchantParser repairEnchantment;
 
@@ -64,6 +62,7 @@ public class Config {
 		recipeFill = plugin.getConfig().getBoolean("recipe.deposit");
 		recipePour = plugin.getConfig().getBoolean("recipe.withdraw");
 		recipeNewBottleEnabled = plugin.getConfig().getBoolean("recipe.bottle.enabled");
+		recipeNewBottleAllowCrafters = plugin.getConfig().getBoolean("recipe.bottle.allow crafters", true);
 		if (plugin.getConfig().contains("recipe.bottle.recipe", true)) {
 			Plugin.logger.warning("'recipe.bottle.recipe' in config.yml is no longer used, the new bottle recipe is now set with"
 					+ " 'recipe.bottle.shape' and 'recipe.bottle.ingredients' (the default recipe is used if they are missing)."
@@ -83,8 +82,6 @@ public class Config {
 		repairAutoEnabled = plugin.getConfig().getBoolean("repair.auto");
 
 		costPercentageDeposit = plugin.getConfig().getDouble("costs.deposit.exp-percentage") / 100;
-		costMoneyCraftNewBottle = plugin.getConfig().getDouble("costs.craft new bottle.money");
-		costCraftNewBottleChangeLore = plugin.getConfig().getBoolean("costs.craft new bottle.change lore");
 
 		try {
 			repairEnchantment = EnchantParser.parseForBukkit(plugin.getConfig().getString("repair.enchantment"));

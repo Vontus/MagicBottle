@@ -36,6 +36,7 @@ public class Commands {
 			"about", "/magicbottle about",
 			"reload", "/magicbottle reload",
 			"give", "/magicbottle give <level> [amount] [player]",
+			"recipe", "/magicbottle recipe",
 			"repair", "/magicbottle repair [auto]");
 
 	// One stack: both bottle materials stack up to 64
@@ -68,6 +69,7 @@ public class Commands {
 												.executes(ctx -> give(ctx, getInteger(ctx, "amount"), ctx
 														.getArgument("player", PlayerSelectorArgumentResolver.class)
 														.resolve(ctx.getSource()).getFirst()))))))
+				.then(literal("recipe").requires(perm(Config.permRecipe).and(isPlayer())).executes(asPlayer(this::recipe)))
 				.then(literal("repair")
 						.requires(perm(Config.permRepair).and(isPlayer()))
 						.executes(asPlayer(this::repair))
@@ -112,6 +114,14 @@ public class Commands {
 		int usedXP = new MagicBottle(inHand).repair(p.getInventory(), true);
 		p.updateInventory();
 		p.sendMessage(Messages.repairInvRepaired.replace("[xp]", String.valueOf(usedXP)));
+	}
+
+	private void recipe(Player p) {
+		if (Config.recipeNewBottleEnabled) {
+			RecipeMenu.open(plugin, p);
+		} else {
+			p.sendMessage(Messages.recipeDisabled);
+		}
 	}
 
 	private void toggleAutoRepair(Player p) {

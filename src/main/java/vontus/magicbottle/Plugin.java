@@ -28,6 +28,16 @@ public class Plugin extends JavaPlugin {
 		new Metrics(this);
 	}
 
+	@Override
+	public void onDisable() {
+		// Its click handlers go away with the plugin, so nobody may be left holding the menu open
+		for (Player p : getServer().getOnlinePlayers()) {
+			if (RecipeMenu.isRecipeMenu(p.getOpenInventory().getTopInventory())) {
+				p.closeInventory();
+			}
+		}
+	}
+
 	public void loadConfig() {
 		this.reloadConfig();
 

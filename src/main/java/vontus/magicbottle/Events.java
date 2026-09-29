@@ -13,6 +13,8 @@ import org.bukkit.event.block.CrafterCraftEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -44,11 +46,48 @@ public class Events implements Listener {
 		this.wait = new HashSet<>();
 	}
 
+	// Bottles can't be used as anvil/brewing stand items (dragon's breath is a brewing ingredient and its exp would be
+	// lost), so every route into those inventories is blocked: picking up or shift-clicking a bottle, the cursor,
+	// number keys and offhand swap onto a top slot, dragging and hoppers.
+	private static boolean isBlockedInventory(InventoryType type) {
+		return type == InventoryType.ANVIL || type == InventoryType.BREWING;
+	}
+
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onClickInventory(InventoryClickEvent e) {
-		InventoryType invType = e.getView().getType();
-		if (invType == InventoryType.ANVIL || invType == InventoryType.BREWING) {
-			e.setCancelled(MagicBottle.isMagicBottle(e.getCurrentItem()));
+		if (!isBlockedInventory(e.getView().getType())) {
+			return;
+		}
+		boolean inTop = e.getRawSlot() >= 0 && e.getRawSlot() < e.getView().getTopInventory().getSize();
+		boolean bottle = MagicBottle.isMagicBottle(e.getCurrentItem());
+		if (!bottle && inTop) {
+			PlayerInventory inv = e.getWhoClicked().getInventory();
+			bottle = switch (e.getClick()) {
+				case NUMBER_KEY -> e.getHotbarButton() >= 0 && MagicBottle.isMagicBottle(inv.getItem(e.getHotbarButton()));
+				case SWAP_OFFHAND -> MagicBottle.isMagicBottle(inv.getItemInOffHand());
+				default -> MagicBottle.isMagicBottle(e.getCursor());
+			};
+		}
+		if (bottle) {
+			e.setCancelled(true);
+		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onDragInventory(InventoryDragEvent e) {
+		if (!isBlockedInventory(e.getView().getType()) || !MagicBottle.isMagicBottle(e.getOldCursor())) {
+			return;
+		}
+		int top = e.getView().getTopInventory().getSize();
+		if (e.getRawSlots().stream().anyMatch(slot -> slot < top)) {
+			e.setCancelled(true);
+		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onMoveItem(InventoryMoveItemEvent e) {
+		if (isBlockedInventory(e.getDestination().getType()) && MagicBottle.isMagicBottle(e.getItem())) {
+			e.setCancelled(true);
 		}
 	}
 

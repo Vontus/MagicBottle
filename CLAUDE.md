@@ -21,8 +21,8 @@ The plugin version lives only in `build.gradle`; `plugin.yml` gets it through `p
 ## Architecture
 
 **Entry point**: `Plugin.java` (`onEnable`) wires everything together: loads config/messages, registers the
-`magicbottle` crafting recipes, registers `Events` as a listener, registers `Commands` as the command
-executor, and starts bStats metrics.
+`magicbottle` crafting recipes, registers `Events` as a listener, registers the `Commands` tree
+through `LifecycleEvents.COMMANDS`, and starts bStats metrics.
 
 **Core domain object**: `MagicBottle` wraps a Bukkit `ItemStack` and is the single source of truth for how
 XP is represented on an item. Bottles are identified by a `magicbottle:bottle` PersistentDataContainer marker
@@ -38,7 +38,7 @@ PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are creat
 
 **Interaction flow** (`Events.java`): all player-facing behavior is driven by Bukkit events, not GUIs:
 - `onInteract` — left-click deposits, right-click withdraws, holding the bottle in hand (shift = 10 levels,
-  no shift = 1 level).
+  no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`throttle`, a map of last click ticks).
 - `onPrepareCraft`/`onClickCraftResult` — a single MagicBottle (amount 1) alone in a crafting grid (3x3 or the
   2x2 inventory grid) withdraws/deposits *all* XP. These aren't registered recipes (the recipe book would autofill
   any glass bottle or dragon's breath), so `onPrepareCraft` sets the preview itself (PrepareItemCraftEvent fires
@@ -59,10 +59,11 @@ PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are creat
   is a brewing ingredient). Clicks are cancelled when the clicked item is a bottle (pick up, shift-click) or, on a
   top slot, when the cursor, the number-key hotbar item or the offhand item (F) is one; drags over the top
   inventory and hopper moves into those inventories are cancelled too.
-- `onItemUse` — auto-repair of tools/armor using a usable bottle anywhere in the inventory if the player has
+- `onItemDamage` — auto-repair of tools/armor using a usable bottle anywhere in the inventory if the player has
   enabled auto-repair (tracked in `Plugin.autoEnabled`) and `Config.canRepair` accepts the item (it has the
   configured `repair.enchantment`, Mending by default, or any item if set to `ANY`; parsed by `EnchantParser`
-  from an enchantment registry key).
+  from an enchantment registry key). It checks the cheap conditions first, has no cooldown (it must not interfere
+  with clicks) and only repairs when the item's damage is odd, since 1 exp repairs 2 durability points.
 
 **Recipes** (`Recipes.java`): registers a single recipe on enable, if `recipe.bottle.enabled` is on: the shaped
 "new bottle" recipe (`magicbottle:bottle`, result `MagicBottle(0)`) whose datapack-style `shape`/`ingredients`
@@ -72,9 +73,23 @@ recipe. Like any shaped recipe it matches anywhere in the grid (and mirrored), s
 key (`Recipes.getKey`), never by grid positions, and refuses it when a MagicBottle is in the grid. Filling and
 pouring are not recipes (see `Events`).
 
-**Commands** (`Commands.java`): single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) dispatched
-by subcommand string (`about`, `reload`, `give`, `repair [auto]`), each gated by its own permission in
-`Config`.
+**Commands** (`Commands.java`): the single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) is a Brigadier
+tree (`Commands#build`) registered from `Plugin.onEnable` through `LifecycleEvents.COMMANDS`; it is not in
+`plugin.yml`. Subcommands (`about`, `reload`, `give <level> [amount] [player]`, `recipe`, `repair [auto]`) are
+literal nodes gated with `.requires(...)` on their permission in `Config` (`recipe` and `repair` also require a
+player executor), so senders only see and can run what they may; the menu shown by the bare command lists the
+nodes the source can use.
+`give` takes bounded arguments (`level` 0..`Config.maxLevel`, `amount` 1..64, `player` as Paper's player selector,
+which fails if nobody matches); without `player` it targets the executor, so `/execute as` works. New subcommands
+are added as nodes in `build`, with their line in `USAGES`.
+
+**Recipe menu** (`RecipeMenu.java`): `/mb recipe` (`magicbottle.action.craft`, the same permission as crafting it)
+opens a chest inventory showing the configured new-bottle recipe (any shape up to 3x3; ingredients that accept
+several items, i.e. tags, cycle through them every second). It must stay strictly read-only: the inventory has a custom `InventoryHolder`
+(`RecipeMenu`), `Events` cancels every `InventoryClickEvent`/`InventoryDragEvent` while it is the *top* inventory of
+the view (which also covers shift-clicks, number keys, offhand swaps and double clicks from the player's own
+inventory) and clears it on `InventoryCloseEvent`; `Plugin.onDisable` closes it for whoever has it open. The result
+is `MagicBottle.createDisplayItem()`, a bottle without the PDC markers, so it is never a real MagicBottle.
 
 **Config layer** (`config/`): `PluginFile` is a generic wrapper around a Bukkit `YamlConfiguration` file
 (load/save/defaults-from-jar). `Config` and `Messages` are static classes populated once from

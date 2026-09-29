@@ -13,16 +13,13 @@ public class Messages {
 	public static final String xpBarReplacer = "[xpbar]";
 
 	public static String msgMaxLevelReached;
-	public static String msgOnlyPlayersCommand;
 	
 	public static String msgUnauthorizedToDeposit;
 	public static String msgUnauthorizedToWithdraw;
-	public static String msgUnauthorizedToUseCommand;
 	
-	public static String cmdMsgCorrectUse;
 	public static String cmdMsgReloadCompleted;
-	public static String cmdMsgLevelNotValid;
 	public static String cmdMsgGivenMagicBottle;
+	public static String cmdMsgPlayerRequired;
 	
     public static String bottleName;
     public static String bottleLevelText;
@@ -30,6 +27,9 @@ public class Messages {
     public static String bottleFilledBarColor;
     public static String bottleEmptyBarColor;
     public static ArrayList<String> bottleLore;
+
+    public static String recipeTitle;
+    public static String recipeDisabled;
 
     public static String repairInvRepaired;
     public static String repairAutoEnabled;
@@ -45,16 +45,13 @@ public class Messages {
 		// ************************************************
 
 		msgMaxLevelReached = prepMsg("messages.max level reached");
-		msgOnlyPlayersCommand = prepMsg("messages.only players command");
 		
 		msgUnauthorizedToDeposit = prepMsg("messages.unauthorized.deposit");
 		msgUnauthorizedToWithdraw = prepMsg("messages.unauthorized.withdraw");
-		msgUnauthorizedToUseCommand = prepMsg("messages.unauthorized.command");
 		
-		cmdMsgCorrectUse = prepMsg("messages.commands.correct use");
 		cmdMsgReloadCompleted = prepMsg("messages.commands.reload completed");
-		cmdMsgLevelNotValid = prepMsg("messages.commands.level not valid");
 		cmdMsgGivenMagicBottle = prepMsg("messages.commands.given bottle");
+		cmdMsgPlayerRequired = prepMsg("messages.commands.player required");
 
         bottleName = prepMsg("bottle text.name");
         bottleLevelText = prepMsg("bottle text.experience text");
@@ -62,6 +59,9 @@ public class Messages {
         bottleFilledBarColor = prepMsg("bottle text.filled bar color");
         bottleEmptyBarColor = prepMsg("bottle text.empty bar color");
         bottleLore = getStringList("bottle text.lore");
+
+        recipeTitle = prepMsg("messages.recipe.title");
+        recipeDisabled = prepMsg("messages.recipe.disabled");
 
         repairInvRepaired = prepMsg("messages.repair.inventory repaired");
         repairAutoEnabled = prepMsg("messages.repair.enabled autorepair");

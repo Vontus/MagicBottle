@@ -7,7 +7,6 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -24,6 +23,9 @@ import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static io.papermc.paper.command.brigadier.Commands.argument;
 import static io.papermc.paper.command.brigadier.Commands.literal;
+import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.format.NamedTextColor.GOLD;
+import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
 
 public class Commands {
 	private final Plugin plugin;
@@ -124,8 +126,8 @@ public class Commands {
 	}
 
 	private void about(CommandSender sender) {
-		sender.sendMessage(ChatColor.GOLD + plugin.getDescription().getFullName() + " by Vontus");
-		sender.sendMessage(ChatColor.YELLOW + "https://www.spigotmc.org/resources/magicbottle.40039/");
+		sender.sendMessage(text(plugin.getPluginMeta().getDisplayName() + " by Vontus", GOLD));
+		sender.sendMessage(text("https://www.spigotmc.org/resources/magicbottle.40039/", YELLOW));
 	}
 
 	private void reload(CommandSender sender) {
@@ -159,10 +161,10 @@ public class Commands {
 	/** Lists the subcommands the source can use, as the tree's requirements decide. */
 	private void sendMenu(CommandSourceStack source) {
 		CommandSender sender = source.getSender();
-		sender.sendMessage(ChatColor.GOLD + "- MagicBottle Commands -");
+		sender.sendMessage(text("- MagicBottle Commands -", GOLD));
 		for (CommandNode<CommandSourceStack> node : root.getChildren()) {
 			if (node.canUse(source)) {
-				sender.sendMessage(ChatColor.YELLOW + " " + USAGES.get(node.getName()));
+				sender.sendMessage(text(" " + USAGES.get(node.getName()), YELLOW));
 			}
 		}
 	}

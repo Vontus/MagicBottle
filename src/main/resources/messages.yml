@@ -28,10 +28,8 @@ messages:
   unauthorized:
     deposit: '&cYou do not have permission to save experience.'
     withdraw: '&cYou do not have permission to take experience.'
-    command: '&cYou do not have permission to use that command.'
     
   commands:
-    correct use: '&cCorrect use: [use]'
     reload completed: '&eConfiguration reloaded.'
     level not valid: '&cLevel must be a number between 0 and 20,000.'
     amount not valid: '&cAmount must be between 1 and [max].'

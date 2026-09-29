@@ -17,9 +17,7 @@ public class Messages {
 	
 	public static String msgUnauthorizedToDeposit;
 	public static String msgUnauthorizedToWithdraw;
-	public static String msgUnauthorizedToUseCommand;
 	
-	public static String cmdMsgCorrectUse;
 	public static String cmdMsgReloadCompleted;
 	public static String cmdMsgLevelNotValid;
 	public static String cmdMsgAmountNotValid;
@@ -50,9 +48,7 @@ public class Messages {
 		
 		msgUnauthorizedToDeposit = prepMsg("messages.unauthorized.deposit");
 		msgUnauthorizedToWithdraw = prepMsg("messages.unauthorized.withdraw");
-		msgUnauthorizedToUseCommand = prepMsg("messages.unauthorized.command");
 		
-		cmdMsgCorrectUse = prepMsg("messages.commands.correct use");
 		cmdMsgReloadCompleted = prepMsg("messages.commands.reload completed");
 		cmdMsgLevelNotValid = prepMsg("messages.commands.level not valid");
 		cmdMsgAmountNotValid = prepMsg("messages.commands.amount not valid");

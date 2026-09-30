@@ -110,8 +110,7 @@ public class MagicBottle {
 		points = getMaxFillablePoints(player, points);
 		
 		if (points > 0) {
-			int expCost = getCost(player, points);
-			exp += points - expCost;
+			exp += getDepositGain(player, points);
 			Exp.setPoints(player, Exp.getPoints(player) - points);
 			recreate();
 			SoundEffect.fillBottle(player);

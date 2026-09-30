@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class Plugin extends JavaPlugin {
+	private static final int BSTATS_ID = 1183;
+
 	public static Logger logger;
 	public HashSet<Player> autoEnabled = new HashSet<>();
 	public AutoRepairFeedback autoRepairFeedback;
@@ -27,7 +29,7 @@ public class Plugin extends JavaPlugin {
 		Commands commands = new Commands(this);
 		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event ->
 				event.registrar().register(commands.build(), "Main plugin command", List.of("mb", "magicb", "mbottle")));
-		new Metrics(this, 1183);
+		new Metrics(this, BSTATS_ID);
 	}
 
 	@Override

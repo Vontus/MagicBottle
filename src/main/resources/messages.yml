@@ -17,8 +17,9 @@ bottle text:
   name: '<dark_purple><bold>MagicBottle</bold> <gray>| <yellow>Level <level> <gray>| <xpbar>'
   experience text: '<dark_purple>Experience points:'
   experience: ' <yellow><points>'
-  filled bar color: '<dark_purple>' # Put before each filled part of <xpbar>. Use only colors and formatting tags.
-  empty bar color: '<yellow>' # Put before each empty part of <xpbar>. Use only colors and formatting tags.
+  # <xpbar> is made of 18 parts, each one is the filled or the empty bar
+  filled bar: '<dark_purple>|'
+  empty bar: '<yellow>|'
   lore:
     - '<dark_purple>Instructions:'
     - ' <yellow>Save XP: <gray>(Shift +) Left Click.'

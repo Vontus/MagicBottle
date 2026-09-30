@@ -90,7 +90,6 @@ several items, i.e. tags, cycle through them every second). It must stay strictl
 the view (which also covers shift-clicks, number keys, offhand swaps and double clicks from the player's own
 inventory) and clears it on `InventoryCloseEvent`; `Plugin.onDisable` closes it for whoever has it open. The result
 is `MagicBottle.createDisplayItem()`, a bottle without the PDC markers, so it is never a real MagicBottle.
-is `MagicBottle.createDisplayItem()`, a bottle without the PDC markers, so it is never a real MagicBottle.
 
 **Config layer** (`config/`): `PluginFile` is a generic wrapper around a Bukkit `YamlConfiguration` file
 (load/save/defaults-from-jar). `Config` and `Messages` are static classes populated once from
@@ -101,10 +100,12 @@ strings are also defined as constants on `Config`.
 **Messages**: `messages.yml` is written in MiniMessage (no `&` codes, no `ChatColor`), and everything player-facing is
 sent as Adventure components. `Messages` parses the messages without placeholders into `Component`s on load; the
 ones with placeholders stay raw strings and are rendered with `Messages.render(msg, TagResolver...)`, passing
-`Placeholder.unparsed` for values (player names, numbers) and `Placeholder.parsed` only for trusted MiniMessage
-(the bottle's `<xpbar>`), never `String.replace`. Bottle name and lore use `Messages.renderItemText`, which turns
-italics off unless the message asks for them (vanilla shows custom item text italic). Legacy 1.5.x lore is read
-
+`Placeholder.unparsed` for values (player names, numbers) and `Placeholder.component` for components (the bottle's
+`<xpbar>`, built from the `filled bar`/`empty bar` components), never `Placeholder.parsed` or `String.replace`.
+Placeholder names are written as literals where they're resolved. Bottle name and lore use
+`Messages.renderItemText`, which turns italics off unless the message asks for them (vanilla shows custom item text
+italic). A `messages.yml` from before MiniMessage isn't converted: `Messages.load` only logs a warning if it finds
+`&`/`§` codes or `[placeholders]` in it.
 
 **XP math** (`util/Exp.java`): ported from EssentialsX. Bukkit's built-in level/exp handling only tracks the
 in-progress level, so this class recomputes true total XP points and implements the get/set/give/take API

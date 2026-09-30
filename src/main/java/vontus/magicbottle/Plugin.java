@@ -27,7 +27,7 @@ public class Plugin extends JavaPlugin {
 		Commands commands = new Commands(this);
 		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event ->
 				event.registrar().register(commands.build(), "Main plugin command", List.of("mb", "magicb", "mbottle")));
-		new Metrics(this);
+		new Metrics(this, 1183);
 	}
 
 	@Override

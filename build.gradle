@@ -16,12 +16,11 @@ java {
 repositories {
     mavenCentral()
     maven { url = 'https://repo.papermc.io/repository/maven-public/' }
-    maven { url = 'https://repo.codemc.io/repository/maven-public/' }
 }
 
 dependencies {
     compileOnly 'io.papermc.paper:paper-api:26.2.build.129-stable'
-    implementation 'org.bstats:bstats-bukkit:1.6'
+    implementation 'org.bstats:bstats-bukkit:3.2.1'
 }
 
 processResources {
@@ -32,7 +31,7 @@ processResources {
 
 shadowJar {
     dependencies {
-        include(dependency('org.bstats:bstats-bukkit'))
+        include(dependency('org.bstats:.*'))
     }
     relocate('org.bstats', packagePath + '.dependencies')
     archiveFileName = "${project.name}-${project.version}.jar"

@@ -1,43 +1,54 @@
 package vontus.magicbottle.config;
 
-import java.util.ArrayList;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.configuration.file.FileConfiguration;
 import vontus.magicbottle.Plugin;
 
+import java.util.List;
+
+/**
+ * Messages from messages.yml, written in MiniMessage. Messages without placeholders are parsed once on load into
+ * Components; the ones with placeholders are kept as raw strings and rendered with {@link #render} and the
+ * TagResolvers of their placeholders.
+ */
 public class Messages {
 	private static FileConfiguration file;
 
-	public static final String levelReplacer = "[level]";
-	public static final String xpPointsReplacer = "[points]";
-	public static final String xpBarReplacer = "[xpbar]";
-
+	// Placeholders: <level>
 	public static String msgMaxLevelReached;
-	
-	public static String msgUnauthorizedToDeposit;
-	public static String msgUnauthorizedToWithdraw;
-	
-	public static String cmdMsgReloadCompleted;
+
+	public static Component msgUnauthorizedToDeposit;
+	public static Component msgUnauthorizedToWithdraw;
+
+	public static Component cmdMsgReloadCompleted;
+	// Placeholders: <amount>, <player>, <level>
 	public static String cmdMsgGivenMagicBottle;
-	public static String cmdMsgPlayerRequired;
-	
-    public static String bottleName;
-    public static String bottleLevelText;
-    public static String bottleLevelFormat;
-    public static String bottleFilledBarColor;
-    public static String bottleEmptyBarColor;
-    public static ArrayList<String> bottleLore;
+	public static Component cmdMsgPlayerRequired;
 
-    public static String recipeTitle;
-    public static String recipeDisabled;
+	// Placeholders of the bottle texts: <level>, <points>, <xpbar>
+	public static String bottleName;
+	public static String bottleExperienceTitle;
+	public static String bottleExperience;
+	public static List<String> bottleLore;
+	// Segments <xpbar> is made of
+	public static Component bottleFilledBar;
+	public static Component bottleEmptyBar;
 
-    public static String repairInvRepaired;
-    public static String repairAutoEnabled;
-    public static String repairAutoDisabled;
-    public static String repairAutoSpent;
-    public static String repairDisabledConfig;
-    public static String repairAutoDisabledConfig;
-    public static String repairMbNotInHand;
+	public static Component recipeTitle;
+	public static Component recipeDisabled;
+
+	// Placeholders: <xp>
+	public static String repairInvRepaired;
+	public static Component repairAutoEnabled;
+	public static Component repairAutoDisabled;
+	// Placeholders: <xp>
+	public static String repairAutoSpent;
+	public static Component repairDisabledConfig;
+	public static Component repairAutoDisabledConfig;
+	public static Component repairMbNotInHand;
 
 	public static void load(Plugin plugin) {
 		PluginFile lang = new PluginFile(plugin, "messages.yml");
@@ -45,51 +56,44 @@ public class Messages {
 
 		// ************************************************
 
-		msgMaxLevelReached = prepMsg("messages.max level reached");
-		
-		msgUnauthorizedToDeposit = prepMsg("messages.unauthorized.deposit");
-		msgUnauthorizedToWithdraw = prepMsg("messages.unauthorized.withdraw");
-		
-		cmdMsgReloadCompleted = prepMsg("messages.commands.reload completed");
-		cmdMsgGivenMagicBottle = prepMsg("messages.commands.given bottle");
-		cmdMsgPlayerRequired = prepMsg("messages.commands.player required");
+		msgMaxLevelReached = file.getString("messages.max level reached");
 
-        bottleName = prepMsg("bottle text.name");
-        bottleLevelText = prepMsg("bottle text.experience text");
-        bottleLevelFormat = prepMsg("bottle text.experience color");
-        bottleFilledBarColor = prepMsg("bottle text.filled bar color");
-        bottleEmptyBarColor = prepMsg("bottle text.empty bar color");
-        bottleLore = getStringList("bottle text.lore");
+		msgUnauthorizedToDeposit = component("messages.unauthorized.deposit");
+		msgUnauthorizedToWithdraw = component("messages.unauthorized.withdraw");
 
-        recipeTitle = prepMsg("messages.recipe.title");
-        recipeDisabled = prepMsg("messages.recipe.disabled");
+		cmdMsgReloadCompleted = component("messages.commands.reload completed");
+		cmdMsgGivenMagicBottle = file.getString("messages.commands.given bottle");
+		cmdMsgPlayerRequired = component("messages.commands.player required");
 
-        repairInvRepaired = prepMsg("messages.repair.inventory repaired");
-        repairAutoEnabled = prepMsg("messages.repair.enabled autorepair");
-        repairAutoDisabled = prepMsg("messages.repair.disabled autorepair");
-        repairAutoSpent = prepMsg("messages.repair.auto spent");
-        repairDisabledConfig = prepMsg("messages.repair.config repairing disabled");
-        repairAutoDisabledConfig = prepMsg("messages.repair.config auto repairing disabled");
-        repairMbNotInHand = prepMsg("messages.repair.mb not in hand");
+		bottleName = file.getString("bottle text.name");
+		bottleExperienceTitle = file.getString("bottle text.experience text");
+		bottleExperience = file.getString("bottle text.experience");
+		bottleLore = file.getStringList("bottle text.lore");
+		bottleFilledBar = component("bottle text.filled bar");
+		bottleEmptyBar = component("bottle text.empty bar");
+
+		recipeTitle = component("messages.recipe.title");
+		recipeDisabled = component("messages.recipe.disabled");
+
+		repairInvRepaired = file.getString("messages.repair.inventory repaired");
+		repairAutoEnabled = component("messages.repair.enabled autorepair");
+		repairAutoDisabled = component("messages.repair.disabled autorepair");
+		repairAutoSpent = file.getString("messages.repair.auto spent");
+		repairDisabledConfig = component("messages.repair.config repairing disabled");
+		repairAutoDisabledConfig = component("messages.repair.config auto repairing disabled");
+		repairMbNotInHand = component("messages.repair.mb not in hand");
 	}
 
-	private static String prepMsg(String config) {
-		return replaceColors(getMsg(config));
-	}
-	
-	private static String getMsg(String config) {
-		return file.getString(config);
+	private static Component component(String config) {
+		return render(file.getString(config));
 	}
 
-	private static String replaceColors(String msg) {
-		return ChatColor.translateAlternateColorCodes('&', msg);
+	public static Component render(String message, TagResolver... placeholders) {
+		return MiniMessage.miniMessage().deserialize(message, placeholders);
 	}
-	
-	private static ArrayList<String> getStringList(String config) {
-		ArrayList<String> rawLines = new ArrayList<>(file.getStringList(config));
-		ArrayList<String> processed = new ArrayList<>();
-		for (String line : rawLines)
-			processed.add(replaceColors(line));
-		return processed;
+
+	// Like render, but not italic unless the message says so: items show custom names and lore in italics otherwise
+	public static Component renderItemText(String message, TagResolver... placeholders) {
+		return render(message, placeholders).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
 	}
 }

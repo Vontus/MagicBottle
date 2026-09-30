@@ -1,6 +1,9 @@
 package vontus.magicbottle;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -16,6 +19,7 @@ import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MagicBottle {
 	public static final Material materialFilled = Material.DRAGON_BREATH;
@@ -113,7 +117,8 @@ public class MagicBottle {
 			SoundEffect.fillBottle(player);
 		} else {
 			int maxLevels = Config.getMaxLevelsFor(player);
-			player.sendMessage(Messages.msgMaxLevelReached.replace("[level]", Integer.toString(maxLevels)));
+			player.sendMessage(Messages.render(Messages.msgMaxLevelReached,
+					Placeholder.unparsed("level", Integer.toString(maxLevels))));
 			SoundEffect.forbidden(player);
 		}
 	}
@@ -172,51 +177,43 @@ public class MagicBottle {
 		return 0;
 	}
 
-	private String getXpBar() {
+	private Component getXpBar() {
 		int barParts = 18; //To match Minecraft's xp bar parts
 		double level = getLevel();
 		long integerPart = (long) level;
 		double decimalPart = level - integerPart;
-		int coloredNumber = (int) (decimalPart * barParts);
-		
-		StringBuilder bar = new StringBuilder();
+		int filledParts = (int) (decimalPart * barParts);
+
+		TextComponent.Builder bar = Component.text();
 		for (int i = 0; i < barParts; i++) {
-			if (i < coloredNumber) {
-				bar.append(Messages.bottleFilledBarColor);
-			} else {
-				bar.append(Messages.bottleEmptyBarColor);
-			}
-			bar.append("|");
+			bar.append(i < filledParts ? Messages.bottleFilledBar : Messages.bottleEmptyBar);
 		}
-		return ChatColor.translateAlternateColorCodes('&', bar.toString());
+		return bar.build();
 	}
 
 	private void print() {
-		ArrayList<String> tag = new ArrayList<>();
-		tag.add(0, Messages.bottleLevelText);
-		tag.add(1, String.valueOf(Messages.bottleLevelFormat) + Utils.roundDouble(getExp()));
-		
+		TagResolver placeholders = placeholders();
+		List<Component> lore = new ArrayList<>();
+		lore.add(Messages.renderItemText(Messages.bottleExperienceTitle, placeholders));
+		lore.add(Messages.renderItemText(Messages.bottleExperience, placeholders));
+
 		for (String line : Messages.bottleLore) {
-			line = replaceVariables(line);
-			tag.add(line);
+			lore.add(Messages.renderItemText(line, placeholders));
 		}
-		
+
 		ItemMeta meta = item.getItemMeta();
-		String name = replaceVariables(Messages.bottleName);
-		meta.setDisplayName(name);
-		meta.setLore(tag);
+		meta.displayName(Messages.renderItemText(Messages.bottleName, placeholders));
+		meta.lore(lore);
 		markAsBottle(meta);
 		meta.getPersistentDataContainer().set(keyExp, PersistentDataType.INTEGER, exp);
 		item.setItemMeta(meta);
 	}
 	
-	private String replaceVariables(String line) {
-		String level = Utils.roundInt((int)getLevel());
-		String points = Utils.roundDouble(getExp());
-
-		return line.replace(Messages.levelReplacer, level)
-				.replace(Messages.xpPointsReplacer, points)
-				.replace(Messages.xpBarReplacer, getXpBar());
+	private TagResolver placeholders() {
+		return TagResolver.resolver(
+				Placeholder.unparsed("level", Utils.roundInt((int) getLevel())),
+				Placeholder.unparsed("points", Utils.roundDouble(getExp())),
+				Placeholder.component("xpbar", getXpBar()));
 	}
 	
 	public Integer getMaxFillablePoints(Player p, int points) {

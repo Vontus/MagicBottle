@@ -7,6 +7,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -118,7 +119,7 @@ public class Commands {
 		}
 		int usedXP = new MagicBottle(inHand).repair(p.getInventory(), true);
 		p.updateInventory();
-		p.sendMessage(Messages.repairInvRepaired.replace("[xp]", String.valueOf(usedXP)));
+		p.sendMessage(Messages.render(Messages.repairInvRepaired, Placeholder.unparsed("xp", String.valueOf(usedXP))));
 	}
 
 	private void recipe(Player p) {
@@ -168,10 +169,10 @@ public class Commands {
 		}
 
 		giveBottlesWithLevel(level, amount, player);
-		sender.sendMessage(Messages.cmdMsgGivenMagicBottle
-				.replace("[amount]", String.valueOf(amount))
-				.replace("[player]", player.getName())
-				.replace("[level]", String.valueOf(level)));
+		sender.sendMessage(Messages.render(Messages.cmdMsgGivenMagicBottle,
+				Placeholder.unparsed("amount", String.valueOf(amount)),
+				Placeholder.unparsed("player", player.getName()),
+				Placeholder.unparsed("level", String.valueOf(level))));
 		return Command.SINGLE_SUCCESS;
 	}
 

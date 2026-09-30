@@ -1,6 +1,5 @@
 package vontus.magicbottle;
 
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -30,7 +29,7 @@ public class RecipeMenu implements InventoryHolder {
 	private final Inventory inventory;
 
 	private RecipeMenu() {
-		inventory = Bukkit.createInventory(this, SIZE, LegacyComponentSerializer.legacySection().deserialize(Messages.recipeTitle));
+		inventory = Bukkit.createInventory(this, SIZE, Messages.recipeTitle);
 	}
 
 	@Override

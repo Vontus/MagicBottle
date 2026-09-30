@@ -1,6 +1,6 @@
 package vontus.magicbottle;
 
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import vontus.magicbottle.config.Config;
@@ -40,8 +40,8 @@ class AutoRepairFeedback {
 		}
 		p.task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
 			pending.remove(player.getUniqueId());
-			player.sendActionBar(LegacyComponentSerializer.legacySection()
-					.deserialize(Messages.repairAutoSpent.replace("[xp]", String.valueOf(p.spent))));
+			player.sendActionBar(Messages.render(Messages.repairAutoSpent,
+					Placeholder.unparsed("xp", String.valueOf(p.spent))));
 		}, DELAY);
 	}
 

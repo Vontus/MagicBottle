@@ -110,8 +110,7 @@ public class MagicBottle {
 		points = getMaxFillablePoints(player, points);
 		
 		if (points > 0) {
-			int expCost = getCost(player, points);
-			exp += points - expCost;
+			exp += getDepositGain(player, points);
 			Exp.setPoints(player, Exp.getPoints(player) - points);
 			recreate();
 			SoundEffect.fillBottle(player);
@@ -123,6 +122,12 @@ public class MagicBottle {
 		}
 	}
 	
+	// The exp this bottle would gain if the player deposited the given points (after the fill limit and the cost)
+	public int getDepositGain(Player player, int points) {
+		points = getMaxFillablePoints(player, points);
+		return points > 0 ? points - getCost(player, points) : 0;
+	}
+
 	private int getCost(Player player, int points) {
 		if (player.hasPermission(Config.permDepositCostExempt)) {
 			return 0;

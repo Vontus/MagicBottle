@@ -345,10 +345,7 @@ public class Events implements Listener {
 		if (ingredient.isEmpty()) {
 			if (canFillInGrid(player)) {
 				MagicBottle bottle = new MagicBottle(0);
-				int playerPoints = Exp.getPoints(player);
-				int expCost = (int) Math.round(playerPoints * Config.costPercentageDeposit);
-				int maxPoints = bottle.getMaxFillablePoints(player, playerPoints - expCost);
-				bottle.setExp(maxPoints);
+				bottle.setExp(bottle.getDepositGain(player, Exp.getPoints(player)));
 				return bottle.getItem();
 			}
 		} else if (canPourInGrid(player)) {

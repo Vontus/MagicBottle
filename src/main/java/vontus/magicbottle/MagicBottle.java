@@ -127,7 +127,8 @@ public class MagicBottle {
 	}
 	
 	public int withdraw(Player player, int points) {
-		points = Math.min(exp, points);
+		// Don't give the player more points than an int can hold
+		points = Math.min(Math.min(exp, points), Integer.MAX_VALUE - Exp.getPoints(player));
 		exp -= points;
 		Exp.givePoints(player, points);
 		recreate();
@@ -219,10 +220,11 @@ public class MagicBottle {
 	}
 	
 	public Integer getMaxFillablePoints(Player p, int points) {
-		int maxPoints = Config.getMaxFillPointsFor(p);
+		long maxPoints = Config.getMaxFillPointsFor(p);
 
-		if (exp + points >= maxPoints)
-			points = maxPoints - exp;
+		// long, since exp + points can exceed the int range
+		if ((long) exp + points >= maxPoints)
+			points = (int) (maxPoints - exp);
 		
 		return points;
 	}

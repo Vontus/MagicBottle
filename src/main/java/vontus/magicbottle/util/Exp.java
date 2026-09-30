@@ -51,7 +51,8 @@ public class Exp {
 	}
 	
 	public static void givePoints(final Player player, final int points) {
-		setPoints(player, getPoints(player) + points);
+		// long, since the sum can exceed the int range
+		setPoints(player, (int) Math.min((long) getPoints(player) + points, Integer.MAX_VALUE));
 	}
 	
 	public static void takePoints(final Player player, final int points) {
@@ -86,12 +87,12 @@ public class Exp {
 	}
 
 	public static Integer getExpAtLevel(int level) {
-		int exp = 0;
+		long exp = 0;
 		while (level > 0) {
 			level--;
 			exp += getExpToLvlUp(level);
 		}
-		return exp;
+		return (int) Math.min(exp, Integer.MAX_VALUE);
 	}
 
 	public static Integer getExpToLevel(final Player player, int level) {

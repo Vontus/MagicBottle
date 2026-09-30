@@ -104,8 +104,7 @@ ones with placeholders stay raw strings and are rendered with `Messages.render(m
 `<xpbar>`, built from the `filled bar`/`empty bar` components), never `Placeholder.parsed` or `String.replace`.
 Placeholder names are written as literals where they're resolved. Bottle name and lore use
 `Messages.renderItemText`, which turns italics off unless the message asks for them (vanilla shows custom item text
-italic). A `messages.yml` from before MiniMessage isn't converted: `Messages.load` only logs a warning if it finds
-`&`/`§` codes or `[placeholders]` in it.
+italic).
 
 **XP math** (`util/Exp.java`): ported from EssentialsX. Bukkit's built-in level/exp handling only tracks the
 in-progress level, so this class recomputes true total XP points and implements the get/set/give/take API

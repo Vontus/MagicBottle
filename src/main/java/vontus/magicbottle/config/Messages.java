@@ -8,7 +8,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import vontus.magicbottle.Plugin;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Messages from messages.yml, written in MiniMessage. Messages without placeholders are parsed once on load into
@@ -17,10 +16,6 @@ import java.util.regex.Pattern;
  */
 public class Messages {
 	private static FileConfiguration file;
-
-	// & or § color codes, or the [level]-style placeholders of the format used before MiniMessage
-	private static final Pattern OLD_FORMAT = Pattern.compile(
-			"[&§][0-9a-fk-orx]|\\[(level|points|xpbar|xp|amount|player)]", Pattern.CASE_INSENSITIVE);
 
 	// Placeholders: <level>
 	public static String msgMaxLevelReached;
@@ -58,7 +53,6 @@ public class Messages {
 	public static void load(Plugin plugin) {
 		PluginFile lang = new PluginFile(plugin, "messages.yml");
 		file = lang.getConfig();
-		warnIfOldFormat(plugin);
 
 		// ************************************************
 
@@ -88,18 +82,6 @@ public class Messages {
 		repairDisabledConfig = component("messages.repair.config repairing disabled");
 		repairAutoDisabledConfig = component("messages.repair.config auto repairing disabled");
 		repairMbNotInHand = component("messages.repair.mb not in hand");
-	}
-
-	// A messages.yml customized before MiniMessage is read as is, so its codes would show up in game
-	private static void warnIfOldFormat(Plugin plugin) {
-		for (String key : file.getKeys(true)) {
-			String value = file.isList(key) ? String.join("\n", file.getStringList(key)) : file.getString(key);
-			if (value != null && OLD_FORMAT.matcher(value).find()) {
-				plugin.getLogger().warning("messages.yml is in the old format (& color codes and [placeholders]), "
-						+ "which is no longer read. Delete it to get the new one and redo your changes in MiniMessage.");
-				return;
-			}
-		}
 	}
 
 	private static Component component(String config) {

@@ -171,7 +171,6 @@ public class Events implements Listener {
 				int slot = e.getHotbarButton();
 				yield slot >= 0 && slot < 9 && isAir(inv.getItem(slot)) ? item -> inv.setItem(slot, item) : null;
 			}
-			case DROP, CONTROL_DROP -> player::dropItem;
 			case SWAP_OFFHAND -> isAir(inv.getItemInOffHand()) ? inv::setItemInOffHand : null;
 			default -> null;
 		};

@@ -14,7 +14,7 @@ import java.util.UUID;
  * it is only sent once the player has gone DELAY ticks without spending exp, with the total spent meanwhile. That
  * way it doesn't flood the action bar while mining or fighting.
  */
-class AutoRepairFeedback {
+public class AutoRepairFeedback {
 	private static final long DELAY = 60;
 
 	private final Plugin plugin;
@@ -29,7 +29,7 @@ class AutoRepairFeedback {
 		this.plugin = plugin;
 	}
 
-	void spent(Player player, int xp) {
+	public void spent(Player player, int xp) {
 		if (xp <= 0 || !Config.repairAutoFeedback) {
 			return;
 		}
@@ -46,7 +46,7 @@ class AutoRepairFeedback {
 	}
 
 	// Drops the pending message, e.g. when the player leaves
-	void clear(Player player) {
+	public void clear(Player player) {
 		Pending p = pending.remove(player.getUniqueId());
 		if (p != null && p.task != null) {
 			p.task.cancel();

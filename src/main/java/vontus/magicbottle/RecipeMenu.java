@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * Read-only inventory that shows the new bottle recipe. The display items are never meant to leave it, so it is
- * identified by its holder: Events cancels every click and drag on any inventory holding a RecipeMenu (even the
+ * identified by its holder: InventoryListener cancels every click and drag on any inventory holding a RecipeMenu (even the
  * player's own inventory clicks, which could shift, swap or collect items from it), and it is cleared on close.
  */
 public class RecipeMenu implements InventoryHolder {
@@ -98,7 +98,7 @@ public class RecipeMenu implements InventoryHolder {
 		BukkitTask[] task = new BukkitTask[1];
 		int[] step = {0};
 		task[0] = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
-			// Stops when it is closed (Events also clears it, so there is nothing else to clean up)
+			// Stops when it is closed (InventoryListener also clears it, so there is nothing else to clean up)
 			if (!player.isOnline() || player.getOpenInventory().getTopInventory().getHolder(false) != this) {
 				task[0].cancel();
 			} else {

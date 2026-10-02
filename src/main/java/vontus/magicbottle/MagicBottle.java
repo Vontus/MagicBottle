@@ -35,12 +35,12 @@ public class MagicBottle {
 		keyExp = new NamespacedKey(plugin, "exp");
 	}
 
-	MagicBottle(int exp) {
+	public MagicBottle(int exp) {
 		this.exp = exp;
 		recreate();
 	}
 
-	MagicBottle(ItemStack expContainer) {
+	public MagicBottle(ItemStack expContainer) {
 		LegacyBottle.migrateIfLegacy(expContainer);
 		item = expContainer;
 		exp = calculateExp(expContainer);

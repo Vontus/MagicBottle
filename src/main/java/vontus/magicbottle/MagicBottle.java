@@ -122,7 +122,7 @@ public class MagicBottle {
 		}
 	}
 	
-	// The exp this bottle would gain if the player deposited the given points (after the fill limit and the cost)
+	// The exp this bottle would gain if the player deposited the given points (after the deposit limit and the cost)
 	public int getDepositGain(Player player, int points) {
 		points = getMaxFillablePoints(player, points);
 		return points > 0 ? points - getCost(player, points) : 0;

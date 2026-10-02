@@ -38,7 +38,7 @@ PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are creat
 
 **Interaction flow**: all player-facing behavior is driven by Bukkit events, not GUIs. The listeners are split by
 concern, in the `listeners` package: `BottleInteractListener` (clicks in hand, throttled by the `ClickCooldown` that `PlayerListener` clears on
-quit/kick), `CraftingGridListener` (fill/pour, new bottle recipe, crafters), `InventoryListener` (recipe menu and
+quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafters), `InventoryListener` (recipe menu and
 anvil/brewing block), `RepairListener` (auto-repair) and `PlayerListener` (join migration, leave cleanup):
 - `onInteract` — left-click deposits, right-click withdraws, holding the bottle in hand (shift = 10 levels,
   no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`throttle`, a map of last click ticks).
@@ -57,7 +57,7 @@ anvil/brewing block), `RepairListener` (auto-repair) and `PlayerListener` (join 
 - `onCrafterCraft` — crafter blocks have no player, so they bypass the player crafting checks. The new bottle
   recipe (identified by its key) is allowed only if `recipe.bottle.allow crafters`
   (`Config.recipeNewBottleAllowCrafters`, reloadable) is on and no slot of the crafter holds a MagicBottle
-  (otherwise it would be consumed as an ingredient). Crafters can't fill or pour.
+  (otherwise it would be consumed as an ingredient). Crafters can't deposit or withdraw.
 - `onClickInventory`/`onDragInventory`/`onMoveItem` — bottles can't enter anvils or brewing stands (dragon's breath
   is a brewing ingredient). Clicks are cancelled when the clicked item is a bottle (pick up, shift-click) or, on a
   top slot, when the cursor, the number-key hotbar item or the offhand item (F) is one; drags over the top
@@ -75,8 +75,8 @@ anvil/brewing block), `RepairListener` (auto-repair) and `PlayerListener` (join 
 recipe. The default recipe uses `dragon_breath` on purpose: filled bottles are dragon's breath, which grants the "You
 Need a Mint" advancement, so only players who already have it can craft one (the `shape` comment in `Settings` warns admins about it).
 Like any shaped recipe it matches anywhere in the grid (and mirrored), so `CraftingGridListener` identifies it by its
-key (`Recipes.getKey`), never by grid positions, and refuses it when a MagicBottle is in the grid. Filling and
-pouring are not recipes (see `CraftingGridListener`).
+key (`Recipes.getKey`), never by grid positions, and refuses it when a MagicBottle is in the grid. Depositing and
+withdrawing are not recipes (see `CraftingGridListener`).
 
 **Commands** (`Commands.java`): the single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) is a Brigadier
 tree (`Commands#build`) registered from `Plugin.onEnable` through `LifecycleEvents.COMMANDS`; it is not in

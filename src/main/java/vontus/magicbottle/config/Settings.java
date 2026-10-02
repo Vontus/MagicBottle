@@ -44,7 +44,7 @@ public class Settings {
 
 	@ConfigSerializable
 	public static class Recipe {
-		@Comment("Enable or disable the ability to fill or pour the bottle by putting it alone in a crafting grid.\nThese two options are applied with '/mb reload'.")
+		@Comment("Enable or disable the ability to deposit or withdraw XP with the bottle by putting it alone in a crafting grid.\nThese two options are applied with '/mb reload'.")
 		public boolean deposit = true;
 		public boolean withdraw = true;
 

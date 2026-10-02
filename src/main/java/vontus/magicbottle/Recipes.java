@@ -14,7 +14,7 @@ public class Recipes {
 
 	private Plugin plugin;
 
-	// Filling and pouring a bottle in a crafting grid aren't recipes, or the recipe book would autofill any glass
+	// Depositing and withdrawing with a bottle in a crafting grid aren't recipes, or the recipe book would autofill any glass
 	// bottle or dragon's breath. CraftingGridListener handles them by hand (onPrepareCraft/onClickCraftResult).
 	public Recipes(Plugin plugin) {
 		this.plugin = plugin;

@@ -28,7 +28,7 @@ import vontus.magicbottle.util.Utils;
 
 import java.util.function.Consumer;
 
-// Everything that happens in crafting grids and crafters: filling/pouring a lone bottle and the new bottle recipe
+// Everything that happens in crafting grids and crafters: depositing/withdrawing with a lone bottle and the new bottle recipe
 public class CraftingGridListener implements Listener {
 	private final Plugin plugin;
 
@@ -36,7 +36,7 @@ public class CraftingGridListener implements Listener {
 		this.plugin = plugin;
 	}
 
-	// Filling and pouring in a crafting grid aren't registered recipes, and vanilla's result slot doesn't consume
+	// Depositing and withdrawing in a crafting grid aren't registered recipes, and vanilla's result slot doesn't consume
 	// the ingredients right when no recipe matched (it would duplicate the bottle). So vanilla must never handle a
 	// click on the result while a lone bottle is in the grid: the transaction is done here, from the current state.
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -90,7 +90,7 @@ public class CraftingGridListener implements Listener {
 		};
 	}
 
-	// Fills the bottle with all the player's exp or pours all of it, if still allowed. Returns the resulting bottle.
+	// Deposits all the player's exp into the bottle or withdraws all of it, if still allowed. Returns the resulting bottle.
 	private ItemStack fillOrPour(Player player, ItemStack bottleItem) {
 		MagicBottle bottle = new MagicBottle(bottleItem);
 		if (bottle.isEmpty()) {
@@ -112,7 +112,7 @@ public class CraftingGridListener implements Listener {
 	}
 
 	// Crafters have no player, so they can't have their permissions checked: the new bottle recipe is only allowed if
-	// the config allows it. Filling and pouring aren't recipes, so crafters can't do them.
+	// the config allows it. Depositing and withdrawing aren't recipes, so crafters can't do them.
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onCrafterCraft(CrafterCraftEvent e) {
 		if (e.getRecipe().getKey().equals(Recipes.getKey(plugin, Recipes.nameBottle))) {
@@ -132,7 +132,7 @@ public class CraftingGridListener implements Listener {
 		Player player = (Player) event.getView().getPlayer();
 		ItemStack lone = getLoneBottle(inv);
 		if (lone != null) {
-			// This event also fires when no recipe matched, which is always the case for filling and pouring
+			// This event also fires when no recipe matched, which is always the case for depositing and withdrawing
 			inv.setResult(getGridPreview(new MagicBottle(lone.clone()), player));
 		} else if (event.getRecipe() != null && MagicBottle.isMagicBottle(event.getRecipe().getResult())) {
 			if (!isEmptyBottleRecipe(event.getRecipe(), inv) || !player.hasPermission(Config.permCraft)) {
@@ -161,7 +161,7 @@ public class CraftingGridListener implements Listener {
 		return Config.settings.recipe.withdraw && player.hasPermission(Config.permWithdraw);
 	}
 
-	// What filling or pouring the lone bottle of a crafting grid would give, or null if the player can't do it
+	// What depositing or withdrawing the lone bottle of a crafting grid would give, or null if the player can't do it
 	private ItemStack getGridPreview(MagicBottle ingredient, Player player) {
 		if (ingredient.isEmpty()) {
 			if (canFillInGrid(player)) {

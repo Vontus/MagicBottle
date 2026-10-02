@@ -30,7 +30,7 @@ public class AutoRepairFeedback {
 	}
 
 	public void spent(Player player, int xp) {
-		if (xp <= 0 || !Config.repairAutoFeedback) {
+		if (xp <= 0 || !Config.settings.repair.autoFeedback) {
 			return;
 		}
 		Pending p = pending.computeIfAbsent(player.getUniqueId(), id -> new Pending());
@@ -40,7 +40,7 @@ public class AutoRepairFeedback {
 		}
 		p.task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
 			pending.remove(player.getUniqueId());
-			player.sendActionBar(Messages.render(Messages.repairAutoSpent,
+			player.sendActionBar(Messages.render(Messages.texts.messages.repair.autoSpent,
 					Placeholder.unparsed("xp", String.valueOf(p.spent))));
 		}, DELAY);
 	}

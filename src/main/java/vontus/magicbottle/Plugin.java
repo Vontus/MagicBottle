@@ -56,9 +56,6 @@ public class Plugin extends JavaPlugin {
 	}
 
 	public void loadConfig() {
-		this.reloadConfig();
-
-		this.saveDefaultConfig();
 		Config.load(this);
 		Messages.load(this);
 	}

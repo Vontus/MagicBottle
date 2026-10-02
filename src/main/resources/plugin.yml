@@ -5,6 +5,9 @@ version: ${version}
 api-version: '26.2'
 author: Vontus
 
+libraries:
+  - org.spongepowered:configurate-yaml:4.2.0
+
 permissions:
   magicbottle.action.craft:
     description: 'Allows a player to craft MagicBottles and see their recipe'

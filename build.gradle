@@ -20,6 +20,8 @@ repositories {
 
 dependencies {
     compileOnly 'io.papermc.paper:paper-api:26.2.build.129-stable'
+    // Downloaded by the server from Maven Central (see 'libraries' in plugin.yml), so it isn't shaded
+    compileOnly 'org.spongepowered:configurate-yaml:4.2.0'
     implementation 'org.bstats:bstats-bukkit:3.2.1'
 }
 

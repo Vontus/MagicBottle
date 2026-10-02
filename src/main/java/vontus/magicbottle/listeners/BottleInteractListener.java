@@ -50,7 +50,7 @@ public class BottleInteractListener implements Listener {
 
 				bottle.deposit(p, expToDeposit);
 			} else
-				p.sendMessage(Messages.msgUnauthorizedToDeposit);
+				p.sendMessage(Messages.render(Messages.texts.messages.unauthorized.deposit));
 		}
 	}
 
@@ -63,7 +63,7 @@ public class BottleInteractListener implements Listener {
 
 				bottle.withdraw(p, expToWithdraw);
 			} else {
-				p.sendMessage(Messages.msgUnauthorizedToWithdraw);
+				p.sendMessage(Messages.render(Messages.texts.messages.unauthorized.withdraw));
 			}
 		}
 	}

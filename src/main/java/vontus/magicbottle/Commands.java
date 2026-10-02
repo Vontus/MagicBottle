@@ -109,31 +109,31 @@ public class Commands {
 
 	private void repair(Player p) {
 		if (!Config.repairEnabled) {
-			p.sendMessage(Messages.repairDisabledConfig);
+			p.sendMessage(Messages.render(Messages.texts.messages.repair.configRepairingDisabled));
 			return;
 		}
 		ItemStack inHand = p.getInventory().getItemInMainHand();
 		if (!MagicBottle.isUsableMagicBottle(inHand)) {
-			p.sendMessage(Messages.repairMbNotInHand);
+			p.sendMessage(Messages.render(Messages.texts.messages.repair.mbNotInHand));
 			return;
 		}
 		int usedXP = new MagicBottle(inHand).repair(p.getInventory(), true);
 		p.updateInventory();
-		p.sendMessage(Messages.render(Messages.repairInvRepaired, Placeholder.unparsed("xp", String.valueOf(usedXP))));
+		p.sendMessage(Messages.render(Messages.texts.messages.repair.inventoryRepaired, Placeholder.unparsed("xp", String.valueOf(usedXP))));
 	}
 
 	private void recipe(Player p) {
 		if (Config.recipeNewBottleEnabled) {
 			RecipeMenu.open(plugin, p);
 		} else {
-			p.sendMessage(Messages.recipeDisabled);
+			p.sendMessage(Messages.render(Messages.texts.messages.recipe.disabled));
 		}
 	}
 
 	// enable is null to toggle
 	private void setAutoRepair(Player p, Boolean enable) {
 		if (!Config.repairAutoEnabled) {
-			p.sendMessage(Messages.repairAutoDisabledConfig);
+			p.sendMessage(Messages.render(Messages.texts.messages.repair.configAutoRepairingDisabled));
 			return;
 		}
 		if (enable == null) {
@@ -141,10 +141,10 @@ public class Commands {
 		}
 		if (enable) {
 			plugin.autoEnabled.add(p);
-			p.sendMessage(Messages.repairAutoEnabled);
+			p.sendMessage(Messages.render(Messages.texts.messages.repair.enabledAutorepair));
 		} else {
 			plugin.autoEnabled.remove(p);
-			p.sendMessage(Messages.repairAutoDisabled);
+			p.sendMessage(Messages.render(Messages.texts.messages.repair.disabledAutorepair));
 		}
 	}
 
@@ -155,7 +155,7 @@ public class Commands {
 
 	private void reload(CommandSender sender) {
 		plugin.loadConfig();
-		sender.sendMessage(Messages.cmdMsgReloadCompleted);
+		sender.sendMessage(Messages.render(Messages.texts.messages.commands.reloadCompleted));
 	}
 
 	/** Gives the bottles to {@code target}, which is the executor unless a player was specified. */
@@ -164,12 +164,12 @@ public class Commands {
 		int level = getInteger(ctx, "level");
 
 		if (!(target instanceof Player player)) {
-			sender.sendMessage(Messages.cmdMsgPlayerRequired);
+			sender.sendMessage(Messages.render(Messages.texts.messages.commands.playerRequired));
 			return 0;
 		}
 
 		giveBottlesWithLevel(level, amount, player);
-		sender.sendMessage(Messages.render(Messages.cmdMsgGivenMagicBottle,
+		sender.sendMessage(Messages.render(Messages.texts.messages.commands.givenBottle,
 				Placeholder.unparsed("amount", String.valueOf(amount)),
 				Placeholder.unparsed("player", player.getName()),
 				Placeholder.unparsed("level", String.valueOf(level))));

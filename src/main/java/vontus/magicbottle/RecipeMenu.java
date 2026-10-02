@@ -29,7 +29,7 @@ public class RecipeMenu implements InventoryHolder {
 	private final Inventory inventory;
 
 	private RecipeMenu() {
-		inventory = Bukkit.createInventory(this, SIZE, Messages.recipeTitle);
+		inventory = Bukkit.createInventory(this, SIZE, Messages.render(Messages.texts.messages.recipe.title));
 	}
 
 	@Override

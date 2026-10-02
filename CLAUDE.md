@@ -70,10 +70,10 @@ anvil/brewing block), `RepairListener` (auto-repair) and `PlayerListener` (join 
 
 **Recipes** (`Recipes.java`): registers a single recipe on enable, if `recipe.bottle.enabled` is on: the shaped
 "new bottle" recipe (`magicbottle:bottle`, result `MagicBottle(0)`) whose datapack-style `shape`/`ingredients`
-(item IDs or `#` item tags) come from config. `Config.loadNewBottleRecipe` parses and validates them into
+(item IDs or `#` item tags) come from config. `Config.loadNewBottleRecipe` validates them into
 `recipeNewBottleShape`/`recipeNewBottleIngredients`; if they're invalid it logs the problem and disables the
 recipe. The default recipe uses `dragon_breath` on purpose: filled bottles are dragon's breath, which grants the "You
-Need a Mint" advancement, so only players who already have it can craft one (config.yml warns admins about it).
+Need a Mint" advancement, so only players who already have it can craft one (the `shape` comment in `Settings` warns admins about it).
 Like any shaped recipe it matches anywhere in the grid (and mirrored), so `CraftingGridListener` identifies it by its
 key (`Recipes.getKey`), never by grid positions, and refuses it when a MagicBottle is in the grid. Filling and
 pouring are not recipes (see `CraftingGridListener`).
@@ -96,15 +96,22 @@ the view (which also covers shift-clicks, number keys, offhand swaps and double 
 inventory) and clears it on `InventoryCloseEvent`; `Plugin.onDisable` closes it for whoever has it open. The result
 is `MagicBottle.createDisplayItem()`, a bottle without the PDC markers, so it is never a real MagicBottle.
 
-**Config layer** (`config/`): `PluginFile` is a generic wrapper around a Bukkit `YamlConfiguration` file
-(load/save/defaults-from-jar). `Config` and `Messages` are static classes populated once from
-`config.yml`/`messages.yml` at load time (see `Plugin.loadConfig`, also invoked by `/magicbottle reload`) —
-all game logic reads these static fields rather than touching the config files directly. Permission node
-strings are also defined as constants on `Config`.
+**Config layer** (`config/`): the files are mapped with [Configurate](https://github.com/SpongePowered/Configurate)
+(`configurate-yaml`, loaded by the server through `libraries:` in `plugin.yml`, not shaded). `Settings` (config.yml)
+and `Messages.Texts` (messages.yml) are `@ConfigSerializable` classes whose field initializers are the defaults and
+whose `@Comment`s document the file; `@Setting` keeps the original option names. `ConfigFile.load` loads the file into
+that object, writes it back (so options missing from the file are added without touching the admin's values) and
+inserts the comments, since the YAML loader keeps them in the nodes but doesn't write them. A type error is logged with
+its path and the defaults are used. Values that need the server registries are parsed by custom serializers
+(`Ingredient`, `EnchantParser`) that don't throw: they keep the error, so only the recipe or repairing is disabled
+(`Config.load`) instead of the whole file. `Config.load` and `Messages.load` (see `Plugin.loadConfig`, also invoked by
+`/magicbottle reload`) leave the result in `Config.settings`/`Messages.texts`; game logic reads those, plus the validated
+`Config.recipeNewBottle*`/`repairEnabled`/`repairAutoEnabled`. A new option is a field in `Settings`/`Messages`.
+Permission node strings are also defined as constants on `Config`.
 
 **Messages**: `messages.yml` is written in MiniMessage (no `&` codes, no `ChatColor`), and everything player-facing is
-sent as Adventure components. `Messages` parses the messages without placeholders into `Component`s on load; the
-ones with placeholders stay raw strings and are rendered with `Messages.render(msg, TagResolver...)`, passing
+sent as Adventure components. The texts stay raw strings in `Messages.texts` and are rendered when used with
+`Messages.render(msg, TagResolver...)`, passing
 `Placeholder.unparsed` for values (player names, numbers) and `Placeholder.component` for components (the bottle's
 `<xpbar>`, built from the `filled bar`/`empty bar` components), never `Placeholder.parsed` or `String.replace`.
 Placeholder names are written as literals where they're resolved. Bottle name and lore use

@@ -116,7 +116,7 @@ public class MagicBottle {
 			SoundEffect.fillBottle(player);
 		} else {
 			int maxLevels = Config.getMaxLevelsFor(player);
-			player.sendMessage(Messages.render(Messages.msgMaxLevelReached,
+			player.sendMessage(Messages.render(Messages.texts.messages.maxLevelReached,
 					Placeholder.unparsed("level", Integer.toString(maxLevels))));
 			SoundEffect.forbidden(player);
 		}
@@ -199,15 +199,15 @@ public class MagicBottle {
 	private void print() {
 		TagResolver placeholders = placeholders();
 		List<Component> lore = new ArrayList<>();
-		lore.add(Messages.renderItemText(Messages.bottleExperienceTitle, placeholders));
-		lore.add(Messages.renderItemText(Messages.bottleExperience, placeholders));
+		lore.add(Messages.renderItemText(Messages.texts.bottleText.experienceTitle, placeholders));
+		lore.add(Messages.renderItemText(Messages.texts.bottleText.experience, placeholders));
 
-		for (String line : Messages.bottleLore) {
+		for (String line : Messages.texts.bottleText.lore) {
 			lore.add(Messages.renderItemText(line, placeholders));
 		}
 
 		ItemMeta meta = item.getItemMeta();
-		meta.displayName(Messages.renderItemText(Messages.bottleName, placeholders));
+		meta.displayName(Messages.renderItemText(Messages.texts.bottleText.name, placeholders));
 		meta.lore(lore);
 		markAsBottle(meta);
 		meta.getPersistentDataContainer().set(keyExp, PersistentDataType.INTEGER, exp);

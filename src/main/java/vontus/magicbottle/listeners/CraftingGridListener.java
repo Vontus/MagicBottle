@@ -118,7 +118,7 @@ public class CraftingGridListener implements Listener {
 		if (e.getRecipe().getKey().equals(Recipes.getKey(plugin, Recipes.nameBottle))) {
 			// Unlike in the crafting grid (isEmptyBottleRecipe), nothing else stops a MagicBottle from being used up
 			// as an ingredient here
-			if (Config.recipeNewBottleAllowCrafters && !containsMagicBottle(e.getBlock())) {
+			if (Config.settings.recipe.bottle.allowCrafters && !containsMagicBottle(e.getBlock())) {
 				e.setResult(new MagicBottle(0).getItem());
 			} else {
 				e.setCancelled(true);
@@ -154,11 +154,11 @@ public class CraftingGridListener implements Listener {
 	}
 
 	private boolean canFillInGrid(Player player) {
-		return Config.recipeFill && player.hasPermission(Config.permDeposit) && Exp.getPoints(player) > 0;
+		return Config.settings.recipe.deposit && player.hasPermission(Config.permDeposit) && Exp.getPoints(player) > 0;
 	}
 
 	private boolean canPourInGrid(Player player) {
-		return Config.recipePour && player.hasPermission(Config.permWithdraw);
+		return Config.settings.recipe.withdraw && player.hasPermission(Config.permWithdraw);
 	}
 
 	// What filling or pouring the lone bottle of a crafting grid would give, or null if the player can't do it

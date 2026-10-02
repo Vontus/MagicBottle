@@ -37,6 +37,9 @@ recipe:
     #   or item tags, which accept any item in the tag (e.g. "#minecraft:planks"; tags must be quoted because of the #).
     # You can see a complete list of item IDs here: https://jd.papermc.io/paper/26.2/org/bukkit/Material.html
     # and of item tags here: https://jd.papermc.io/paper/26.2/org/bukkit/Tag.html
+    # Filled bottles are dragon's breath, so having one grants the "You Need a Mint" advancement (an End advancement).
+    # The default recipe uses dragon_breath so that only players who have already got it can craft a bottle.
+    # If you remove it from the recipe, players will be able to get the advancement without going to the End.
     shape:
       - "BEB"
       - "GDG"

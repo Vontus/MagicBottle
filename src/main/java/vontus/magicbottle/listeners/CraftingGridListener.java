@@ -1,125 +1,39 @@
-package vontus.magicbottle;
+package vontus.magicbottle.listeners;
 
 import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Crafter;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.CrafterCraftEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemDamageEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
+import vontus.magicbottle.MagicBottle;
+import vontus.magicbottle.Plugin;
+import vontus.magicbottle.Recipes;
 import vontus.magicbottle.config.Config;
-import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.effects.SoundEffect;
 import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import java.util.function.Consumer;
 
-public class Events implements Listener {
-	private static final int CLICK_COOLDOWN_TICKS = 3;
+// Everything that happens in crafting grids and crafters: filling/pouring a lone bottle and the new bottle recipe
+public class CraftingGridListener implements Listener {
+	private final Plugin plugin;
 
-	// Tick of each player's last accepted bottle click
-	private Map<UUID, Integer> lastClick;
-	private Plugin plugin;
-
-	Events(Plugin plugin) {
+	public CraftingGridListener(Plugin plugin) {
 		this.plugin = plugin;
-		this.lastClick = new HashMap<>();
-	}
-
-	// The recipe menu is read-only. Every click is cancelled while it is the top inventory, including the ones
-	// in the player's own inventory (shift-click, number keys, offhand swap, double click collecting items...)
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onClickRecipeMenu(InventoryClickEvent e) {
-		if (RecipeMenu.isRecipeMenu(e.getView().getTopInventory())) {
-			e.setResult(Event.Result.DENY);
-			e.setCancelled(true);
-		}
-	}
-
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onDragRecipeMenu(InventoryDragEvent e) {
-		if (RecipeMenu.isRecipeMenu(e.getView().getTopInventory())) {
-			e.setResult(Event.Result.DENY);
-			e.setCancelled(true);
-		}
-	}
-
-	// Nothing in it is real, so it is emptied before the server can return any item to the player
-	@EventHandler(priority = EventPriority.MONITOR)
-	public void onCloseRecipeMenu(InventoryCloseEvent e) {
-		if (RecipeMenu.isRecipeMenu(e.getInventory())) {
-			e.getInventory().clear();
-		}
-	}
-
-	// Bottles can't be used as anvil/brewing stand items (dragon's breath is a brewing ingredient and its exp would be
-	// lost), so every route into those inventories is blocked: picking up or shift-clicking a bottle, the cursor,
-	// number keys and offhand swap onto a top slot, dragging and hoppers.
-	private static boolean isBlockedInventory(InventoryType type) {
-		return type == InventoryType.ANVIL || type == InventoryType.BREWING;
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onClickInventory(InventoryClickEvent e) {
-		if (!isBlockedInventory(e.getView().getType())) {
-			return;
-		}
-		boolean inTop = e.getRawSlot() >= 0 && e.getRawSlot() < e.getView().getTopInventory().getSize();
-		boolean bottle = MagicBottle.isMagicBottle(e.getCurrentItem());
-		if (!bottle && inTop) {
-			PlayerInventory inv = e.getWhoClicked().getInventory();
-			bottle = switch (e.getClick()) {
-				case NUMBER_KEY -> e.getHotbarButton() >= 0 && MagicBottle.isMagicBottle(inv.getItem(e.getHotbarButton()));
-				case SWAP_OFFHAND -> MagicBottle.isMagicBottle(inv.getItemInOffHand());
-				default -> MagicBottle.isMagicBottle(e.getCursor());
-			};
-		}
-		if (bottle) {
-			e.setCancelled(true);
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void onDragInventory(InventoryDragEvent e) {
-		if (!isBlockedInventory(e.getView().getType()) || !MagicBottle.isMagicBottle(e.getOldCursor())) {
-			return;
-		}
-		int top = e.getView().getTopInventory().getSize();
-		if (e.getRawSlots().stream().anyMatch(slot -> slot < top)) {
-			e.setCancelled(true);
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void onMoveItem(InventoryMoveItemEvent e) {
-		if (isBlockedInventory(e.getDestination().getType()) && MagicBottle.isMagicBottle(e.getItem())) {
-			e.setCancelled(true);
-		}
 	}
 
 	// Filling and pouring in a crafting grid aren't registered recipes, and vanilla's result slot doesn't consume
@@ -213,27 +127,6 @@ public class Events implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onInteract(PlayerInteractEvent event) {
-		Player player = event.getPlayer();
-		Action act = event.getAction();
-		ItemStack item = event.getItem();
-
-		if (MagicBottle.isMagicBottle(item)) {
-			MagicBottle mb = new MagicBottle(item);
-			if (item.getAmount() == 1 && throttle(player)) {
-				if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK) {
-					onInteractDeposit(mb, player);
-				} else if (act == Action.RIGHT_CLICK_AIR || act == Action.RIGHT_CLICK_BLOCK) {
-					onInteractWithdraw(mb, player);
-				}
-			}
-
-			event.setCancelled(true);
-			player.updateInventory();
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPrepareCraft(PrepareItemCraftEvent event) {
 		CraftingInventory inv = event.getInventory();
 		Player player = (Player) event.getView().getPlayer();
@@ -256,77 +149,6 @@ public class Events implements Listener {
 				e.setCancelled(true);
 			} else if (Utils.getMaterial(e.getCurrentItem()) != Material.AIR) {
 				SoundEffect.newBottle((Player) e.getView().getPlayer());
-			}
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onItemDamage(PlayerItemDamageEvent e) {
-		Player p = e.getPlayer();
-		// Cheap checks first: this fires for every durability loss of every player. It doesn't use the click cooldown,
-		// so it neither blocks nor is blocked by bottle clicks.
-		if (!Config.repairAutoEnabled || !plugin.autoEnabled.contains(p)) {
-			return;
-		}
-		ItemStack i = e.getItem();
-		// 1 exp repairs 2 durability points (like Mending), so only repair when the accumulated damage is odd: an even
-		// value would spend 1 exp on a single point. Intentional, not a bug.
-		if (i.getDurability() % 2 == 0 || e.isCancelled() || !Config.canRepair(i)) {
-			return;
-		}
-		MagicBottle mb = MagicBottle.getUsableMBInInventory(p.getInventory());
-		if (mb == null) {
-			return;
-		}
-		i.setDurability((short) (i.getDurability() + e.getDamage()));
-		plugin.autoRepairFeedback.spent(p, mb.repair(i, false));
-		e.setCancelled(true);
-		p.updateInventory();
-	}
-
-	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent e) {
-		LegacyBottle.migrateInventory(e.getPlayer().getInventory());
-		LegacyBottle.migrateInventory(e.getPlayer().getEnderChest());
-	}
-
-	@EventHandler
-	public void onPlayerLeave(PlayerQuitEvent e) {
-		lastClick.remove(e.getPlayer().getUniqueId());
-		plugin.autoEnabled.remove(e.getPlayer());
-		plugin.autoRepairFeedback.clear(e.getPlayer());
-	}
-
-	@EventHandler
-	public void onPlayerKicked(PlayerKickEvent e) {
-		lastClick.remove(e.getPlayer().getUniqueId());
-		plugin.autoEnabled.remove(e.getPlayer());
-		plugin.autoRepairFeedback.clear(e.getPlayer());
-	}
-
-	private void onInteractDeposit(MagicBottle bottle, Player p) {
-		if (Exp.getPoints(p) > 0) {
-			if (p.hasPermission(Config.permDeposit)) {
-				int round = p.isSneaking() ? 1 : 0;
-				int targetPlayerLevel = Exp.floorLevel(p, round);
-				int expToDeposit = Exp.getExpToLevel(p, targetPlayerLevel) * -1;
-
-				bottle.deposit(p, expToDeposit);
-			} else
-				p.sendMessage(Messages.msgUnauthorizedToDeposit);
-		}
-	}
-
-	private void onInteractWithdraw(MagicBottle bottle, Player p) {
-		if (bottle.getExp() > 0) {
-			if (p.hasPermission(Config.permWithdraw)) {
-				int round = p.isSneaking() ? 1 : 0;
-				int targetPlayerLevel = Exp.ceilingLevel(p, round);
-				int expToWithdraw = Exp.getExpToLevel(p, targetPlayerLevel);
-
-				bottle.withdraw(p, expToWithdraw);
-			} else {
-				p.sendMessage(Messages.msgUnauthorizedToWithdraw);
 			}
 		}
 	}
@@ -368,17 +190,6 @@ public class Events implements Listener {
 			return lone;
 		}
 		return null;
-	}
-
-	// Bottle clicks are ignored for a few ticks after an accepted one. Returns true (and starts the cooldown) if allowed.
-	private boolean throttle(Player p) {
-		int now = plugin.getServer().getCurrentTick();
-		Integer last = lastClick.get(p.getUniqueId());
-		if (last != null && now - last < CLICK_COOLDOWN_TICKS) {
-			return false;
-		}
-		lastClick.put(p.getUniqueId(), now);
-		return true;
 	}
 
 	// The new bottle recipe can match anywhere in the grid (and mirrored), so it's identified by its key. A MagicBottle

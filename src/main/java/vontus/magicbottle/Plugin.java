@@ -3,9 +3,16 @@ package vontus.magicbottle;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
+import vontus.magicbottle.listeners.BottleInteractListener;
+import vontus.magicbottle.listeners.ClickCooldown;
+import vontus.magicbottle.listeners.CraftingGridListener;
+import vontus.magicbottle.listeners.InventoryListener;
+import vontus.magicbottle.listeners.PlayerListener;
+import vontus.magicbottle.listeners.RepairListener;
 
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +32,13 @@ public class Plugin extends JavaPlugin {
 		MagicBottle.init(this);
 		loadConfig();
 		new Recipes(this);
-		this.getServer().getPluginManager().registerEvents(new Events(this), this);
+		ClickCooldown cooldown = new ClickCooldown(this);
+		PluginManager pm = getServer().getPluginManager();
+		pm.registerEvents(new BottleInteractListener(cooldown), this);
+		pm.registerEvents(new CraftingGridListener(this), this);
+		pm.registerEvents(new InventoryListener(), this);
+		pm.registerEvents(new RepairListener(this), this);
+		pm.registerEvents(new PlayerListener(this, cooldown), this);
 		Commands commands = new Commands(this);
 		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event ->
 				event.registrar().register(commands.build(), "Main plugin command", List.of("mb", "magicb", "mbottle")));

@@ -21,7 +21,7 @@ The plugin version lives only in `build.gradle`; `plugin.yml` gets it through `p
 ## Architecture
 
 **Entry point**: `Plugin.java` (`onEnable`) wires everything together: loads config/messages, registers the
-`magicbottle` crafting recipes, registers `Events` as a listener, registers the `Commands` tree
+`magicbottle` crafting recipes, registers the listeners, registers the `Commands` tree
 through `LifecycleEvents.COMMANDS`, and starts bStats metrics.
 
 **Core domain object**: `MagicBottle` wraps a Bukkit `ItemStack` and is the single source of truth for how
@@ -36,7 +36,10 @@ it holds XP. Any code creating/mutating a bottle must go through `MagicBottle` s
 PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are created in `MagicBottle.init`, which
 `onEnable` must call before anything else touches bottles.
 
-**Interaction flow** (`Events.java`): all player-facing behavior is driven by Bukkit events, not GUIs:
+**Interaction flow**: all player-facing behavior is driven by Bukkit events, not GUIs. The listeners are split by
+concern, in the `listeners` package: `BottleInteractListener` (clicks in hand, throttled by the `ClickCooldown` that `PlayerListener` clears on
+quit/kick), `CraftingGridListener` (fill/pour, new bottle recipe, crafters), `InventoryListener` (recipe menu and
+anvil/brewing block), `RepairListener` (auto-repair) and `PlayerListener` (join migration, leave cleanup):
 - `onInteract` — left-click deposits, right-click withdraws, holding the bottle in hand (shift = 10 levels,
   no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`throttle`, a map of last click ticks).
 - `onPrepareCraft`/`onClickCraftResult` — a single MagicBottle (amount 1) alone in a crafting grid (3x3 or the
@@ -69,9 +72,9 @@ PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are creat
 "new bottle" recipe (`magicbottle:bottle`, result `MagicBottle(0)`) whose datapack-style `shape`/`ingredients`
 (item IDs or `#` item tags) come from config. `Config.loadNewBottleRecipe` parses and validates them into
 `recipeNewBottleShape`/`recipeNewBottleIngredients`; if they're invalid it logs the problem and disables the
-recipe. Like any shaped recipe it matches anywhere in the grid (and mirrored), so `Events` identifies it by its
+recipe. Like any shaped recipe it matches anywhere in the grid (and mirrored), so `CraftingGridListener` identifies it by its
 key (`Recipes.getKey`), never by grid positions, and refuses it when a MagicBottle is in the grid. Filling and
-pouring are not recipes (see `Events`).
+pouring are not recipes (see `CraftingGridListener`).
 
 **Commands** (`Commands.java`): the single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) is a Brigadier
 tree (`Commands#build`) registered from `Plugin.onEnable` through `LifecycleEvents.COMMANDS`; it is not in
@@ -86,7 +89,7 @@ are added as nodes in `build`, with their line in `USAGES`.
 **Recipe menu** (`RecipeMenu.java`): `/mb recipe` (`magicbottle.action.craft`, the same permission as crafting it)
 opens a chest inventory showing the configured new-bottle recipe (any shape up to 3x3; ingredients that accept
 several items, i.e. tags, cycle through them every second). It must stay strictly read-only: the inventory has a custom `InventoryHolder`
-(`RecipeMenu`), `Events` cancels every `InventoryClickEvent`/`InventoryDragEvent` while it is the *top* inventory of
+(`RecipeMenu`), `InventoryListener` cancels every `InventoryClickEvent`/`InventoryDragEvent` while it is the *top* inventory of
 the view (which also covers shift-clicks, number keys, offhand swaps and double clicks from the player's own
 inventory) and clears it on `InventoryCloseEvent`; `Plugin.onDisable` closes it for whoever has it open. The result
 is `MagicBottle.createDisplayItem()`, a bottle without the PDC markers, so it is never a real MagicBottle.

@@ -13,7 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
  * Everything about that format lives here: legacy bottles are rewritten in the current format as soon as the
  * plugin gets hold of them, so the rest of the code only deals with the current one.
  */
-class LegacyBottle {
+public class LegacyBottle {
 	private static final Enchantment MARKER = Enchantment.EFFICIENCY;
 	private static final int XP_LINE = 1;
 
@@ -34,7 +34,7 @@ class LegacyBottle {
 		}
 	}
 
-	static void migrateInventory(Inventory inv) {
+	public static void migrateInventory(Inventory inv) {
 		for (ItemStack item : inv) {
 			if (MagicBottle.isMagicBottle(item)) {
 				migrateIfLegacy(item);

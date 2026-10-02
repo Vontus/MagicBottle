@@ -72,7 +72,9 @@ anvil/brewing block), `RepairListener` (auto-repair) and `PlayerListener` (join 
 "new bottle" recipe (`magicbottle:bottle`, result `MagicBottle(0)`) whose datapack-style `shape`/`ingredients`
 (item IDs or `#` item tags) come from config. `Config.loadNewBottleRecipe` parses and validates them into
 `recipeNewBottleShape`/`recipeNewBottleIngredients`; if they're invalid it logs the problem and disables the
-recipe. Like any shaped recipe it matches anywhere in the grid (and mirrored), so `CraftingGridListener` identifies it by its
+recipe. The default recipe uses `dragon_breath` on purpose: filled bottles are dragon's breath, which grants the "You
+Need a Mint" advancement, so only players who already have it can craft one (config.yml warns admins about it).
+Like any shaped recipe it matches anywhere in the grid (and mirrored), so `CraftingGridListener` identifies it by its
 key (`Recipes.getKey`), never by grid positions, and refuses it when a MagicBottle is in the grid. Filling and
 pouring are not recipes (see `CraftingGridListener`).
 

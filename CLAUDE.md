@@ -27,12 +27,13 @@ through `LifecycleEvents.COMMANDS`, and starts bStats metrics.
 **Core domain object**: `MagicBottle` wraps a Bukkit `ItemStack` and is the single source of truth for how
 XP is represented on an item. Bottles are identified by a `magicbottle:bottle` PersistentDataContainer marker
 and the XP amount is stored in `magicbottle:exp` (see `isMagicBottle`/`calculateExp`); the glint comes from
-`setEnchantmentGlintOverride`. The lore only displays the XP. Everything about the 1.5.x format (hidden
-Efficiency enchantment, XP parsed from lore line 1) lives in `LegacyBottle`: those bottles are recognized by
-`isMagicBottle` and rewritten in the current format when a `MagicBottle` is built from them or when their owner
-joins (inventory and ender chest), so no other code has to know about it. The item's material
-switches between `materialEmpty` (`GLASS_BOTTLE`) and `materialFilled` (`DRAGON_BREATH`) depending on whether
-it holds XP. Any code creating/mutating a bottle must go through `MagicBottle` so the item's
+`setEnchantmentGlintOverride`. The lore only displays the XP. Every bottle is `DRAGON_BREATH` (`material`), which
+is nearly inert (in no recipe or item tag; brewing is blocked), unlike a glass bottle, which vanilla and dispensers
+fill with water or honey; an empty bottle only looks like a glass bottle through the `item_model` component.
+Everything about the 1.5.x format (hidden Efficiency enchantment, XP parsed from lore line 1, empty bottles as
+`GLASS_BOTTLE`) lives in `LegacyBottle`: those bottles are recognized by `isMagicBottle` and rewritten in the current
+format when a `MagicBottle` is built from them or when their owner joins (inventory and ender chest), so no other
+code has to know about it. Any code creating/mutating a bottle must go through `MagicBottle` so the item's
 PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are created in `MagicBottle.init`, which
 `onEnable` must call before anything else touches bottles.
 
@@ -44,7 +45,7 @@ anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (a
   no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`throttle`, a map of last click ticks).
 - `onPrepareCraft`/`onClickCraftResult` — a single MagicBottle (amount 1) alone in a crafting grid (3x3 or the
   2x2 inventory grid) withdraws/deposits *all* XP. These aren't registered recipes (the recipe book would autofill
-  any glass bottle or dragon's breath), so `onPrepareCraft` sets the preview itself (PrepareItemCraftEvent fires
+  any dragon's breath), so `onPrepareCraft` sets the preview itself (PrepareItemCraftEvent fires
   even when no recipe matches) and `onClickCraftResult` always cancels clicks on that result slot (vanilla would
   duplicate the bottle, since no recipe consumes it) and does the transaction by hand: it picks the destination
   first (empty cursor, free inventory slot on shift-click, empty hotbar slot on number key, empty offhand on F; Q/Ctrl+Q does nothing, since `dropItem` doesn't fire `PlayerDropItemEvent`; creative middle click is left to vanilla), re-checks

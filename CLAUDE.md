@@ -62,8 +62,9 @@ anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (a
   is a brewing ingredient) or the first slot of anvils. Clicks are cancelled when the clicked item is a bottle in a top
   slot or is shift-clicked from the player's inventory (plain clicks there are fine) or, on a top slot, when the cursor,
   the number-key hotbar item or the offhand item (F) is one; drags over the top inventory and hopper moves into
-  those inventories are cancelled too. The exception is the anvil's second slot (only if `repair.enabled`), where a bottle is accepted; vanilla's shift-click would put it in the first slot, so
-  it is moved by hand.
+  those inventories are cancelled too. The exception is the anvil's second slot (`AnvilListener.acceptsBottle`, only if
+  `repair.enabled`), where a bottle is accepted; vanilla's shift-click would put it in the first slot, so
+  `AnvilListener.onShiftClickBottle` moves it by hand.
 - `AnvilListener` — repair in the anvil: a damaged item accepted by `Config.canRepair` in the first slot and a usable
   MagicBottle in the second (`repair.enabled`, `magicbottle.action.repair`). `onPrepareAnvil` sets the repaired item as
   the result with repair cost 0 (no levels) and a lore line with the exp it will spend and what the bottle keeps (`messages.repair.anvil cost`; only the preview has it); `onClickResult` cancels the click and takes it by hand like

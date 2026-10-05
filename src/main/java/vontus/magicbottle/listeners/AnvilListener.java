@@ -8,15 +8,16 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.AnvilInventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.effects.SoundEffect;
-import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
 
 import java.util.ArrayList;
@@ -26,12 +27,18 @@ import java.util.function.Consumer;
 // Repairing in the anvil with a MagicBottle as the second item. Vanilla would consume the second slot when the result is
 // taken (the bottle would vanish), so the click on the result is cancelled and the transaction is done here.
 public class AnvilListener implements Listener {
+	private static final int BOTTLE_SLOT = 1;
 	private static final int RESULT_SLOT = 2;
 
 	private final Plugin plugin;
 
 	public AnvilListener(Plugin plugin) {
 		this.plugin = plugin;
+	}
+
+	// Whether a bottle may be put in this raw slot of the top inventory: only the second slot of the anvil, to repair with it
+	static boolean acceptsBottle(InventoryView view, int rawSlot) {
+		return view.getType() == InventoryType.ANVIL && Config.repairEnabled && rawSlot == BOTTLE_SLOT;
 	}
 
 	// Vanilla has no result for a bottle in the second slot, so the preview is set here. It costs no levels, so the
@@ -58,6 +65,19 @@ public class AnvilListener implements Listener {
 		});
 		e.setResult(result);
 		e.getView().setRepairCost(0);
+	}
+
+	// Vanilla's shift-click would put the bottle in the first slot (InventoryListener cancels the click), so it is moved
+	// to the second one by hand
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onShiftClickBottle(InventoryClickEvent e) {
+		ItemStack item = e.getCurrentItem();
+		if (e.getClick().isShiftClick() && e.getView().getTopInventory() instanceof AnvilInventory inv
+				&& e.getRawSlot() >= inv.getSize() && acceptsBottle(e.getView(), BOTTLE_SLOT)
+				&& MagicBottle.isMagicBottle(item) && item.getAmount() == 1 && inv.getSecondItem() == null) {
+			inv.setSecondItem(item);
+			e.setCurrentItem(null);
+		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)

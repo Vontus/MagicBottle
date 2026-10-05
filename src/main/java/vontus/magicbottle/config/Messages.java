@@ -119,10 +119,6 @@ public class Messages {
 
 	@ConfigSerializable
 	public static class Repair {
-		// Placeholders: <xp>
-		@Setting("inventory repaired")
-		public String inventoryRepaired = "<yellow>Spent <dark_purple><xp></dark_purple> XP in repairing your tools.";
-
 		@Setting("enabled autorepair")
 		public String enabledAutorepair = "<yellow>Autorepair has been <green>enabled</green>.";
 
@@ -133,13 +129,7 @@ public class Messages {
 		@Setting("auto spent")
 		public String autoSpent = "<yellow>Autorepair spent <dark_purple><xp></dark_purple> XP.";
 
-		@Setting("config repairing disabled")
-		public String configRepairingDisabled = "<red>Repairing is disabled in this server.";
-
 		@Setting("config auto repairing disabled")
 		public String configAutoRepairingDisabled = "<red>Automatic repairing is disabled in this server.";
-
-		@Setting("mb not in hand")
-		public String mbNotInHand = "<red>You must have a MagicBottle with experience in your main hand to use this command.";
 	}
 }

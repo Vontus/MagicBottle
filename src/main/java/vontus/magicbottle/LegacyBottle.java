@@ -10,10 +10,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 /**
- * Bottles made by older versions: 1.5.x marked them with a hidden Efficiency enchantment and kept their exp in lore
- * line 1, and empty bottles used to be glass bottles. Everything about those formats lives here: old bottles are
- * rewritten in the current format as soon as the plugin gets hold of them, so the rest of the code only deals with
- * the current one.
+ * Bottles made by 1.5.x were marked with a hidden Efficiency enchantment and kept their exp in lore line 1 (empty
+ * ones were glass bottles). Everything about that format lives here: legacy bottles are rewritten in the current
+ * format as soon as the plugin gets hold of them, so the rest of the code only deals with the current one.
  */
 public class LegacyBottle {
 	private static final Enchantment MARKER = Enchantment.EFFICIENCY;
@@ -26,7 +25,7 @@ public class LegacyBottle {
 				parseExp(item) != null;
 	}
 
-	static void migrateIfOutdated(ItemStack item) {
+	static void migrateIfLegacy(ItemStack item) {
 		if (isLegacyBottle(item)) {
 			int exp = parseExp(item);
 			ItemMeta meta = item.getItemMeta();
@@ -34,15 +33,13 @@ public class LegacyBottle {
 			meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
 			item.setItemMeta(meta);
 			MagicBottle.rewrite(item, exp);
-		} else if (item.getType() == Material.GLASS_BOTTLE) {
-			MagicBottle.rewrite(item, MagicBottle.calculateExp(item));
 		}
 	}
 
 	public static void migrateInventory(Inventory inv) {
 		for (ItemStack item : inv) {
 			if (MagicBottle.isMagicBottle(item)) {
-				migrateIfOutdated(item);
+				migrateIfLegacy(item);
 			}
 		}
 	}

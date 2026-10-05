@@ -30,10 +30,10 @@ and the XP amount is stored in `magicbottle:exp` (see `isMagicBottle`/`calculate
 `setEnchantmentGlintOverride`. The lore only displays the XP. Every bottle is `DRAGON_BREATH` (`material`), which
 is nearly inert (in no recipe or item tag; brewing is blocked), unlike a glass bottle, which vanilla and dispensers
 fill with water or honey; an empty bottle only looks like a glass bottle through the `item_model` component.
-Everything about older formats (1.5.x: hidden Efficiency enchantment, XP parsed from lore line 1; later: empty
-bottles as `GLASS_BOTTLE`) lives in `LegacyBottle`: those bottles are recognized by `isMagicBottle` and rewritten in
-the current format when a `MagicBottle` is built from them or when their owner joins (inventory and ender chest), so
-no other code has to know about it. Any code creating/mutating a bottle must go through `MagicBottle` so the item's
+Everything about the 1.5.x format (hidden Efficiency enchantment, XP parsed from lore line 1, empty bottles as
+`GLASS_BOTTLE`) lives in `LegacyBottle`: those bottles are recognized by `isMagicBottle` and rewritten in the current
+format when a `MagicBottle` is built from them or when their owner joins (inventory and ender chest), so no other
+code has to know about it. Any code creating/mutating a bottle must go through `MagicBottle` so the item's
 PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are created in `MagicBottle.init`, which
 `onEnable` must call before anything else touches bottles.
 

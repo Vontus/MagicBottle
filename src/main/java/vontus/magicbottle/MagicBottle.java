@@ -42,7 +42,7 @@ public class MagicBottle {
 	}
 
 	public MagicBottle(ItemStack expContainer) {
-		LegacyBottle.migrateIfOutdated(expContainer);
+		LegacyBottle.migrateIfLegacy(expContainer);
 		item = expContainer;
 		exp = calculateExp(expContainer);
 	}
@@ -62,7 +62,7 @@ public class MagicBottle {
 		if (item == null) {
 			item = new ItemStack(material);
 		} else if (item.getType() != material) {
-			// Bottles in an older format may be glass bottles (LegacyBottle)
+			// Empty 1.5.x bottles were glass bottles (LegacyBottle)
 			item.setType(material);
 		}
 
@@ -221,7 +221,7 @@ public class MagicBottle {
 		meta.setEnchantmentGlintOverride(true);
 	}
 
-	static int calculateExp(ItemStack item) {
+	private static int calculateExp(ItemStack item) {
 		return item.getItemMeta().getPersistentDataContainer().getOrDefault(keyExp, PersistentDataType.INTEGER, 0);
 	}
 

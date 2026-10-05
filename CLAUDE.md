@@ -39,7 +39,7 @@ PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are creat
 **Interaction flow**: all player-facing behavior is driven by Bukkit events, not GUIs. The listeners are split by
 concern, in the `listeners` package: `BottleInteractListener` (clicks in hand, throttled by the `ClickCooldown` that `PlayerListener` clears on
 quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafters), `InventoryListener` (recipe menu and
-anvil/brewing block), `RepairListener` (auto-repair) and `PlayerListener` (join migration, leave cleanup):
+anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (auto-repair) and `PlayerListener` (join migration, leave cleanup):
 - `onInteract` — left-click deposits, right-click withdraws, holding the bottle in hand (shift = 10 levels,
   no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`throttle`, a map of last click ticks).
 - `onPrepareCraft`/`onClickCraftResult` — a single MagicBottle (amount 1) alone in a crafting grid (3x3 or the
@@ -58,10 +58,18 @@ anvil/brewing block), `RepairListener` (auto-repair) and `PlayerListener` (join 
   recipe (identified by its key) is allowed only if `recipe.bottle.allow crafters`
   (`Config.recipeNewBottleAllowCrafters`, reloadable) is on and no slot of the crafter holds a MagicBottle
   (otherwise it would be consumed as an ingredient). Crafters can't deposit or withdraw.
-- `onClickInventory`/`onDragInventory`/`onMoveItem` — bottles can't enter anvils or brewing stands (dragon's breath
-  is a brewing ingredient). Clicks are cancelled when the clicked item is a bottle (pick up, shift-click) or, on a
-  top slot, when the cursor, the number-key hotbar item or the offhand item (F) is one; drags over the top
-  inventory and hopper moves into those inventories are cancelled too.
+- `onClickInventory`/`onDragInventory`/`onMoveItem` — bottles can't enter brewing stands (dragon's breath
+  is a brewing ingredient) or the first slot of anvils. Clicks are cancelled when the clicked item is a bottle in a top
+  slot or is shift-clicked from the player's inventory (plain clicks there are fine) or, on a top slot, when the cursor,
+  the number-key hotbar item or the offhand item (F) is one; drags over the top inventory and hopper moves into
+  those inventories are cancelled too. The exception is the anvil's second slot (`AnvilListener.acceptsBottle`, only if
+  `repair.enabled`), where a bottle is accepted; vanilla's shift-click would put it in the first slot, so
+  `AnvilListener.onShiftClickBottle` moves it by hand.
+- `AnvilListener` — repair in the anvil: a damaged item accepted by `Config.canRepair` in the first slot and a usable
+  MagicBottle in the second (`repair.enabled`, `magicbottle.action.repair`). `onPrepareAnvil` sets the repaired item as
+  the result with repair cost 0 (no levels) and a lore line with the exp it will spend and what the bottle keeps (`messages.repair.anvil cost`; only the preview has it); `onClickResult` cancels the click and takes it by hand like
+  `onClickCraftResult` does (`ResultSlot.destination`), because vanilla would consume the bottle. 1 exp repairs 2
+  durability points; a bottle with less exp repairs partially and stays in the slot, empty.
 - `onItemDamage` — auto-repair of tools/armor using a usable bottle anywhere in the inventory if the player has
   enabled auto-repair (tracked in `Plugin.autoEnabled`) and `Config.canRepair` accepts the item (it has the
   configured `repair.enchantment`, Mending by default, or any item if set to `ANY`; parsed by `EnchantParser`
@@ -80,8 +88,8 @@ withdrawing are not recipes (see `CraftingGridListener`).
 
 **Commands** (`Commands.java`): the single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) is a Brigadier
 tree (`Commands#build`) registered from `Plugin.onEnable` through `LifecycleEvents.COMMANDS`; it is not in
-`plugin.yml`. Subcommands (`about`, `reload`, `give <level> [amount] [player]`, `recipe`, `repair`, `autorepair [on|off]`) are
-literal nodes gated with `.requires(...)` on their permission in `Config` (`recipe`, `repair` and `autorepair` also require a
+`plugin.yml`. Subcommands (`about`, `reload`, `give <level> [amount] [player]`, `recipe`, `autorepair [on|off]`) are
+literal nodes gated with `.requires(...)` on their permission in `Config` (`recipe` and `autorepair` also require a
 player executor), so senders only see and can run what they may; the menu shown by the bare command lists the
 nodes the source can use.
 `give` takes bounded arguments (`level` 0..`Config.maxLevel`, `amount` 1..64, `player` as Paper's player selector,

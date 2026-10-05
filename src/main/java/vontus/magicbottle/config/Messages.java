@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 import vontus.magicbottle.Plugin;
 
@@ -119,10 +120,6 @@ public class Messages {
 
 	@ConfigSerializable
 	public static class Repair {
-		// Placeholders: <xp>
-		@Setting("inventory repaired")
-		public String inventoryRepaired = "<yellow>Spent <dark_purple><xp></dark_purple> XP in repairing your tools.";
-
 		@Setting("enabled autorepair")
 		public String enabledAutorepair = "<yellow>Autorepair has been <green>enabled</green>.";
 
@@ -133,13 +130,16 @@ public class Messages {
 		@Setting("auto spent")
 		public String autoSpent = "<yellow>Autorepair spent <dark_purple><xp></dark_purple> XP.";
 
-		@Setting("config repairing disabled")
-		public String configRepairingDisabled = "<red>Repairing is disabled in this server.";
+		@Setting("anvil cost")
+		@Comment("""
+				Line added to the repaired item shown in the anvil, before taking it. Placeholders:
+				  <xp>: experience points the repair takes from the bottle
+				  <xp_left>: experience points the bottle will have left
+				  <levels>: levels the bottle loses (how much its level drops, e.g. from level 30 to 24 is 6)
+				  <levels_left>: the level the bottle will have after the repair""")
+		public String anvilCost = "<gray>Uses <yellow><xp></yellow> XP from the bottle (<yellow><xp_left></yellow> XP left)";
 
 		@Setting("config auto repairing disabled")
 		public String configAutoRepairingDisabled = "<red>Automatic repairing is disabled in this server.";
-
-		@Setting("mb not in hand")
-		public String mbNotInHand = "<red>You must have a MagicBottle with experience in your main hand to use this command.";
 	}
 }

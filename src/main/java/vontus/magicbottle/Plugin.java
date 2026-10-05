@@ -7,6 +7,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
+import vontus.magicbottle.listeners.AnvilListener;
 import vontus.magicbottle.listeners.BottleInteractListener;
 import vontus.magicbottle.listeners.ClickCooldown;
 import vontus.magicbottle.listeners.CraftingGridListener;
@@ -34,6 +35,7 @@ public class Plugin extends JavaPlugin {
 		new Recipes(this);
 		ClickCooldown cooldown = new ClickCooldown(this);
 		PluginManager pm = getServer().getPluginManager();
+		pm.registerEvents(new AnvilListener(this), this);
 		pm.registerEvents(new BottleInteractListener(cooldown), this);
 		pm.registerEvents(new CraftingGridListener(this), this);
 		pm.registerEvents(new InventoryListener(), this);

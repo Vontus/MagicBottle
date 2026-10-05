@@ -18,8 +18,8 @@ permissions:
   magicbottle.action.withdraw:
     description: 'Allows a player to take experience from MagicBottles'
     default: true
-  magicbottle.command.repair:
-    description: 'Allows a player to repair tools using bottled XP'
+  magicbottle.action.repair:
+    description: 'Allows a player to repair tools and armor in the anvil using a MagicBottle'
     default: true
   magicbottle.command.repair.auto:
     description: 'Allows a player to repair tools automatically using bottled XP'

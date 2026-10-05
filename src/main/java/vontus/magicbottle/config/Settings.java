@@ -119,10 +119,13 @@ public class Settings {
 
 	@ConfigSerializable
 	public static class Repair {
-		@Comment("Enable or disable the '/mb repair' command")
+		@Comment("""
+				Enable or disable repairing in the anvil: a damaged tool or armor in the first slot and a MagicBottle with
+				experience in the second. The repair is paid with the bottle's experience (1 exp repairs 2 durability points,
+				like Mending) instead of the player's levels, which a vanilla anvil would charge.""")
 		public boolean enabled = true;
 
-		@Comment("Enable or disable the '/mb autorepair' command")
+		@Comment("Enable or disable the '/mb autorepair' command (repairing automatically while you use your tools)")
 		public boolean auto = true;
 
 		@Setting("auto feedback")

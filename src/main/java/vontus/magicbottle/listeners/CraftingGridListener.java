@@ -16,7 +16,6 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
 import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Plugin;
@@ -58,7 +57,7 @@ public class CraftingGridListener implements Listener {
 		plugin.getServer().getScheduler().runTask(plugin, player::updateInventory);
 
 		// Pick the destination before changing anything, so no exp moves if the bottle can't be delivered
-		Consumer<ItemStack> destination = getResultDestination(e, player);
+		Consumer<ItemStack> destination = ResultSlot.destination(e, player);
 		if (destination == null) {
 			return;
 		}
@@ -70,24 +69,6 @@ public class CraftingGridListener implements Listener {
 		inv.setMatrix(new ItemStack[inv.getMatrix().length]);
 		inv.setResult(null);
 		destination.accept(result);
-	}
-
-	// Where a click on the crafting result puts the bottle, like vanilla would, or null if it has nowhere to go
-	private Consumer<ItemStack> getResultDestination(InventoryClickEvent e, Player player) {
-		PlayerInventory inv = player.getInventory();
-		return switch (e.getClick()) {
-			case LEFT, RIGHT -> isAir(player.getItemOnCursor()) ? player::setItemOnCursor : null;
-			case SHIFT_LEFT, SHIFT_RIGHT -> {
-				int slot = inv.firstEmpty();
-				yield slot >= 0 ? item -> inv.setItem(slot, item) : null;
-			}
-			case NUMBER_KEY -> {
-				int slot = e.getHotbarButton();
-				yield slot >= 0 && slot < 9 && isAir(inv.getItem(slot)) ? item -> inv.setItem(slot, item) : null;
-			}
-			case SWAP_OFFHAND -> isAir(inv.getItemInOffHand()) ? inv::setItemInOffHand : null;
-			default -> null;
-		};
 	}
 
 	// Deposits all the player's exp into the bottle or withdraws all of it, if still allowed. Returns the resulting bottle.
@@ -105,10 +86,6 @@ public class CraftingGridListener implements Listener {
 			bottle.withdraw(player, bottle.getExp());
 		}
 		return bottle.getItem();
-	}
-
-	private static boolean isAir(ItemStack item) {
-		return Utils.getMaterial(item) == Material.AIR;
 	}
 
 	// Crafters have no player, so they can't have their permissions checked: the new bottle recipe is only allowed if

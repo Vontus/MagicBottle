@@ -9,7 +9,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import vontus.magicbottle.config.Config;
@@ -146,17 +145,6 @@ public class MagicBottle {
 		return points;
 	}
 	
-	public int repair(PlayerInventory inv, boolean fullRepair) {
-		int usedXP = 0;
-		usedXP += repairNoRecreate(inv.getItemInMainHand(), fullRepair);
-		usedXP += repairNoRecreate(inv.getItemInOffHand(), fullRepair);
-		for (int i = 0; i < inv.getSize(); i++) {
-			usedXP += repairNoRecreate(inv.getItem(i), fullRepair);
-		}
-		recreate();
-		return usedXP;
-	}
-	
 	public int repair(ItemStack i, boolean fullRepair) {
 		int usedXP = repairNoRecreate(i, fullRepair);
 		if (usedXP > 0) {
@@ -174,7 +162,7 @@ public class MagicBottle {
 					int remainder = fullRepair ? repairable % 2 : 0;
 					int xpToUse = (int)Math.floor(repairable / 2) + remainder;
 					exp -= xpToUse;
-					i.setDurability((short) (i.getDurability() - repairable - remainder));
+					i.setDurability((short) (i.getDurability() - repairable));
 					return xpToUse;
 				}
 			}

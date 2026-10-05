@@ -21,8 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MagicBottle {
-	public static final Material materialFilled = Material.DRAGON_BREATH;
-	public static final Material materialEmpty = Material.GLASS_BOTTLE;
+	// Every bottle is dragon's breath, one of the most inert items (its only use is brewing, which is blocked), while
+	// vanilla fills glass bottles with water or honey, dispensers included. Empty bottles only look like glass bottles.
+	public static final Material material = Material.DRAGON_BREATH;
+	private static final NamespacedKey modelEmpty = NamespacedKey.minecraft("glass_bottle");
 	private static final int DURABILITY_POINTS_PER_XP = 2;
 	private static NamespacedKey keyBottle;
 	private static NamespacedKey keyExp;
@@ -40,7 +42,7 @@ public class MagicBottle {
 	}
 
 	public MagicBottle(ItemStack expContainer) {
-		LegacyBottle.migrateIfLegacy(expContainer);
+		LegacyBottle.migrateIfOutdated(expContainer);
 		item = expContainer;
 		exp = calculateExp(expContainer);
 	}
@@ -57,20 +59,13 @@ public class MagicBottle {
 	}
 
 	private void recreate() {
-		Material mat;
-		if (exp > 0) {
-			mat = materialFilled;
-		} else {
-			mat = materialEmpty;
-		}
-		
 		if (item == null) {
-			item = new ItemStack(mat);
-		} else {
-			if (item.getType() != mat)
-				item.setType(mat);
+			item = new ItemStack(material);
+		} else if (item.getType() != material) {
+			// Bottles in an older format may be glass bottles (LegacyBottle)
+			item.setType(material);
 		}
-		
+
 		print();
 	}
 
@@ -197,6 +192,8 @@ public class MagicBottle {
 		ItemMeta meta = item.getItemMeta();
 		meta.displayName(Messages.renderItemText(Messages.texts.bottleText.name, placeholders));
 		meta.lore(lore);
+		// null keeps dragon's breath's own model
+		meta.setItemModel(isEmpty() ? modelEmpty : null);
 		markAsBottle(meta);
 		meta.getPersistentDataContainer().set(keyExp, PersistentDataType.INTEGER, exp);
 		item.setItemMeta(meta);
@@ -224,7 +221,7 @@ public class MagicBottle {
 		meta.setEnchantmentGlintOverride(true);
 	}
 
-	private static int calculateExp(ItemStack item) {
+	static int calculateExp(ItemStack item) {
 		return item.getItemMeta().getPersistentDataContainer().getOrDefault(keyExp, PersistentDataType.INTEGER, 0);
 	}
 
@@ -233,9 +230,7 @@ public class MagicBottle {
 	}
 
 	public static boolean isMagicBottle(ItemStack item) {
-		return item != null &&
-				(item.getType() == materialFilled || item.getType() == materialEmpty) &&
-				(hasBottleMarker(item) || LegacyBottle.isLegacyBottle(item));
+		return item != null && item.hasItemMeta() && (hasBottleMarker(item) || LegacyBottle.isLegacyBottle(item));
 	}
 	
 	public static boolean isUsableMagicBottle(ItemStack item) {

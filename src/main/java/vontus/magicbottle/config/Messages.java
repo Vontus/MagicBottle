@@ -134,9 +134,10 @@ public class Messages {
 		@Comment("""
 				Line added to the repaired item shown in the anvil, before taking it. Placeholders:
 				  <xp>: experience points the repair takes from the bottle
-				  <left>: experience points the bottle will have left
-				  <levels>: the level the bottle will have after the repair""")
-		public String anvilCost = "<gray>Uses <yellow><xp></yellow> XP from the bottle (<yellow><left></yellow> XP left)";
+				  <xp_left>: experience points the bottle will have left
+				  <levels>: levels the bottle loses (how much its level drops, e.g. from level 30 to 24 is 6)
+				  <levels_left>: the level the bottle will have after the repair""")
+		public String anvilCost = "<gray>Uses <yellow><xp></yellow> XP from the bottle (<yellow><xp_left></yellow> XP left)";
 
 		@Setting("config auto repairing disabled")
 		public String configAutoRepairingDisabled = "<red>Automatic repairing is disabled in this server.";

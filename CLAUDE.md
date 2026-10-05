@@ -66,7 +66,7 @@ anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (a
   it is moved by hand.
 - `AnvilListener` — repair in the anvil: a damaged item accepted by `Config.canRepair` in the first slot and a usable
   MagicBottle in the second (`repair.enabled`, `magicbottle.action.repair`). `onPrepareAnvil` sets the repaired item as
-  the result with repair cost 0 (no levels) and a lore line with the exp it will spend and its level equivalent from level 0 (`messages.repair.anvil cost`; only the preview has it); `onClickResult` cancels the click and takes it by hand like
+  the result with repair cost 0 (no levels) and a lore line with the exp it will spend and what the bottle keeps (`messages.repair.anvil cost`; only the preview has it); `onClickResult` cancels the click and takes it by hand like
   `onClickCraftResult` does (`ResultSlot.destination`), because vanilla would consume the bottle. 1 exp repairs 2
   durability points; a bottle with less exp repairs partially and stays in the slot, empty.
 - `onItemDamage` — auto-repair of tools/armor using a usable bottle anywhere in the inventory if the player has

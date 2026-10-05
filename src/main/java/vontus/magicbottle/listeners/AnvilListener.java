@@ -43,13 +43,15 @@ public class AnvilListener implements Listener {
 			return;
 		}
 		ItemStack result = inv.getFirstItem().clone();
-		int spent = new MagicBottle(inv.getSecondItem().clone()).repair(result, true);
+		MagicBottle bottle = new MagicBottle(inv.getSecondItem().clone());
+		int spent = bottle.repair(result, true);
 		// Only the preview has this line: taking the result recalculates it from the first slot
 		result.editMeta(meta -> {
 			List<Component> lore = meta.hasLore() ? new ArrayList<>(meta.lore()) : new ArrayList<>();
 			lore.add(Messages.renderItemText(Messages.texts.messages.repair.anvilCost,
 					Placeholder.unparsed("xp", Utils.roundInt(spent)),
-					Placeholder.unparsed("levels", Utils.roundDouble(Exp.getLevelFromExp(spent)))));
+					Placeholder.unparsed("left", Utils.roundInt(bottle.getExp())),
+					Placeholder.unparsed("levels", Utils.roundInt((int) bottle.getLevel()))));
 			meta.lore(lore);
 		});
 		e.setResult(result);

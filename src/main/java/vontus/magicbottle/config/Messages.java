@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 import vontus.magicbottle.Plugin;
 
@@ -129,9 +130,13 @@ public class Messages {
 		@Setting("auto spent")
 		public String autoSpent = "<yellow>Autorepair spent <dark_purple><xp></dark_purple> XP.";
 
-		// Shown in the lore of the anvil preview. Placeholders: <xp>, <levels> (the levels that xp is worth from level 0)
 		@Setting("anvil cost")
-		public String anvilCost = "<gray>Uses <yellow><xp></yellow> XP from the bottle (<yellow><levels></yellow> levels)";
+		@Comment("""
+				Line added to the repaired item shown in the anvil, before taking it. Placeholders:
+				  <xp>: experience points the repair takes from the bottle
+				  <left>: experience points the bottle will have left
+				  <levels>: the level the bottle will have after the repair""")
+		public String anvilCost = "<gray>Uses <yellow><xp></yellow> XP from the bottle (<yellow><left></yellow> XP left)";
 
 		@Setting("config auto repairing disabled")
 		public String configAutoRepairingDisabled = "<red>Automatic repairing is disabled in this server.";

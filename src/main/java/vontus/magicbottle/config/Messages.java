@@ -129,6 +129,10 @@ public class Messages {
 		@Setting("auto spent")
 		public String autoSpent = "<yellow>Autorepair spent <dark_purple><xp></dark_purple> XP.";
 
+		// Shown in the lore of the anvil preview. Placeholders: <xp>, <levels> (the levels that xp is worth from level 0)
+		@Setting("anvil cost")
+		public String anvilCost = "<gray>Uses <yellow><xp></yellow> XP from the bottle (<yellow><levels></yellow> levels)";
+
 		@Setting("config auto repairing disabled")
 		public String configAutoRepairingDisabled = "<red>Automatic repairing is disabled in this server.";
 	}

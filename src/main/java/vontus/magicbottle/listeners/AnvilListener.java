@@ -1,5 +1,7 @@
 package vontus.magicbottle.listeners;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -12,8 +14,13 @@ import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.config.Config;
+import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.effects.SoundEffect;
+import vontus.magicbottle.util.Exp;
+import vontus.magicbottle.util.Utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 // Repairing in the anvil with a MagicBottle as the second item. Vanilla would consume the second slot when the result is
@@ -36,7 +43,15 @@ public class AnvilListener implements Listener {
 			return;
 		}
 		ItemStack result = inv.getFirstItem().clone();
-		new MagicBottle(inv.getSecondItem().clone()).repair(result, true);
+		int spent = new MagicBottle(inv.getSecondItem().clone()).repair(result, true);
+		// Only the preview has this line: taking the result recalculates it from the first slot
+		result.editMeta(meta -> {
+			List<Component> lore = meta.hasLore() ? new ArrayList<>(meta.lore()) : new ArrayList<>();
+			lore.add(Messages.renderItemText(Messages.texts.messages.repair.anvilCost,
+					Placeholder.unparsed("xp", Utils.roundInt(spent)),
+					Placeholder.unparsed("levels", Utils.roundDouble(Exp.getLevelFromExp(spent)))));
+			meta.lore(lore);
+		});
 		e.setResult(result);
 		e.getView().setRepairCost(0);
 	}

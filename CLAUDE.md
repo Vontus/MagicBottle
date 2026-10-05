@@ -59,10 +59,10 @@ anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (a
   (`Config.recipeNewBottleAllowCrafters`, reloadable) is on and no slot of the crafter holds a MagicBottle
   (otherwise it would be consumed as an ingredient). Crafters can't deposit or withdraw.
 - `onClickInventory`/`onDragInventory`/`onMoveItem` — bottles can't enter brewing stands (dragon's breath
-  is a brewing ingredient) or the first slot of anvils. Clicks are cancelled when the clicked item is a bottle (pick up,
-  shift-click) or, on a top slot, when the cursor, the number-key hotbar item or the offhand item (F) is one; drags over
-  the top inventory and hopper moves into those inventories are cancelled too. The exception is the anvil's second
-  slot (only if `repair.enabled`), where a bottle is accepted; vanilla's shift-click would put it in the first slot, so
+  is a brewing ingredient) or the first slot of anvils. Clicks are cancelled when the clicked item is a bottle in a top
+  slot or is shift-clicked from the player's inventory (plain clicks there are fine) or, on a top slot, when the cursor,
+  the number-key hotbar item or the offhand item (F) is one; drags over the top inventory and hopper moves into
+  those inventories are cancelled too. The exception is the anvil's second slot (only if `repair.enabled`), where a bottle is accepted; vanilla's shift-click would put it in the first slot, so
   it is moved by hand.
 - `AnvilListener` — repair in the anvil: a damaged item accepted by `Config.canRepair` in the first slot and a usable
   MagicBottle in the second (`repair.enabled`, `magicbottle.action.repair`). `onPrepareAnvil` sets the repaired item as

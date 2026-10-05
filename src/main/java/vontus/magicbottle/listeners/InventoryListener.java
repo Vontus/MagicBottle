@@ -47,9 +47,10 @@ public class InventoryListener implements Listener {
 	}
 
 	// Bottles can't be used as brewing stand items (dragon's breath is a brewing ingredient and its exp would be lost),
-	// so every route into it is blocked: picking up or shift-clicking a bottle, the cursor, number keys and offhand swap
-	// onto a top slot, dragging and hoppers. The anvil is the same, except for its second slot: a bottle goes there to
-	// repair an item (see AnvilListener), but never in the first one.
+	// so every route into it is blocked: shift-clicking a bottle (moving them around the player's own inventory is fine),
+	// the cursor, number keys and offhand swap onto a top slot, dragging and hoppers. The anvil is the same, except for
+	// its second slot: a bottle goes there to repair
+	// an item (see AnvilListener), but never in the first one.
 	private static boolean isBlockedInventory(InventoryType type) {
 		return type == InventoryType.ANVIL || type == InventoryType.BREWING;
 	}
@@ -70,9 +71,8 @@ public class InventoryListener implements Listener {
 			return;
 		}
 		boolean bottle = MagicBottle.isMagicBottle(e.getCurrentItem());
-		// In the anvil, moving a bottle around the player's own inventory is harmless; only shift-click would send it
-		// to the first slot
-		if (view.getType() == InventoryType.ANVIL && !inTop && !e.getClick().isShiftClick()) {
+		// Moving a bottle around the player's own inventory is harmless; only shift-click would send it to the top inventory
+		if (!inTop && !e.getClick().isShiftClick()) {
 			bottle = false;
 		}
 		if (!bottle && inTop) {

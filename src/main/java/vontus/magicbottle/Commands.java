@@ -2,20 +2,21 @@ package vontus.magicbottle;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
-import vontus.magicbottle.util.Exp;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -37,11 +38,8 @@ public class Commands {
 	private static final Map<String, String> USAGES = Map.of(
 			"about", "/magicbottle about",
 			"reload", "/magicbottle reload",
-			"give", "/magicbottle give <level> [amount] [player]",
+			"give", "/magicbottle give <targets> <level>[upgrades] [count]",
 			"recipe", "/magicbottle recipe");
-
-	// One stack: both bottle materials stack up to 64
-	private static final int MAX_GIVE_AMOUNT = 64;
 
 	Commands(Plugin plugin) {
 		this.plugin = plugin;
@@ -61,15 +59,10 @@ public class Commands {
 				.then(literal("reload").requires(perm(Config.permReload)).executes(run(this::reload)))
 				.then(literal("give")
 						.requires(perm(Config.permGive))
-						.then(argument("level", integer(0, Config.maxLevel))
-								.executes(ctx -> give(ctx, 1, ctx.getSource().getExecutor()))
-								.then(argument("amount", integer(1, MAX_GIVE_AMOUNT))
-										.executes(ctx -> give(ctx, getInteger(ctx, "amount"), ctx.getSource().getExecutor()))
-										.then(argument("player", ArgumentTypes.player())
-												// Fails if the selector matches nobody, it never falls back to the executor
-												.executes(ctx -> give(ctx, getInteger(ctx, "amount"), ctx
-														.getArgument("player", PlayerSelectorArgumentResolver.class)
-														.resolve(ctx.getSource()).getFirst()))))))
+						// Fails if the selector matches nobody
+						.then(argument("targets", ArgumentTypes.players())
+								.then(argument("bottle", new BottleArgument())
+										.executes(this::give))))
 				.then(literal("recipe").requires(perm(Config.permCraft).and(isPlayer())).executes(asPlayer(this::recipe)))
 				.build();
 		return root;
@@ -120,22 +113,24 @@ public class Commands {
 		sender.sendMessage(Messages.render(Messages.texts.messages.commands.reloadCompleted));
 	}
 
-	/** Gives the bottles to {@code target}, which is the executor unless a player was specified. */
-	private int give(CommandContext<CommandSourceStack> ctx, int amount, Entity target) {
-		CommandSender sender = ctx.getSource().getSender();
-		int level = getInteger(ctx, "level");
+	/** Gives {@code count} bottles to each of the targets. */
+	private int give(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		BottleArgument.Spec spec = ctx.getArgument("bottle", BottleArgument.Spec.class);
+		List<Player> targets = ctx.getArgument("targets", PlayerSelectorArgumentResolver.class).resolve(ctx.getSource());
 
-		if (!(target instanceof Player player)) {
-			sender.sendMessage(Messages.render(Messages.texts.messages.commands.playerRequired));
-			return 0;
+		int count = spec.count();
+		for (Player player : targets) {
+			giveBottles(spec.createItem(), count, player);
 		}
-
-		giveBottlesWithLevel(level, amount, player);
-		sender.sendMessage(Messages.render(Messages.texts.messages.commands.givenBottle,
-				Placeholder.unparsed("amount", String.valueOf(amount)),
-				Placeholder.unparsed("player", player.getName()),
-				Placeholder.unparsed("level", String.valueOf(level))));
-		return Command.SINGLE_SUCCESS;
+		TagResolver[] placeholders = {
+				Placeholder.unparsed("amount", String.valueOf(count)),
+				Placeholder.unparsed("level", String.valueOf(spec.level())),
+				Placeholder.unparsed("player", targets.getFirst().getName()),
+				Placeholder.unparsed("players", String.valueOf(targets.size()))};
+		String message = targets.size() == 1 ? Messages.texts.messages.commands.givenBottle
+				: Messages.texts.messages.commands.givenBottles;
+		ctx.getSource().getSender().sendMessage(Messages.render(message, placeholders));
+		return targets.size();
 	}
 
 	/** Lists the subcommands the source can use, as the tree's requirements decide. */
@@ -149,12 +144,14 @@ public class Commands {
 		}
 	}
 
-	private static void giveBottlesWithLevel(int level, int amount, Player player) {
-		MagicBottle bottle = new MagicBottle(Exp.getExpAtLevel(level));
-		ItemStack item = bottle.getItem();
-		item.setAmount(amount);
-		// What doesn't fit in the inventory is dropped at the player's feet instead of being lost
-		player.getInventory().addItem(item).values()
-				.forEach(left -> player.getWorld().dropItem(player.getLocation(), left));
+	/** Splits the count into stacks; what doesn't fit in the inventory is dropped at the player's feet. */
+	private static void giveBottles(ItemStack item, int count, Player player) {
+		for (int left = count; left > 0; ) {
+			ItemStack stack = item.clone();
+			stack.setAmount(Math.min(left, stack.getMaxStackSize()));
+			left -= stack.getAmount();
+			player.getInventory().addItem(stack).values()
+					.forEach(rest -> player.getWorld().dropItem(player.getLocation(), rest));
+		}
 	}
 }

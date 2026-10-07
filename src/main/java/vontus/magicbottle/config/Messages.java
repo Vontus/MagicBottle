@@ -144,8 +144,9 @@ public class Messages {
 		@Setting("given bottle")
 		public String givenBottle = "<yellow>Given <amount> MagicBottle(s) to <player> with <level> levels.";
 
-		@Setting("player required")
-		public String playerRequired = "<red>You must specify a connected player.";
+		// Placeholders: <amount>, <players> (how many), <level>
+		@Setting("given bottles")
+		public String givenBottles = "<yellow>Given <amount> MagicBottle(s) to <players> players with <level> levels.";
 	}
 
 	@ConfigSerializable

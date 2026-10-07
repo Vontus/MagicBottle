@@ -30,7 +30,7 @@ The first time it runs, the plugin creates `config.yml` and `messages.yml` in it
 	- Allows you to withdraw experience from MagicBottles.
 	- Players have this permission by default.
 - **magicbottle.command.give**
-	- Admin command. Gives you or another player a number of bottles of a certain level.
+	- Admin command. Gives players a number of bottles of a certain level, optionally with upgrades (ignoring the upgrade permissions and settings).
 - **magicbottle.command.reload**
 	- Admin command. Reloads the plugin config.
 - **magicbottle.maxlevel.(name)**

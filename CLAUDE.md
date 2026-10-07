@@ -116,13 +116,17 @@ The upgrades have one smithing recipe each, registered by the same class when en
 
 **Commands** (`Commands.java`): the single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) is a Brigadier
 tree (`Commands#build`) registered from `Plugin.onEnable` through `LifecycleEvents.COMMANDS`; it is not in
-`plugin.yml`. Subcommands (`about`, `reload`, `give <level> [amount] [player]`, `recipe`) are
+`plugin.yml`. Subcommands (`about`, `reload`, `give <targets> <bottle> [count]`, `recipe`) are
 literal nodes gated with `.requires(...)` on their permission in `Config` (`recipe` also requires a
 player executor), so senders only see and can run what they may; the menu shown by the bare command lists the
 nodes the source can use.
-`give` takes bounded arguments (`level` 0..`Config.maxLevel`, `amount` 1..64, `player` as Paper's player selector,
-which fails if nobody matches); without `player` it targets the executor, so `/execute as` works. New subcommands
-are added as nodes in `build`, with their line in `USAGES`.
+`give` follows vanilla `/give`: `targets` (Paper's players selector, fails if nobody matches; `@s` for the executor),
+`bottle` with its optional count (1..6400, split into stacks; what doesn't fit is dropped at the player's feet).
+`bottle` is `BottleArgument`, a custom argument with a greedy native type (the client only accepts `[` and `,`
+there, so the count after the space is parsed by the argument itself): the level (0..`Config.maxLevel`) optionally
+followed by the upgrades in brackets (`30`, `30[collect,autorepair]`), then the count; unknown or repeated ids are a parse error and the suggestions
+come from `Upgrade.values()`. `give` is an admin command: it ignores `magicbottle.upgrade.<id>` and `upgrades.<id>.enabled`.
+New subcommands are added as nodes in `build`, with their line in `USAGES`.
 
 **Recipe menu** (`RecipeMenu.java`): `/mb recipe` (`magicbottle.action.craft`, the same permission as crafting it)
 opens a chest inventory showing the configured new-bottle recipe (any shape up to 3x3; ingredients that accept

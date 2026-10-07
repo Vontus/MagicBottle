@@ -1,5 +1,7 @@
 package vontus.magicbottle.listeners;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Keyed;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.EventHandler;
@@ -15,6 +17,7 @@ import vontus.magicbottle.Plugin;
 import vontus.magicbottle.Recipes;
 import vontus.magicbottle.Upgrade;
 import vontus.magicbottle.config.Config;
+import vontus.magicbottle.config.Messages;
 
 // Applying upgrades in the smithing table: a bottle as the base and the upgrade's ingredient as the addition
 public class SmithingListener implements Listener {
@@ -63,9 +66,18 @@ public class SmithingListener implements Listener {
 			return null;
 		}
 		bottle.addUpgrade(upgrade);
-		ItemStack result = preview ? bottle.createUpgradePreview(upgrade) : bottle.getItem();
+		ItemStack result = bottle.getItem();
+		if (preview) {
+			markUpgradeLine(result, bottle.getUpgradeLine(upgrade));
+		}
 		// The table consumes one bottle, even if the base is a stack
 		result.setAmount(1);
 		return result;
+	}
+
+	// Marks the line of the upgrade in the lore of the preview. Only the preview has it: the real result is built without it.
+	private static void markUpgradeLine(ItemStack result, Component line) {
+		Component marked = Messages.renderItemText(Messages.texts.bottleText.upgradePreview, Placeholder.component("upgrade", line));
+		result.editMeta(meta -> meta.lore(meta.lore().stream().map(l -> l.equals(line) ? marked : l).toList()));
 	}
 }

@@ -37,8 +37,6 @@ public class MagicBottle {
 	private Integer exp;
 	// Ids, not Upgrade values: ids this version doesn't know (added by a newer one) are kept when the bottle is rewritten
 	private Set<String> upgrades = new LinkedHashSet<>();
-	// The upgrade whose lore line is marked, only in the preview of applying it (see createUpgradePreview)
-	private Upgrade highlighted;
 
 	static void init(Plugin plugin) {
 		keyBottle = new NamespacedKey(plugin, "bottle");
@@ -101,13 +99,9 @@ public class MagicBottle {
 		recreate();
 	}
 
-	// A copy of the bottle with the lore line of the upgrade marked, to show what applying it adds. It is only a preview:
-	// the marked line is not part of the bottle, so what is actually given must be built without it.
-	public ItemStack createUpgradePreview(Upgrade upgrade) {
-		MagicBottle copy = new MagicBottle(item.clone());
-		copy.highlighted = upgrade;
-		copy.recreate();
-		return copy.item;
+	// The lore line the bottle shows for the upgrade
+	public Component getUpgradeLine(Upgrade upgrade) {
+		return Messages.renderItemText(Messages.texts.bottleText.upgrades.get(upgrade), placeholders());
 	}
 
 	public ItemStack getItem() {
@@ -221,10 +215,7 @@ public class MagicBottle {
 		if (!applied.isEmpty()) {
 			lore.add(Messages.renderItemText(Messages.texts.bottleText.upgradesTitle, placeholders));
 			for (Upgrade upgrade : applied) {
-				Component line = Messages.renderItemText(Messages.texts.bottleText.upgrades.get(upgrade), placeholders);
-				lore.add(upgrade == highlighted
-						? Messages.renderItemText(Messages.texts.bottleText.upgradePreview, Placeholder.component("upgrade", line))
-						: line);
+				lore.add(getUpgradeLine(upgrade));
 			}
 		}
 

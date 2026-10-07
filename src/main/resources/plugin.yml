@@ -28,7 +28,7 @@ permissions:
     description: 'Allows a player to apply the collect upgrade (stores picked up XP orbs) to a MagicBottle in the smithing table'
     default: true
   magicbottle.command.give:
-    description: 'Admin command. Gives you or another player a number of bottles of a certain level'
+    description: 'Admin command. Gives players a number of bottles of a certain level, optionally with upgrades'
   magicbottle.command.reload:
     description: 'Admin command. Reloads the plugin config'
   magicbottle.maxlevel.unlimited:

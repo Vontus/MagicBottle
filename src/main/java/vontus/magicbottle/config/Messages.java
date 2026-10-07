@@ -147,6 +147,23 @@ public class Messages {
 		// Placeholders: <amount>, <players> (how many), <level>
 		@Setting("given bottles")
 		public String givenBottles = "<yellow>Given <amount> MagicBottle(s) to <players> players with <level> levels.";
+
+		@Setting("upgrade no bottle")
+		public String upgradeNoBottle = "<red>Hold a MagicBottle in your main hand.";
+
+		@Setting("upgrade stack")
+		public String upgradeStack = "<red>Hold a single MagicBottle, not a stack.";
+
+		// Placeholders: <upgrades> (the ones the bottle has now)
+		@Setting("upgrades changed")
+		public String upgradesChanged = "<yellow>Bottle upgraded. It now has: <upgrades>";
+
+		// Placeholders: <upgrades>
+		@Setting("upgrades unchanged")
+		public String upgradesUnchanged = "<yellow>Nothing changed. The bottle has: <upgrades>";
+
+		@Setting("upgrades none")
+		public String upgradesNone = "none";
 	}
 
 	@ConfigSerializable

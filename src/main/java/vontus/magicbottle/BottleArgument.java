@@ -6,12 +6,9 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import io.papermc.paper.command.brigadier.MessageComponentSerializer;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
-import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.util.Exp;
@@ -81,22 +78,13 @@ public class BottleArgument implements CustomArgumentType<BottleArgument.Spec, S
 			if (!word.endsWith("]")) {
 				throw error("Expected ']' at the end of the upgrades");
 			}
-			for (String id : word.substring(bracket + 1, word.length() - 1).split(",", -1)) {
-				Upgrade upgrade = Upgrade.fromId(id);
-				if (upgrade == null) {
-					throw error("Unknown upgrade '" + id + "'");
-				}
-				if (!upgrades.add(upgrade)) {
-					throw error("Repeated upgrade '" + id + "'");
-				}
-			}
+			upgrades = UpgradeList.parse(word.substring(bracket + 1, word.length() - 1));
 		}
 		return new Spec(level, upgrades, count);
 	}
 
 	private static CommandSyntaxException error(String message) {
-		return new SimpleCommandExceptionType(MessageComponentSerializer.message().serialize(Component.text(message)))
-				.create();
+		return UpgradeList.error(message);
 	}
 
 	@Override
@@ -105,7 +93,7 @@ public class BottleArgument implements CustomArgumentType<BottleArgument.Spec, S
 	}
 
 	private static Message tip(String text) {
-		return MessageComponentSerializer.message().serialize(Component.text(text));
+		return UpgradeList.tip(text);
 	}
 
 	/**
@@ -137,25 +125,8 @@ public class BottleArgument implements CustomArgumentType<BottleArgument.Spec, S
 				builder.suggest(typed + "[", tip("Upgrades, separated by commas"));
 			}
 		} else if (!typed.endsWith("]")) {
-			int tokenStart = Math.max(bracket, typed.lastIndexOf(',')) + 1;
-			String prefix = typed.substring(0, tokenStart);
-			String partial = typed.substring(tokenStart);
-			Set<String> written = Set.of(typed.substring(bracket + 1).split(",", -1));
-			boolean unused = false;
-			for (Upgrade upgrade : Upgrade.values()) {
-				if (!written.contains(upgrade.id())) {
-					unused = true;
-					if (upgrade.id().startsWith(partial) && !upgrade.id().equals(partial)) {
-						builder.suggest(prefix + upgrade.id());
-					}
-				}
-			}
-			if (Upgrade.fromId(partial) != null) {
-				builder.suggest(typed + "]", tip("End of the upgrades"));
-				if (unused) {
-					builder.suggest(typed + ",", tip("Another upgrade"));
-				}
-			}
+			UpgradeList.suggest(builder, typed.substring(0, bracket + 1), typed.substring(bracket + 1),
+					EnumSet.allOf(Upgrade.class), "]");
 		}
 		return builder.buildFuture();
 	}

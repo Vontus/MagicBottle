@@ -17,6 +17,7 @@ public class Config {
 	public static final String permWithdraw = "magicbottle.action.withdraw";
 	public static final String permCraft = "magicbottle.action.craft";
 	public static final String permGive = "magicbottle.command.give";
+	public static final String permUpgrade = "magicbottle.command.upgrade";
 	public static final String permReload = "magicbottle.command.reload";
 	public static final String permRepair = "magicbottle.action.repair";
 	public static final String permDepositCostExempt = "magicbottle.action.deposit.cost.exempt";

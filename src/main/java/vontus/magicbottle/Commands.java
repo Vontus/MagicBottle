@@ -16,10 +16,13 @@ import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
@@ -39,6 +42,7 @@ public class Commands {
 			"about", "/magicbottle about",
 			"reload", "/magicbottle reload",
 			"give", "/magicbottle give <targets> <level>[upgrades] [count]",
+			"upgrade", "/magicbottle upgrade <add|remove> <upgrades>",
 			"recipe", "/magicbottle recipe");
 
 	Commands(Plugin plugin) {
@@ -63,6 +67,15 @@ public class Commands {
 						.then(argument("targets", ArgumentTypes.players())
 								.then(argument("bottle", new BottleArgument())
 										.executes(this::give))))
+				.then(literal("upgrade")
+						// The bottle is the one in the executor's hand
+						.requires(perm(Config.permUpgrade).and(isPlayer()))
+						.then(literal("add")
+								.then(argument("upgrades", new UpgradeListArgument(true))
+										.executes(ctx -> changeUpgrades(ctx, true))))
+						.then(literal("remove")
+								.then(argument("upgrades", new UpgradeListArgument(false))
+										.executes(ctx -> changeUpgrades(ctx, false)))))
 				.then(literal("recipe").requires(perm(Config.permCraft).and(isPlayer())).executes(asPlayer(this::recipe)))
 				.build();
 		return root;
@@ -131,6 +144,46 @@ public class Commands {
 				: Messages.texts.messages.commands.givenBottles;
 		ctx.getSource().getSender().sendMessage(Messages.render(message, placeholders));
 		return targets.size();
+	}
+
+	/**
+	 * Adds or removes upgrades on the bottle in the executor's main hand, ignoring the upgrade permissions and
+	 * settings (admin). Adding what the bottle has or removing what it lacks changes nothing.
+	 */
+	private int changeUpgrades(CommandContext<CommandSourceStack> ctx, boolean adding) {
+		Player player = (Player) ctx.getSource().getExecutor();
+		CommandSender sender = ctx.getSource().getSender();
+		ItemStack held = player.getInventory().getItemInMainHand();
+		if (!MagicBottle.isMagicBottle(held)) {
+			sender.sendMessage(Messages.render(Messages.texts.messages.commands.upgradeNoBottle));
+			return 0;
+		}
+		if (held.getAmount() != 1) {
+			sender.sendMessage(Messages.render(Messages.texts.messages.commands.upgradeStack));
+			return 0;
+		}
+
+		@SuppressWarnings("unchecked")
+		Set<Upgrade> requested = ctx.getArgument("upgrades", Set.class);
+		MagicBottle bottle = new MagicBottle(held);
+		boolean changed = false;
+		for (Upgrade upgrade : requested) {
+			if (bottle.hasUpgrade(upgrade) != adding) {
+				if (adding) {
+					bottle.addUpgrade(upgrade);
+				} else {
+					bottle.removeUpgrade(upgrade);
+				}
+				changed = true;
+			}
+		}
+
+		String now = Arrays.stream(Upgrade.values()).filter(bottle::hasUpgrade).map(Upgrade::id)
+				.collect(Collectors.joining(", "));
+		Messages.Commands texts = Messages.texts.messages.commands;
+		sender.sendMessage(Messages.render(changed ? texts.upgradesChanged : texts.upgradesUnchanged,
+				Placeholder.unparsed("upgrades", now.isEmpty() ? texts.upgradesNone : now)));
+		return changed ? 1 : 0;
 	}
 
 	/** Lists the subcommands the source can use, as the tree's requirements decide. */

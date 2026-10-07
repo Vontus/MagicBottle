@@ -101,6 +101,11 @@ public class MagicBottle {
 		recreate();
 	}
 
+	public void removeUpgrade(Upgrade upgrade) {
+		upgrades.remove(upgrade.id());
+		recreate();
+	}
+
 	// The lore line the bottle shows for the upgrade
 	public Component getUpgradeLine(Upgrade upgrade) {
 		return Messages.renderItemText(Messages.texts.bottleText.upgrades.get(upgrade), placeholders());

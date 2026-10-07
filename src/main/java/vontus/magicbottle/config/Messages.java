@@ -74,9 +74,9 @@ public class Messages {
 		@Setting("empty bar")
 		public String emptyBar = "<yellow>|";
 
-		// The title and the lines are only shown on bottles that have upgrades, one line per upgrade
+		// The title and the lines are only shown on bottles that have upgrades, one line per upgrade. The title says where they work
 		@Setting("upgrades title")
-		public String upgradesTitle = "<dark_purple>Upgrades:";
+		public String upgradesTitle = "<dark_purple>Upgrades <gray>(hotbar/offhand)<dark_purple>:";
 
 		@Setting("upgrade preview")
 		@Comment("The line of the upgrade that is being applied, while previewing it in the smithing table. Placeholders: <upgrade> (its line above)")
@@ -98,7 +98,7 @@ public class Messages {
 		@Setting("autorepair")
 		public String autoRepair = " <yellow>Auto-repair: <gray>repairs your items while you use them.";
 
-		public String collect = " <yellow>Collect: <gray>stores the XP orbs you pick up (keep it in the hotbar).";
+		public String collect = " <yellow>Collect: <gray>stores the XP orbs you pick up.";
 
 		public String get(Upgrade upgrade) {
 			return switch (upgrade) {

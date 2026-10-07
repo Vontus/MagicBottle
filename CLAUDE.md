@@ -160,6 +160,10 @@ actions.
 
 ## Notes
 
+- **Players never lose XP because of a change in the plugin.** A new version, a migration or a config change
+  (e.g. a lower capacity) must keep the XP stored in every existing bottle: a bottle left above a new limit keeps
+  all its XP and only refuses deposits until it goes below it. XP is only lost through something the player does
+  knowingly (a deposit cost, a repair, a feature that consumes it and says so).
 - Crafting a new bottle has no money cost (Vault support was removed). In a crafting grid it requires the
   `magicbottle.action.craft` permission; crafters can't check it, hence the `allow crafters` option.
 - There is a single supported line: current Paper. The old per-Minecraft-version branches were removed; their

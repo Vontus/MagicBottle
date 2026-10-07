@@ -37,7 +37,6 @@ public class PlayerListener implements Listener {
 
 	private void forget(Player p) {
 		cooldown.clear(p);
-		plugin.autoRepairFeedback.clear(p);
-		plugin.collectFeedback.clear(p);
+		plugin.feedback.clear(p);
 	}
 }

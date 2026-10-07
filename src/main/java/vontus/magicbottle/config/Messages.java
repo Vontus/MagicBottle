@@ -74,7 +74,7 @@ public class Messages {
 		@Setting("empty bar")
 		public String emptyBar = "<yellow>|";
 
-		// The title and the lines are only shown on bottles that have upgrades, one line per upgrade. The title says where they work
+		// The title and the lines are only shown on bottles that have upgrades, one line per upgrade
 		@Setting("upgrades title")
 		public String upgradesTitle = "<dark_purple>Upgrades <gray>(hotbar/offhand)<dark_purple>:";
 
@@ -114,6 +114,10 @@ public class Messages {
 		@Setting("max level reached")
 		public String maxLevelReached = "<red>The maximum level you can save in a MagicBottle is <level>.";
 
+		@Setting("feedback separator")
+		@Comment("Goes between the action bar messages of auto-repair and collect when they are shown together (they share one message, sent once you stop for 3 seconds).")
+		public String feedbackSeparator = " <gray>| ";
+
 		public Unauthorized unauthorized = new Unauthorized();
 		public Commands commands = new Commands();
 		public Recipe recipe = new Recipe();
@@ -149,14 +153,14 @@ public class Messages {
 	@ConfigSerializable
 	public static class Collect {
 		// Placeholders: <xp>
-		public String stored = "<yellow>Stored <dark_purple><xp></dark_purple> XP in your bottle.";
+		public String stored = "<yellow>Collect <dark_purple>+<xp></dark_purple> XP";
 	}
 
 	@ConfigSerializable
 	public static class Repair {
 		// Placeholders: <xp>
 		@Setting("auto spent")
-		public String autoSpent = "<yellow>Autorepair spent <dark_purple><xp></dark_purple> XP.";
+		public String autoSpent = "<yellow>Repair <dark_purple>-<xp></dark_purple> XP";
 
 		@Setting("anvil cost")
 		@Comment("""

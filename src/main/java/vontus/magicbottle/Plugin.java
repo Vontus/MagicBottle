@@ -24,15 +24,17 @@ public class Plugin extends JavaPlugin {
 	private static final int BSTATS_ID = 1183;
 
 	public static Logger logger;
-	public DebouncedFeedback autoRepairFeedback;
-	public DebouncedFeedback collectFeedback;
+	public DebouncedFeedback feedback;
+	public DebouncedFeedback.Channel autoRepairFeedback;
+	public DebouncedFeedback.Channel collectFeedback;
 
 	@Override
 	public void onEnable() {
 		logger = getLogger();
-		autoRepairFeedback = new DebouncedFeedback(this, () -> Messages.texts.messages.repair.autoSpent,
+		feedback = new DebouncedFeedback(this);
+		autoRepairFeedback = feedback.channel(() -> Messages.texts.messages.repair.autoSpent,
 				() -> Config.settings.repair.autoFeedback);
-		collectFeedback = new DebouncedFeedback(this, () -> Messages.texts.messages.collect.stored,
+		collectFeedback = feedback.channel(() -> Messages.texts.messages.collect.stored,
 				() -> Config.settings.upgrades.collect.feedback);
 		MagicBottle.init(this);
 		loadConfig();

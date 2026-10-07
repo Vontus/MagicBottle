@@ -195,9 +195,9 @@ public class Settings {
 	public static class Deposit {
 		@Setting("exp-percentage")
 		@Comment("""
-				Integer from 0 to 100.
-				Values from 50 to 100 might take experience without saving any in the bottle.
-				I'd recommend using a value from 0 to 49.""")
+				Percentage of the deposited experience that is lost, integer from 0 to 100.
+				A deposit takes only what fills the bottle plus its cost, and is refused if the cost would leave
+				nothing to save (always with 100).""")
 		public int expPercentage = 0;
 	}
 }

@@ -114,6 +114,10 @@ public class Messages {
 		@Setting("max level reached")
 		public String maxLevelReached = "<red>The maximum level you can save in a MagicBottle is <level>.";
 
+		@Setting("nothing to store")
+		@Comment("When the deposit cost would leave no experience to save in the bottle, so nothing is taken.")
+		public String nothingToStore = "<red>That is too little experience to save anything after the deposit cost.";
+
 		@Setting("feedback separator")
 		@Comment("Goes between the action bar messages of auto-repair and collect when they are shown together (they share one message, sent once you stop for 3 seconds).")
 		public String feedbackSeparator = " <gray>| ";

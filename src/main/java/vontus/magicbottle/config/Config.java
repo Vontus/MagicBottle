@@ -41,8 +41,6 @@ public class Config {
 	// The ingredient of each upgrade that is enabled and valid; the others have no recipe
 	public static final Map<Upgrade, RecipeChoice> upgradeIngredients = new EnumMap<>(Upgrade.class);
 
-	public static double costPercentageDeposit;
-
 	public static void load(Plugin plugin) {
 		settings = ConfigFile.load(plugin, "config.yml", Settings.class, Settings.HEADER);
 
@@ -61,8 +59,6 @@ public class Config {
 		}
 
 		loadUpgrades();
-
-		costPercentageDeposit = settings.costs.deposit.expPercentage / 100.0;
 	}
 
 	// An enabled upgrade needs a valid ingredient; Plugin refuses to enable with a wrong one (see invalidUpgrade)

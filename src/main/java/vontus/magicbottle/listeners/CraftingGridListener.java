@@ -75,10 +75,9 @@ public class CraftingGridListener implements Listener {
 	private ItemStack fillOrPour(Player player, ItemStack bottleItem) {
 		MagicBottle bottle = new MagicBottle(bottleItem);
 		if (bottle.isEmpty()) {
-			if (!canFillInGrid(player)) {
+			if (!canFillInGrid(player) || !bottle.deposit(player, Exp.getPoints(player))) {
 				return null;
 			}
-			bottle.deposit(player, Exp.getPoints(player));
 		} else {
 			if (!canPourInGrid(player)) {
 				return null;
@@ -141,10 +140,10 @@ public class CraftingGridListener implements Listener {
 	// What depositing or withdrawing the lone bottle of a crafting grid would give, or null if the player can't do it
 	private ItemStack getGridPreview(MagicBottle ingredient, Player player) {
 		if (ingredient.isEmpty()) {
-			if (canFillInGrid(player)) {
-				MagicBottle bottle = new MagicBottle(0);
-				bottle.setExp(bottle.getDepositGain(player, Exp.getPoints(player)));
-				return bottle.getItem();
+			// No result if the deposit would be refused (the bottle has no room or the cost leaves nothing)
+			int gain = ingredient.getDepositGain(player, Exp.getPoints(player));
+			if (canFillInGrid(player) && gain > 0) {
+				return new MagicBottle(gain).getItem();
 			}
 		} else if (canPourInGrid(player)) {
 			return new MagicBottle(0).getItem();

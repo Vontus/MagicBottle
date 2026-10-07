@@ -92,7 +92,10 @@ anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (a
   one if it fills up), setting the event's amount to what is left for the player. Cancelled pickups never reach it and it
   never cancels them. `MagicBottle.collect` charges the deposit cost with stochastic rounding (integer math: mean exactly
   `points * percentage / 100`, no random when it is exact or exempt), only on the points the bottle takes, never in
-  `getDepositGain` (the crafting preview, which must stay deterministic). The exp stored is reported to its channel of
+  `getDepositGain` (the crafting preview, which must stay deterministic). Every deposit (`deposit`, `collect`) is limited
+  by what the bottle *gains*, not by what the player pays: the gain is capped at the room left and the player pays the
+  fewest points that give it, so a bottle fills exactly; a deposit whose cost leaves nothing to store is refused (always
+  with 100%). The exp stored is reported to its channel of
   `DebouncedFeedback` (`messages.collect.stored`, `upgrades.collect.feedback`).
 - `onItemDamage` — auto-repair of tools/armor using the first non-empty bottle with the `autorepair` upgrade in the
   hotbar or offhand (`MagicBottle.findWithUpgrade`) if `Config.canRepair` accepts the item (it has the

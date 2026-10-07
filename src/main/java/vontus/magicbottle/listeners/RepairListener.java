@@ -33,7 +33,7 @@ public class RepairListener implements Listener {
 		if (i.getDurability() % 2 == 0 || e.isCancelled() || !Config.canRepair(i)) {
 			return;
 		}
-		MagicBottle mb = MagicBottle.findWithUpgrade(p, Upgrade.REPAIR, bottle -> !bottle.isEmpty());
+		MagicBottle mb = MagicBottle.findWithUpgrade(p, Upgrade.AUTO_REPAIR, bottle -> !bottle.isEmpty());
 		if (mb == null) {
 			return;
 		}

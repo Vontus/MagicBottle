@@ -19,7 +19,6 @@ public class Config {
 	public static final String permGive = "magicbottle.command.give";
 	public static final String permReload = "magicbottle.command.reload";
 	public static final String permRepair = "magicbottle.action.repair";
-	public static final String permRepairAuto = "magicbottle.command.repair.auto";
 	public static final String permDepositCostExempt = "magicbottle.action.deposit.cost.exempt";
 
 	private static final String maxLevelsBasePermission = "magicbottle.maxlevel.";
@@ -88,7 +87,7 @@ public class Config {
 
 	private static Settings.UpgradeOption upgradeSettings(Upgrade upgrade) {
 		return switch (upgrade) {
-			case REPAIR -> settings.upgrades.autoRepair;
+			case AUTO_REPAIR -> settings.upgrades.autoRepair;
 		};
 	}
 

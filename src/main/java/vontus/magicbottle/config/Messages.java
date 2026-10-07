@@ -91,11 +91,12 @@ public class Messages {
 	// The lore line of each upgrade
 	@ConfigSerializable
 	public static class Upgrades {
-		public String repair = " <yellow>Auto-repair: <gray>repairs your items while you use them.";
+		@Setting("autorepair")
+		public String autoRepair = " <yellow>Auto-repair: <gray>repairs your items while you use them.";
 
 		public String get(Upgrade upgrade) {
 			return switch (upgrade) {
-				case REPAIR -> repair;
+				case AUTO_REPAIR -> autoRepair;
 			};
 		}
 	}

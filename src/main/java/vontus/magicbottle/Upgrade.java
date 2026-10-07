@@ -1,16 +1,20 @@
 package vontus.magicbottle;
 
-import java.util.Locale;
-
 /**
- * The upgrades a bottle can carry. The id is what is persisted in the bottle's PDC, so it must never change. They are
- * listed in the order their lore lines are shown.
+ * The upgrades a bottle can carry. The id is what is persisted in the bottle's PDC (and names its config section,
+ * permission and recipe), so it must never change. They are listed in the order their lore lines are shown.
  */
 public enum Upgrade {
-	REPAIR;
+	AUTO_REPAIR("autorepair");
+
+	private final String id;
+
+	Upgrade(String id) {
+		this.id = id;
+	}
 
 	public String id() {
-		return name().toLowerCase(Locale.ROOT);
+		return id;
 	}
 
 	/** The permission needed to apply it in the smithing table. */

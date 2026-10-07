@@ -21,7 +21,7 @@ permissions:
   magicbottle.action.repair:
     description: 'Allows a player to repair tools and armor in the anvil using a MagicBottle'
     default: true
-  magicbottle.upgrade.repair:
+  magicbottle.upgrade.autorepair:
     description: 'Allows a player to apply the repair (auto-repair) upgrade to a MagicBottle in the smithing table'
     default: true
   magicbottle.command.give:

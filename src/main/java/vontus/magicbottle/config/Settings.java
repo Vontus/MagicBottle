@@ -147,7 +147,7 @@ public class Settings {
 		@Comment("""
 				Auto-repair: with the bottle in the hotbar or the offhand, tools and armor repair themselves with its experience
 				as they take damage (which items can be repaired is set in 'repair').""")
-		@Setting("repair")
+		@Setting("autorepair")
 		public UpgradeOption autoRepair = new UpgradeOption("totem_of_undying");
 	}
 

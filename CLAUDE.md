@@ -37,7 +37,7 @@ code has to know about it. Any code creating/mutating a bottle must go through `
 PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are created in `MagicBottle.init`, which
 `onEnable` must call before anything else touches bottles.
 
-**Upgrades** (`Upgrade`): flags a bottle carries in `magicbottle:upgrades`, a PDC string list of lowercase ids (`repair`;
+**Upgrades** (`Upgrade`): flags a bottle carries in `magicbottle:upgrades`, a PDC string list of lowercase ids (`autorepair`;
 the id is persisted, so never change it) treated as a set: a missing key means none, and ids this version doesn't know are
 kept when the bottle is rewritten. Only `MagicBottle` reads and writes it (`hasUpgrade`/`addUpgrade`), and `print()` adds a
 lore line per upgrade (`bottle text.upgrades`), in enum order. Features that need a bottle with an upgrade call
@@ -86,7 +86,7 @@ anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (a
   accept the items. `onPrepareSmithing` rebuilds the result from the bottle in the base slot (keeping its exp and upgrades,
   adding the new one) and clears it if the base isn't a MagicBottle, already has the upgrade, the upgrade is disabled or the
   player lacks `magicbottle.upgrade.<id>`. Crafters can't apply upgrades.
-- `onItemDamage` — auto-repair of tools/armor using the first non-empty bottle with the `repair` upgrade in the
+- `onItemDamage` — auto-repair of tools/armor using the first non-empty bottle with the `autorepair` upgrade in the
   hotbar or offhand (`MagicBottle.findWithUpgrade`) if `Config.canRepair` accepts the item (it has the
   configured `repair.enchantment`, Mending by default, or any item if set to `ANY`; parsed by `EnchantParser`
   from an enchantment registry key). It checks the cheap conditions first, has no cooldown (it must not interfere

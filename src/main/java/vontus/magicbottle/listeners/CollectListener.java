@@ -24,10 +24,12 @@ public class CollectListener implements Listener {
 	// claimed it) this doesn't fire, and it doesn't cancel the pickup itself.
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onExpChange(PlayerExpChangeEvent e) {
-		if (!(e.getSource() instanceof ExperienceOrb) || e.getAmount() <= 0 || !Config.isUpgradeEnabled(Upgrade.COLLECT)) {
+		Player p = e.getPlayer();
+		// With a deposit cost of 100% nothing can be stored, so the orbs go to the player
+		if (!(e.getSource() instanceof ExperienceOrb) || e.getAmount() <= 0 || !Config.isUpgradeEnabled(Upgrade.COLLECT)
+				|| !MagicBottle.canStore(p)) {
 			return;
 		}
-		Player p = e.getPlayer();
 		int left = e.getAmount();
 		// The first bottle with room; when it fills up the next one is tried, and what doesn't fit anywhere goes to the player
 		MagicBottle bottle;

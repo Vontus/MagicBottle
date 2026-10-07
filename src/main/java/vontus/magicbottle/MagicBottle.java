@@ -127,35 +127,62 @@ public class MagicBottle {
 		return exp <= 0;
 	}
 	
-	public void deposit(Player player, int points) {
-		points = getMaxFillablePoints(player, points);
-		
-		if (points > 0) {
-			exp += getDepositGain(player, points);
-			Exp.setPoints(player, Exp.getPoints(player) - points);
-			recreate();
-			SoundEffect.fillBottle(player);
-		} else {
+	/**
+	 * Deposits up to the given points of the player's exp. The bottle gains what is left after the deposit cost, up to its
+	 * room, and the player pays the fewest points that give that gain, so a deposit that reaches the limit leaves the
+	 * bottle exactly full. Refused, taking nothing, if the bottle is full or the cost would leave nothing to store.
+	 * Returns whether anything was deposited.
+	 */
+	public boolean deposit(Player player, int points) {
+		if (!hasRoom(player)) {
 			int maxLevels = Config.getMaxLevelsFor(player);
 			player.sendMessage(Messages.render(Messages.texts.messages.maxLevelReached,
 					Placeholder.unparsed("level", Integer.toString(maxLevels))));
 			SoundEffect.forbidden(player);
+			return false;
 		}
+
+		int gain = getDepositGain(player, points);
+		if (gain <= 0) {
+			player.sendMessage(Messages.render(Messages.texts.messages.nothingToStore));
+			SoundEffect.forbidden(player);
+			return false;
+		}
+
+		exp += gain;
+		Exp.setPoints(player, Exp.getPoints(player) - getPointsForGain(player, gain, points));
+		recreate();
+		SoundEffect.fillBottle(player);
+		return true;
 	}
-	
+
 	public boolean hasRoom(Player player) {
-		return getMaxFillablePoints(player, 1) > 0;
+		return getRoom(player) > 0;
+	}
+
+	// Whether a deposit can store anything for the player: never with a cost of 100%
+	public static boolean canStore(Player player) {
+		return getCostPercentage(player) < 100;
 	}
 
 	/**
 	 * Stores the exp of a picked up orb. Returns {@code points} minus what the bottle took (the exp that goes to the
 	 * player) and reports the exp it gained, after the deposit cost, to {@code gained}. Only the points the bottle takes
-	 * pay the cost, and the cost is rounded randomly (unlike {@link #getDepositGain}, which is deterministic).
+	 * pay the cost, and the cost is rounded randomly (unlike {@link #getDepositGain}, which is deterministic). If the
+	 * orb doesn't fit, the bottle is filled exactly and takes the fewest points that fill it, with the deterministic cost.
 	 */
 	public int collect(Player player, int points, IntConsumer gained) {
-		int taken = Math.max(0, Math.min(points, getMaxFillablePoints(player, points)));
-		if (taken > 0) {
-			int gain = taken - getCollectCost(player, taken);
+		int room = getRoom(player);
+		if (points <= 0 || room <= 0 || !canStore(player)) {
+			return points;
+		}
+		int taken = points;
+		int gain = points - getCollectCost(player, points);
+		if (gain > room) {
+			gain = room;
+			taken = getPointsForGain(player, room, points);
+		}
+		if (gain > 0) {
 			exp += gain;
 			recreate();
 			gained.accept(gain);
@@ -166,11 +193,8 @@ public class MagicBottle {
 	// The cost in percent of points, rounded so that its mean is exactly points * percentage / 100: the part that
 	// doesn't make a whole point is paid with that probability (like Unbreaking). Integer math, so a cost that is a
 	// whole number of points is never random.
-	private int getCollectCost(Player player, int points) {
-		int percentage = Math.clamp(Config.settings.costs.deposit.expPercentage, 0, 100);
-		if (percentage == 0 || player.hasPermission(Config.permDepositCostExempt)) {
-			return 0;
-		}
+	private static int getCollectCost(Player player, int points) {
+		int percentage = getCostPercentage(player);
 		long scaled = (long) points * percentage;
 		int cost = (int) (scaled / 100);
 		if (scaled % 100 > 0 && ThreadLocalRandom.current().nextInt(100) < scaled % 100) {
@@ -179,18 +203,37 @@ public class MagicBottle {
 		return cost;
 	}
 
-	// The exp this bottle would gain if the player deposited the given points (after the deposit limit and the cost)
+	// The exp this bottle would gain if the player deposited the given points: what the cost leaves, up to its room
 	public int getDepositGain(Player player, int points) {
-		points = getMaxFillablePoints(player, points);
-		return points > 0 ? points - getCost(player, points) : 0;
+		return Math.clamp(getGainWithoutLimit(player, points), 0, Math.max(0, getRoom(player)));
 	}
 
-	private int getCost(Player player, int points) {
+	// The fewest points, up to max, whose gain after the cost is at least the given one. The gain grows by 0 or 1 with
+	// each point paid, so it's exactly that gain if max reaches it.
+	private static int getPointsForGain(Player player, int gain, int max) {
+		int low = 0;
+		int high = max;
+		while (low < high) {
+			int mid = low + (high - low) / 2;
+			if (getGainWithoutLimit(player, mid) >= gain) {
+				high = mid;
+			} else {
+				low = mid + 1;
+			}
+		}
+		return low;
+	}
+
+	// The points minus their cost, rounded to the nearest point
+	private static long getGainWithoutLimit(Player player, int points) {
+		return points - ((long) points * getCostPercentage(player) + 50) / 100;
+	}
+
+	private static int getCostPercentage(Player player) {
 		if (player.hasPermission(Config.permDepositCostExempt)) {
 			return 0;
-		} else {
-			return (int) Math.round(points * Config.costPercentageDeposit);
 		}
+		return Math.clamp(Config.settings.costs.deposit.expPercentage, 0, 100);
 	}
 	
 	public int withdraw(Player player, int points) {
@@ -283,14 +326,9 @@ public class MagicBottle {
 				Placeholder.component("xpbar", getXpBar()));
 	}
 	
-	public Integer getMaxFillablePoints(Player p, int points) {
-		long maxPoints = Config.getMaxFillPointsFor(p);
-
-		// long, since exp + points can exceed the int range
-		if ((long) exp + points >= maxPoints)
-			points = (int) (maxPoints - exp);
-		
-		return points;
+	// The exp the bottle can still take for the player; 0 or less if it's full or above the limit
+	private int getRoom(Player p) {
+		return Config.getMaxFillPointsFor(p) - exp;
 	}
 
 	private static void markAsBottle(ItemMeta meta) {

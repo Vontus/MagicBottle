@@ -53,7 +53,7 @@ public class Config {
 		}
 
 		repairEnabled = settings.repair.enabled;
-		repairAutoEnabled = settings.upgrades.repair.enabled;
+		repairAutoEnabled = settings.upgrades.autoRepair.enabled;
 		if (settings.repair.enchantment.error != null && (repairEnabled || repairAutoEnabled)) {
 			repairEnabled = false;
 			repairAutoEnabled = false;
@@ -88,7 +88,7 @@ public class Config {
 
 	private static Settings.UpgradeOption upgradeSettings(Upgrade upgrade) {
 		return switch (upgrade) {
-			case REPAIR -> settings.upgrades.repair;
+			case REPAIR -> settings.upgrades.autoRepair;
 		};
 	}
 

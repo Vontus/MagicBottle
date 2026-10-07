@@ -1,4 +1,4 @@
-package vontus.magicbottle;
+package vontus.magicbottle.commands;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -11,6 +11,8 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import vontus.magicbottle.MagicBottle;
+import vontus.magicbottle.Upgrade;
 
 import java.util.EnumSet;
 import java.util.Set;

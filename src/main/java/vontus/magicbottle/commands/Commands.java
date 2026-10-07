@@ -1,4 +1,4 @@
-package vontus.magicbottle;
+package vontus.magicbottle.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
@@ -13,6 +13,10 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import vontus.magicbottle.MagicBottle;
+import vontus.magicbottle.Plugin;
+import vontus.magicbottle.RecipeMenu;
+import vontus.magicbottle.Upgrade;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 
@@ -45,7 +49,7 @@ public class Commands {
 			"upgrade", "/magicbottle upgrade <add|remove> <upgrades>",
 			"recipe", "/magicbottle recipe");
 
-	Commands(Plugin plugin) {
+	public Commands(Plugin plugin) {
 		this.plugin = plugin;
 	}
 
@@ -53,7 +57,7 @@ public class Commands {
 	 * Builds the /magicbottle command tree. Each subcommand is a literal node, and it is hidden from (and refused
 	 * to) senders lacking its permission, so new subcommands are added here along with their entry in USAGES.
 	 */
-	LiteralCommandNode<CommandSourceStack> build() {
+	public LiteralCommandNode<CommandSourceStack> build() {
 		root = literal("magicbottle")
 				.executes(ctx -> {
 					sendMenu(ctx.getSource());

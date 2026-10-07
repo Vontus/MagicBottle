@@ -1,4 +1,4 @@
-package vontus.magicbottle;
+package vontus.magicbottle.commands;
 
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -6,6 +6,8 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.MessageComponentSerializer;
 import net.kyori.adventure.text.Component;
+
+import vontus.magicbottle.Upgrade;
 
 import java.util.Arrays;
 import java.util.EnumSet;

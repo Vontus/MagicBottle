@@ -5,6 +5,7 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import vontus.magicbottle.commands.Commands;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.listeners.AnvilListener;

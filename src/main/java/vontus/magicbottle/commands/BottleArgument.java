@@ -1,4 +1,4 @@
-package vontus.magicbottle;
+package vontus.magicbottle.commands;
 
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.StringReader;
@@ -10,6 +10,8 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import org.bukkit.inventory.ItemStack;
+import vontus.magicbottle.MagicBottle;
+import vontus.magicbottle.Upgrade;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.util.Exp;
 

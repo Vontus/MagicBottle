@@ -23,7 +23,7 @@ public enum Upgrade {
 		return "magicbottle.upgrade." + id();
 	}
 
-	static Upgrade fromId(String id) {
+	public static Upgrade fromId(String id) {
 		for (Upgrade upgrade : values()) {
 			if (upgrade.id().equals(id)) {
 				return upgrade;

@@ -24,6 +24,9 @@ permissions:
   magicbottle.upgrade.autorepair:
     description: 'Allows a player to apply the repair (auto-repair) upgrade to a MagicBottle in the smithing table'
     default: true
+  magicbottle.upgrade.collect:
+    description: 'Allows a player to apply the collect upgrade (stores picked up XP orbs) to a MagicBottle in the smithing table'
+    default: true
   magicbottle.command.give:
     description: 'Admin command. Gives you or another player a number of bottles of a certain level'
   magicbottle.command.reload:

@@ -88,6 +88,7 @@ public class Config {
 	private static Settings.UpgradeOption upgradeSettings(Upgrade upgrade) {
 		return switch (upgrade) {
 			case AUTO_REPAIR -> settings.upgrades.autoRepair;
+			case COLLECT -> settings.upgrades.collect;
 		};
 	}
 

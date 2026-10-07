@@ -37,7 +37,7 @@ code has to know about it. Any code creating/mutating a bottle must go through `
 PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are created in `MagicBottle.init`, which
 `onEnable` must call before anything else touches bottles.
 
-**Upgrades** (`Upgrade`): flags a bottle carries in `magicbottle:upgrades`, a PDC string list of lowercase ids (`autorepair`;
+**Upgrades** (`Upgrade`): flags a bottle carries in `magicbottle:upgrades`, a PDC string list of lowercase ids (`autorepair`, `collect`;
 the id is persisted, so never change it) treated as a set: a missing key means none, and ids this version doesn't know are
 kept when the bottle is rewritten. Only `MagicBottle` reads and writes it (`hasUpgrade`/`addUpgrade`), and `print()` adds a
 lore line per upgrade (`bottle text.upgrades`), in enum order. Features that need a bottle with an upgrade call
@@ -86,11 +86,19 @@ anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (a
   accept the items. `onPrepareSmithing` rebuilds the result from the bottle in the base slot (keeping its exp and upgrades,
   adding the new one) and clears it if the base isn't a MagicBottle, already has the upgrade, the upgrade is disabled or the
   player lacks `magicbottle.upgrade.<id>`. Crafters can't apply upgrades.
+- `CollectListener` — the `collect` upgrade: `onExpChange` (`PlayerExpChangeEvent`, once per orb unit, after Mending, so it only
+  takes what Mending leaves) ignores events whose source isn't an `ExperienceOrb` and, if `upgrades.collect` is on, stores
+  the amount in the first bottle with `collect` and room in the hotbar/offhand (`MagicBottle.findWithUpgrade`, then the next
+  one if it fills up), setting the event's amount to what is left for the player. Cancelled pickups never reach it and it
+  never cancels them. `MagicBottle.collect` charges the deposit cost with stochastic rounding (integer math: mean exactly
+  `points * percentage / 100`, no random when it is exact or exempt), only on the points the bottle takes, never in
+  `getDepositGain` (the crafting preview, which must stay deterministic). The exp stored is reported to its channel of
+  `DebouncedFeedback` (`messages.collect.stored`, `upgrades.collect.feedback`).
 - `onItemDamage` — auto-repair of tools/armor using the first non-empty bottle with the `autorepair` upgrade in the
   hotbar or offhand (`MagicBottle.findWithUpgrade`) if `Config.canRepair` accepts the item (it has the
   configured `repair.enchantment`, Mending by default, or any item if set to `ANY`; parsed by `EnchantParser`
   from an enchantment registry key). It checks the cheap conditions first, has no cooldown (it must not interfere
-  with clicks) and only repairs when the item's damage is odd, since 1 exp repairs 2 durability points. The exp it spends is reported to `AutoRepairFeedback`, which debounces an action bar message (`messages.repair.auto spent`, disabled by `repair.auto feedback`, reloadable): it is sent once the player has gone 3 seconds without auto-repairing, with the total spent meanwhile.
+  with clicks) and only repairs when the item's damage is odd, since 1 exp repairs 2 durability points. The exp it spends is reported to its channel of `DebouncedFeedback` (`messages.repair.auto spent`, disabled by `repair.auto feedback`, reloadable). That class debounces one action bar message shared by the channels (auto-repair and collect happen together when mining, and the action bar shows one message): it is sent once the player has gone 3 seconds without any, with the channels that have something to report joined by `messages.feedback separator`.
 
 **Recipes** (`Recipes.java`): registers the recipes on enable. The shaped
 "new bottle" recipe (`magicbottle:bottle`, result `MagicBottle(0)`) whose datapack-style `shape`/`ingredients`

@@ -76,7 +76,7 @@ public class Messages {
 
 		// The title and the lines are only shown on bottles that have upgrades, one line per upgrade
 		@Setting("upgrades title")
-		public String upgradesTitle = "<dark_purple>Upgrades:";
+		public String upgradesTitle = "<dark_purple>Upgrades <gray>(hotbar/offhand)<dark_purple>:";
 
 		@Setting("upgrade preview")
 		@Comment("The line of the upgrade that is being applied, while previewing it in the smithing table. Placeholders: <upgrade> (its line above)")
@@ -98,9 +98,12 @@ public class Messages {
 		@Setting("autorepair")
 		public String autoRepair = " <yellow>Auto-repair: <gray>repairs your items while you use them.";
 
+		public String collect = " <yellow>Collect: <gray>stores the XP orbs you pick up.";
+
 		public String get(Upgrade upgrade) {
 			return switch (upgrade) {
 				case AUTO_REPAIR -> autoRepair;
+				case COLLECT -> collect;
 			};
 		}
 	}
@@ -111,9 +114,14 @@ public class Messages {
 		@Setting("max level reached")
 		public String maxLevelReached = "<red>The maximum level you can save in a MagicBottle is <level>.";
 
+		@Setting("feedback separator")
+		@Comment("Goes between the action bar messages of auto-repair and collect when they are shown together (they share one message, sent once you stop for 3 seconds).")
+		public String feedbackSeparator = " <gray>| ";
+
 		public Unauthorized unauthorized = new Unauthorized();
 		public Commands commands = new Commands();
 		public Recipe recipe = new Recipe();
+		public Collect collect = new Collect();
 		public Repair repair = new Repair();
 	}
 
@@ -143,10 +151,16 @@ public class Messages {
 	}
 
 	@ConfigSerializable
+	public static class Collect {
+		// Placeholders: <xp>
+		public String stored = "<yellow>Collect <dark_purple>+<xp></dark_purple> XP";
+	}
+
+	@ConfigSerializable
 	public static class Repair {
 		// Placeholders: <xp>
 		@Setting("auto spent")
-		public String autoSpent = "<yellow>Autorepair spent <dark_purple><xp></dark_purple> XP.";
+		public String autoSpent = "<yellow>Repair <dark_purple>-<xp></dark_purple> XP";
 
 		@Setting("anvil cost")
 		@Comment("""

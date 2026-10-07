@@ -10,6 +10,7 @@ import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.listeners.AnvilListener;
 import vontus.magicbottle.listeners.BottleInteractListener;
 import vontus.magicbottle.listeners.ClickCooldown;
+import vontus.magicbottle.listeners.CollectListener;
 import vontus.magicbottle.listeners.CraftingGridListener;
 import vontus.magicbottle.listeners.InventoryListener;
 import vontus.magicbottle.listeners.PlayerListener;
@@ -23,12 +24,18 @@ public class Plugin extends JavaPlugin {
 	private static final int BSTATS_ID = 1183;
 
 	public static Logger logger;
-	public AutoRepairFeedback autoRepairFeedback;
+	public DebouncedFeedback feedback;
+	public DebouncedFeedback.Channel autoRepairFeedback;
+	public DebouncedFeedback.Channel collectFeedback;
 
 	@Override
 	public void onEnable() {
 		logger = getLogger();
-		autoRepairFeedback = new AutoRepairFeedback(this);
+		feedback = new DebouncedFeedback(this);
+		autoRepairFeedback = feedback.channel(() -> Messages.texts.messages.repair.autoSpent,
+				() -> Config.settings.repair.autoFeedback);
+		collectFeedback = feedback.channel(() -> Messages.texts.messages.collect.stored,
+				() -> Config.settings.upgrades.collect.feedback);
 		MagicBottle.init(this);
 		loadConfig();
 		if (Config.invalidUpgrade) {
@@ -40,6 +47,7 @@ public class Plugin extends JavaPlugin {
 		ClickCooldown cooldown = new ClickCooldown(this);
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new AnvilListener(this), this);
+		pm.registerEvents(new CollectListener(this), this);
 		pm.registerEvents(new BottleInteractListener(cooldown), this);
 		pm.registerEvents(new CraftingGridListener(this), this);
 		pm.registerEvents(new InventoryListener(), this);

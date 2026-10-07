@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 
 public class MagicBottle {
@@ -141,6 +143,42 @@ public class MagicBottle {
 		}
 	}
 	
+	public boolean hasRoom(Player player) {
+		return getMaxFillablePoints(player, 1) > 0;
+	}
+
+	/**
+	 * Stores the exp of a picked up orb. Returns {@code points} minus what the bottle took (the exp that goes to the
+	 * player) and reports the exp it gained, after the deposit cost, to {@code gained}. Only the points the bottle takes
+	 * pay the cost, and the cost is rounded randomly (unlike {@link #getDepositGain}, which is deterministic).
+	 */
+	public int collect(Player player, int points, IntConsumer gained) {
+		int taken = Math.max(0, Math.min(points, getMaxFillablePoints(player, points)));
+		if (taken > 0) {
+			int gain = taken - getCollectCost(player, taken);
+			exp += gain;
+			recreate();
+			gained.accept(gain);
+		}
+		return points - taken;
+	}
+
+	// The cost in percent of points, rounded so that its mean is exactly points * percentage / 100: the part that
+	// doesn't make a whole point is paid with that probability (like Unbreaking). Integer math, so a cost that is a
+	// whole number of points is never random.
+	private int getCollectCost(Player player, int points) {
+		int percentage = Math.clamp(Config.settings.costs.deposit.expPercentage, 0, 100);
+		if (percentage == 0 || player.hasPermission(Config.permDepositCostExempt)) {
+			return 0;
+		}
+		long scaled = (long) points * percentage;
+		int cost = (int) (scaled / 100);
+		if (scaled % 100 > 0 && ThreadLocalRandom.current().nextInt(100) < scaled % 100) {
+			cost++;
+		}
+		return cost;
+	}
+
 	// The exp this bottle would gain if the player deposited the given points (after the deposit limit and the cost)
 	public int getDepositGain(Player player, int points) {
 		points = getMaxFillablePoints(player, points);

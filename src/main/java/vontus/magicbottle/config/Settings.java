@@ -149,6 +149,14 @@ public class Settings {
 				as they take damage (which items can be repaired is set in 'repair').""")
 		@Setting("autorepair")
 		public UpgradeOption autoRepair = new UpgradeOption("totem_of_undying");
+
+		@Comment("""
+				Collect: with the bottle in the hotbar or the offhand, the experience orbs you pick up are stored in it instead of going to
+				your experience bar. Mending takes its share first, and what doesn't fit in the bottle (it is full, or the maximum level
+				for you was reached) goes to you. The deposit cost in 'costs' applies, rounded randomly orb by orb so small orbs
+				aren't free (on average, you pay exactly the percentage). Take the bottle out of the hotbar to stop collecting.
+				Note that without keepInventory the bottle drops when you die.""")
+		public CollectOption collect = new CollectOption("heart_of_the_sea");
 	}
 
 	@ConfigSerializable
@@ -162,6 +170,19 @@ public class Settings {
 
 		UpgradeOption(String ingredient) {
 			this.ingredient = Ingredient.parse(ingredient);
+		}
+	}
+
+	@ConfigSerializable
+	public static class CollectOption extends UpgradeOption {
+		@Comment("Show an action bar message with the experience stored (sent once you stop collecting for 3 seconds)")
+		public boolean feedback = true;
+
+		public CollectOption() {
+		}
+
+		CollectOption(String ingredient) {
+			super(ingredient);
 		}
 	}
 

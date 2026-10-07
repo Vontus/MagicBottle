@@ -5,7 +5,8 @@ package vontus.magicbottle;
  * permission and recipe), so it must never change. They are listed in the order their lore lines are shown.
  */
 public enum Upgrade {
-	AUTO_REPAIR("autorepair");
+	AUTO_REPAIR("autorepair"),
+	COLLECT("collect");
 
 	private final String id;
 

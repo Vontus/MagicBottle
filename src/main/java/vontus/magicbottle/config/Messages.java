@@ -98,9 +98,12 @@ public class Messages {
 		@Setting("autorepair")
 		public String autoRepair = " <yellow>Auto-repair: <gray>repairs your items while you use them.";
 
+		public String collect = " <yellow>Collect: <gray>stores the XP orbs you pick up (keep it in the hotbar).";
+
 		public String get(Upgrade upgrade) {
 			return switch (upgrade) {
 				case AUTO_REPAIR -> autoRepair;
+				case COLLECT -> collect;
 			};
 		}
 	}
@@ -114,6 +117,7 @@ public class Messages {
 		public Unauthorized unauthorized = new Unauthorized();
 		public Commands commands = new Commands();
 		public Recipe recipe = new Recipe();
+		public Collect collect = new Collect();
 		public Repair repair = new Repair();
 	}
 
@@ -140,6 +144,12 @@ public class Messages {
 	public static class Recipe {
 		public String title = "<dark_purple>MagicBottle recipe";
 		public String disabled = "<red>Crafting new MagicBottles is disabled in this server.";
+	}
+
+	@ConfigSerializable
+	public static class Collect {
+		// Placeholders: <xp>
+		public String stored = "<yellow>Stored <dark_purple><xp></dark_purple> XP in your bottle.";
 	}
 
 	@ConfigSerializable

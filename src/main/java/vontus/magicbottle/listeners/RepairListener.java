@@ -38,7 +38,7 @@ public class RepairListener implements Listener {
 			return;
 		}
 		i.setDurability((short) (i.getDurability() + e.getDamage()));
-		plugin.autoRepairFeedback.spent(p, mb.repair(i, false));
+		plugin.autoRepairFeedback.add(p, mb.repair(i, false));
 		e.setCancelled(true);
 		p.updateInventory();
 	}

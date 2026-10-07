@@ -8,6 +8,7 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 import vontus.magicbottle.Plugin;
+import vontus.magicbottle.Upgrade;
 
 import java.util.List;
 
@@ -73,12 +74,30 @@ public class Messages {
 		@Setting("empty bar")
 		public String emptyBar = "<yellow>|";
 
+		// The title and the lines are only shown on bottles that have upgrades, one line per upgrade
+		@Setting("upgrades title")
+		public String upgradesTitle = "<dark_purple>Upgrades:";
+
+		public Upgrades upgrades = new Upgrades();
+
 		public List<String> lore = List.of(
 				"<dark_purple>Instructions:",
 				" <yellow>Save XP: <gray>(Shift +) Left Click.",
 				" <yellow>Take XP: <gray>(Shift +) Right Click.",
 				" <yellow>You can also put the bottle in a crafting grid",
 				" <yellow>to save or take all the experience.");
+	}
+
+	// The lore line of each upgrade
+	@ConfigSerializable
+	public static class Upgrades {
+		public String repair = " <yellow>Auto-repair: <gray>repairs your items while you use them.";
+
+		public String get(Upgrade upgrade) {
+			return switch (upgrade) {
+				case REPAIR -> repair;
+			};
+		}
 	}
 
 	@ConfigSerializable
@@ -120,12 +139,6 @@ public class Messages {
 
 	@ConfigSerializable
 	public static class Repair {
-		@Setting("enabled autorepair")
-		public String enabledAutorepair = "<yellow>Autorepair has been <green>enabled</green>.";
-
-		@Setting("disabled autorepair")
-		public String disabledAutorepair = "<yellow>Autorepair has been <red>disabled</red>.";
-
 		// Placeholders: <xp>
 		@Setting("auto spent")
 		public String autoSpent = "<yellow>Autorepair spent <dark_purple><xp></dark_purple> XP.";
@@ -138,8 +151,5 @@ public class Messages {
 				  <levels>: levels the bottle loses (how much its level drops, e.g. from level 30 to 24 is 6)
 				  <levels_left>: the level the bottle will have after the repair""")
 		public String anvilCost = "<gray>Uses <yellow><xp></yellow> XP from the bottle (<yellow><xp_left></yellow> XP left)";
-
-		@Setting("config auto repairing disabled")
-		public String configAutoRepairingDisabled = "<red>Automatic repairing is disabled in this server.";
 	}
 }

@@ -14,8 +14,8 @@ import vontus.magicbottle.listeners.CraftingGridListener;
 import vontus.magicbottle.listeners.InventoryListener;
 import vontus.magicbottle.listeners.PlayerListener;
 import vontus.magicbottle.listeners.RepairListener;
+import vontus.magicbottle.listeners.SmithingListener;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -23,7 +23,6 @@ public class Plugin extends JavaPlugin {
 	private static final int BSTATS_ID = 1183;
 
 	public static Logger logger;
-	public HashSet<Player> autoEnabled = new HashSet<>();
 	public AutoRepairFeedback autoRepairFeedback;
 
 	@Override
@@ -40,6 +39,7 @@ public class Plugin extends JavaPlugin {
 		pm.registerEvents(new CraftingGridListener(this), this);
 		pm.registerEvents(new InventoryListener(), this);
 		pm.registerEvents(new RepairListener(this), this);
+		pm.registerEvents(new SmithingListener(this), this);
 		pm.registerEvents(new PlayerListener(this, cooldown), this);
 		Commands commands = new Commands(this);
 		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event ->

@@ -8,9 +8,10 @@ import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Plugin;
+import vontus.magicbottle.Upgrade;
 import vontus.magicbottle.config.Config;
 
-// Auto-repair of tools and armor with the bottles in the player's inventory
+// Auto-repair of tools and armor with the bottles that have the repair upgrade, in the player's hotbar or offhand
 public class RepairListener implements Listener {
 	private final Plugin plugin;
 
@@ -23,7 +24,7 @@ public class RepairListener implements Listener {
 		Player p = e.getPlayer();
 		// Cheap checks first: this fires for every durability loss of every player. It doesn't use the click cooldown,
 		// so it neither blocks nor is blocked by bottle clicks.
-		if (!Config.repairAutoEnabled || !plugin.autoEnabled.contains(p)) {
+		if (!Config.repairAutoEnabled) {
 			return;
 		}
 		ItemStack i = e.getItem();
@@ -32,7 +33,7 @@ public class RepairListener implements Listener {
 		if (i.getDurability() % 2 == 0 || e.isCancelled() || !Config.canRepair(i)) {
 			return;
 		}
-		MagicBottle mb = MagicBottle.getUsableMBInInventory(p.getInventory());
+		MagicBottle mb = MagicBottle.findWithUpgrade(p, Upgrade.REPAIR, bottle -> !bottle.isEmpty());
 		if (mb == null) {
 			return;
 		}

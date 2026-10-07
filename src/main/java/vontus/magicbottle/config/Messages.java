@@ -78,6 +78,10 @@ public class Messages {
 		@Setting("upgrades title")
 		public String upgradesTitle = "<dark_purple>Upgrades:";
 
+		@Setting("upgrade preview")
+		@Comment("The line of the upgrade that is being applied, while previewing it in the smithing table. Placeholders: <upgrade> (its line above)")
+		public String upgradePreview = "<green>+</green><upgrade>";
+
 		public Upgrades upgrades = new Upgrades();
 
 		public List<String> lore = List.of(

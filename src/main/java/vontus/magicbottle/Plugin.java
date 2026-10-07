@@ -31,6 +31,11 @@ public class Plugin extends JavaPlugin {
 		autoRepairFeedback = new AutoRepairFeedback(this);
 		MagicBottle.init(this);
 		loadConfig();
+		if (Config.invalidUpgrade) {
+			logger.severe("Disabling MagicBottle: fix the invalid upgrade ingredient in config.yml (see the error above) and restart the server.");
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
 		new Recipes(this);
 		ClickCooldown cooldown = new ClickCooldown(this);
 		PluginManager pm = getServer().getPluginManager();

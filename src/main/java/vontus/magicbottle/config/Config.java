@@ -37,6 +37,8 @@ public class Config {
 	public static Map<Character, RecipeChoice> recipeNewBottleIngredients;
 	public static boolean repairEnabled;
 	public static boolean repairAutoEnabled;
+	// Whether an enabled upgrade has a wrong ingredient, which the admin must fix: the plugin doesn't enable like that
+	public static boolean invalidUpgrade;
 	// The ingredient of each upgrade that is enabled and valid; the others have no recipe
 	public static final Map<Upgrade, RecipeChoice> upgradeIngredients = new EnumMap<>(Upgrade.class);
 
@@ -64,9 +66,10 @@ public class Config {
 		costPercentageDeposit = settings.costs.deposit.expPercentage / 100.0;
 	}
 
-	// An upgrade whose ingredient is wrong gets no recipe (so it can't be applied) instead of failing to enable the plugin
+	// An enabled upgrade needs a valid ingredient; Plugin refuses to enable with a wrong one (see invalidUpgrade)
 	private static void loadUpgrades() {
 		upgradeIngredients.clear();
+		invalidUpgrade = false;
 		for (Upgrade upgrade : Upgrade.values()) {
 			Settings.UpgradeOption option = upgradeSettings(upgrade);
 			if (!option.enabled) {
@@ -75,7 +78,8 @@ public class Config {
 			if (option.ingredient == null || option.ingredient.error != null) {
 				String error = option.ingredient == null ? "it has no item" : option.ingredient.error;
 				Plugin.logger.severe("Invalid 'upgrades." + upgrade.id() + ".ingredient' in config.yml: " + error
-						+ ". Its recipe won't be registered.");
+						+ ".");
+				invalidUpgrade = true;
 			} else {
 				upgradeIngredients.put(upgrade, option.ingredient.choice);
 			}

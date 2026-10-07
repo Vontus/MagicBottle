@@ -26,6 +26,7 @@ import static io.papermc.paper.command.brigadier.Commands.argument;
 import static io.papermc.paper.command.brigadier.Commands.literal;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.GOLD;
+import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
 
 public class Commands {
@@ -113,6 +114,9 @@ public class Commands {
 
 	private void reload(CommandSender sender) {
 		plugin.loadConfig();
+		if (Config.invalidUpgrade) {
+			sender.sendMessage(text("An upgrade ingredient in config.yml is invalid (see the console); fix it and restart the server.", RED));
+		}
 		sender.sendMessage(Messages.render(Messages.texts.messages.commands.reloadCompleted));
 	}
 

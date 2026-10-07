@@ -43,7 +43,7 @@ kept when the bottle is rewritten. Only `MagicBottle` reads and writes it (`hasU
 lore line per upgrade (`bottle text.upgrades`), in enum order. Features that need a bottle with an upgrade call
 `MagicBottle.findWithUpgrade`, which only looks in the hotbar and the offhand (moving the bottle out is the off switch).
 Each upgrade has `upgrades.<id>` in `Settings` (`enabled`, `ingredient`, parsed by `Ingredient`; validated in
-`Config.loadUpgrades` into `Config.upgradeIngredients`) and the permission `magicbottle.upgrade.<id>` to apply it. They are
+`Config.loadUpgrades` into `Config.upgradeIngredients`; a wrong ingredient of an enabled upgrade sets `Config.invalidUpgrade` and `onEnable` disables the plugin, so the admin notices) and the permission `magicbottle.upgrade.<id>` to apply it. They are
 applied in the smithing table (see `SmithingListener`). A new upgrade is an `Upgrade` value plus its settings, lore message
 and permission (the switches over `Upgrade` in `Config` and `Messages` don't compile until they are added).
 

@@ -26,6 +26,7 @@ import static io.papermc.paper.command.brigadier.Commands.argument;
 import static io.papermc.paper.command.brigadier.Commands.literal;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.GOLD;
+import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
 
 public class Commands {
@@ -37,8 +38,7 @@ public class Commands {
 			"about", "/magicbottle about",
 			"reload", "/magicbottle reload",
 			"give", "/magicbottle give <level> [amount] [player]",
-			"recipe", "/magicbottle recipe",
-			"autorepair", "/magicbottle autorepair [on|off]");
+			"recipe", "/magicbottle recipe");
 
 	// One stack: both bottle materials stack up to 64
 	private static final int MAX_GIVE_AMOUNT = 64;
@@ -71,11 +71,6 @@ public class Commands {
 														.getArgument("player", PlayerSelectorArgumentResolver.class)
 														.resolve(ctx.getSource()).getFirst()))))))
 				.then(literal("recipe").requires(perm(Config.permCraft).and(isPlayer())).executes(asPlayer(this::recipe)))
-				.then(literal("autorepair")
-						.requires(perm(Config.permRepairAuto).and(isPlayer()))
-						.executes(asPlayer(p -> setAutoRepair(p, null)))
-						.then(literal("on").executes(asPlayer(p -> setAutoRepair(p, true))))
-						.then(literal("off").executes(asPlayer(p -> setAutoRepair(p, false)))))
 				.build();
 		return root;
 	}
@@ -112,24 +107,6 @@ public class Commands {
 		}
 	}
 
-	// enable is null to toggle
-	private void setAutoRepair(Player p, Boolean enable) {
-		if (!Config.repairAutoEnabled) {
-			p.sendMessage(Messages.render(Messages.texts.messages.repair.configAutoRepairingDisabled));
-			return;
-		}
-		if (enable == null) {
-			enable = !plugin.autoEnabled.contains(p);
-		}
-		if (enable) {
-			plugin.autoEnabled.add(p);
-			p.sendMessage(Messages.render(Messages.texts.messages.repair.enabledAutorepair));
-		} else {
-			plugin.autoEnabled.remove(p);
-			p.sendMessage(Messages.render(Messages.texts.messages.repair.disabledAutorepair));
-		}
-	}
-
 	private void about(CommandSender sender) {
 		sender.sendMessage(text(plugin.getPluginMeta().getDisplayName() + " by Vontus", GOLD));
 		sender.sendMessage(text("https://www.spigotmc.org/resources/magicbottle.40039/", YELLOW));
@@ -137,6 +114,9 @@ public class Commands {
 
 	private void reload(CommandSender sender) {
 		plugin.loadConfig();
+		if (Config.invalidUpgrade) {
+			sender.sendMessage(text("An upgrade ingredient in config.yml is invalid (see the console); fix it and restart the server.", RED));
+		}
 		sender.sendMessage(Messages.render(Messages.texts.messages.commands.reloadCompleted));
 	}
 

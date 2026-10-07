@@ -33,6 +33,13 @@ public class Settings {
 
 	public Repair repair = new Repair();
 
+	@Comment("""
+			Upgrades are applied to a MagicBottle in the smithing table: the bottle goes in the base slot and the ingredient in the
+			addition slot (the template slot stays empty). The bottle keeps its experience. Each upgrade has an 'enabled' option and
+			its 'ingredient', an item ID or an item tag like the ones of the bottle recipe. Applying an upgrade needs the permission
+			'magicbottle.upgrade.<upgrade>'. You must restart your server after changing an 'ingredient' or enabling an upgrade.""")
+	public Upgrades upgrades = new Upgrades();
+
 	@Comment("Here you can configure what percentage of experience will be charged when transferring experience.")
 	public Costs costs = new Costs();
 
@@ -125,17 +132,37 @@ public class Settings {
 				like Mending) instead of the player's levels, which a vanilla anvil would charge.""")
 		public boolean enabled = true;
 
-		@Comment("Enable or disable the '/mb autorepair' command (repairing automatically while you use your tools)")
-		public boolean auto = true;
-
 		@Setting("auto feedback")
-		@Comment("Show an action bar message with the experience spent by autorepair (sent once you stop repairing for 3 seconds)")
+		@Comment("Show an action bar message with the experience spent by auto-repair (sent once you stop repairing for 3 seconds)")
 		public boolean autoFeedback = true;
 
 		@Comment("""
 				Tools and armor will need this enchantment in order to be able to repair them (its Minecraft ID, e.g. MENDING or minecraft:mending)
 				Set this to ANY if you want MagicBottle to repair any repairable tool (unenchanted tools will be repaired too)""")
 		public EnchantParser enchantment = EnchantParser.parse("MENDING");
+	}
+
+	@ConfigSerializable
+	public static class Upgrades {
+		@Comment("""
+				Auto-repair: with the bottle in the hotbar or the offhand, tools and armor repair themselves with its experience
+				as they take damage (which items can be repaired is set in 'repair').""")
+		@Setting("autorepair")
+		public UpgradeOption autoRepair = new UpgradeOption("totem_of_undying");
+	}
+
+	@ConfigSerializable
+	public static class UpgradeOption {
+		public boolean enabled = true;
+
+		public Ingredient ingredient;
+
+		public UpgradeOption() {
+		}
+
+		UpgradeOption(String ingredient) {
+			this.ingredient = Ingredient.parse(ingredient);
+		}
 	}
 
 	@ConfigSerializable

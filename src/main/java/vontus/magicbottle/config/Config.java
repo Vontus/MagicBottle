@@ -4,8 +4,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import vontus.magicbottle.Plugin;
+import vontus.magicbottle.Upgrade;
 import vontus.magicbottle.util.Exp;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +19,6 @@ public class Config {
 	public static final String permGive = "magicbottle.command.give";
 	public static final String permReload = "magicbottle.command.reload";
 	public static final String permRepair = "magicbottle.action.repair";
-	public static final String permRepairAuto = "magicbottle.command.repair.auto";
 	public static final String permDepositCostExempt = "magicbottle.action.deposit.cost.exempt";
 
 	private static final String maxLevelsBasePermission = "magicbottle.maxlevel.";
@@ -35,6 +36,10 @@ public class Config {
 	public static Map<Character, RecipeChoice> recipeNewBottleIngredients;
 	public static boolean repairEnabled;
 	public static boolean repairAutoEnabled;
+	// Whether an enabled upgrade has a wrong ingredient, which the admin must fix: the plugin doesn't enable like that
+	public static boolean invalidUpgrade;
+	// The ingredient of each upgrade that is enabled and valid; the others have no recipe
+	public static final Map<Upgrade, RecipeChoice> upgradeIngredients = new EnumMap<>(Upgrade.class);
 
 	public static double costPercentageDeposit;
 
@@ -47,7 +52,7 @@ public class Config {
 		}
 
 		repairEnabled = settings.repair.enabled;
-		repairAutoEnabled = settings.repair.auto;
+		repairAutoEnabled = settings.upgrades.autoRepair.enabled;
 		if (settings.repair.enchantment.error != null && (repairEnabled || repairAutoEnabled)) {
 			repairEnabled = false;
 			repairAutoEnabled = false;
@@ -55,7 +60,39 @@ public class Config {
 					+ ". Repairing has been disabled.");
 		}
 
+		loadUpgrades();
+
 		costPercentageDeposit = settings.costs.deposit.expPercentage / 100.0;
+	}
+
+	// An enabled upgrade needs a valid ingredient; Plugin refuses to enable with a wrong one (see invalidUpgrade)
+	private static void loadUpgrades() {
+		upgradeIngredients.clear();
+		invalidUpgrade = false;
+		for (Upgrade upgrade : Upgrade.values()) {
+			Settings.UpgradeOption option = upgradeSettings(upgrade);
+			if (!option.enabled) {
+				continue;
+			}
+			if (option.ingredient == null || option.ingredient.error != null) {
+				String error = option.ingredient == null ? "it has no item" : option.ingredient.error;
+				Plugin.logger.severe("Invalid 'upgrades." + upgrade.id() + ".ingredient' in config.yml: " + error
+						+ ".");
+				invalidUpgrade = true;
+			} else {
+				upgradeIngredients.put(upgrade, option.ingredient.choice);
+			}
+		}
+	}
+
+	private static Settings.UpgradeOption upgradeSettings(Upgrade upgrade) {
+		return switch (upgrade) {
+			case AUTO_REPAIR -> settings.upgrades.autoRepair;
+		};
+	}
+
+	public static boolean isUpgradeEnabled(Upgrade upgrade) {
+		return upgradeSettings(upgrade).enabled;
 	}
 
 	public static boolean canRepair(ItemStack is) {

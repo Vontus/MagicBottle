@@ -27,7 +27,7 @@ through `LifecycleEvents.COMMANDS`, and starts bStats metrics.
 **Core domain object**: `MagicBottle` wraps a Bukkit `ItemStack` and is the single source of truth for how
 XP is represented on an item. Bottles are identified by a `magicbottle:bottle` PersistentDataContainer marker
 and the XP amount is stored in `magicbottle:exp` (see `isMagicBottle`/`calculateExp`); the glint comes from
-`setEnchantmentGlintOverride`. The lore only displays the XP. Every bottle is `DRAGON_BREATH` (`material`), which
+`setEnchantmentGlintOverride`. The lore displays the XP and the upgrades (below). Every bottle is `DRAGON_BREATH` (`material`), which
 is nearly inert (in no recipe or item tag; brewing is blocked), unlike a glass bottle, which vanilla and dispensers
 fill with water or honey; an empty bottle only looks like a glass bottle through the `item_model` component.
 Everything about the 1.5.x format (hidden Efficiency enchantment, XP parsed from lore line 1, empty bottles as
@@ -37,10 +37,20 @@ code has to know about it. Any code creating/mutating a bottle must go through `
 PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are created in `MagicBottle.init`, which
 `onEnable` must call before anything else touches bottles.
 
+**Upgrades** (`Upgrade`): flags a bottle carries in `magicbottle:upgrades`, a PDC string list of lowercase ids (`autorepair`;
+the id is persisted, so never change it) treated as a set: a missing key means none, and ids this version doesn't know are
+kept when the bottle is rewritten. Only `MagicBottle` reads and writes it (`hasUpgrade`/`addUpgrade`), and `print()` adds a
+lore line per upgrade (`bottle text.upgrades`), in enum order. Features that need a bottle with an upgrade call
+`MagicBottle.findWithUpgrade`, which only looks in the hotbar and the offhand (moving the bottle out is the off switch).
+Each upgrade has `upgrades.<id>` in `Settings` (`enabled`, `ingredient`, parsed by `Ingredient`; validated in
+`Config.loadUpgrades` into `Config.upgradeIngredients`; a wrong ingredient of an enabled upgrade sets `Config.invalidUpgrade` and `onEnable` disables the plugin, so the admin notices) and the permission `magicbottle.upgrade.<id>` to apply it. They are
+applied in the smithing table (see `SmithingListener`). A new upgrade is an `Upgrade` value plus its settings, lore message
+and permission (the switches over `Upgrade` in `Config` and `Messages` don't compile until they are added).
+
 **Interaction flow**: all player-facing behavior is driven by Bukkit events, not GUIs. The listeners are split by
 concern, in the `listeners` package: `BottleInteractListener` (clicks in hand, throttled by the `ClickCooldown` that `PlayerListener` clears on
 quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafters), `InventoryListener` (recipe menu and
-anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (auto-repair) and `PlayerListener` (join migration, leave cleanup):
+anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (auto-repair), `SmithingListener` (upgrades) and `PlayerListener` (join migration, leave cleanup):
 - `onInteract` — left-click deposits, right-click withdraws, holding the bottle in hand (shift = 10 levels,
   no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`throttle`, a map of last click ticks).
 - `onPrepareCraft`/`onClickCraftResult` — a single MagicBottle (amount 1) alone in a crafting grid (3x3 or the
@@ -71,13 +81,18 @@ anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (a
   the result with repair cost 0 (no levels) and a lore line with the exp it will spend and what the bottle keeps (`messages.repair.anvil cost`; only the preview has it); `onClickResult` cancels the click and takes it by hand like
   `onClickCraftResult` does (`ResultSlot.destination`), because vanilla would consume the bottle. 1 exp repairs 2
   durability points; a bottle with less exp repairs partially and stays in the slot, empty.
-- `onItemDamage` — auto-repair of tools/armor using a usable bottle anywhere in the inventory if the player has
-  enabled auto-repair (tracked in `Plugin.autoEnabled`) and `Config.canRepair` accepts the item (it has the
+- `SmithingListener` — applies upgrades: each enabled upgrade has a `SmithingTransformRecipe` (`magicbottle:upgrade/<id>`,
+  `Recipes.getUpgrade`; no template, any dragon's breath as base, the configured ingredient as addition) so the slots
+  accept the items. `onPrepareSmithing` rebuilds the result from the bottle in the base slot (keeping its exp and upgrades,
+  adding the new one) and clears it if the base isn't a MagicBottle, already has the upgrade, the upgrade is disabled or the
+  player lacks `magicbottle.upgrade.<id>`. Crafters can't apply upgrades.
+- `onItemDamage` — auto-repair of tools/armor using the first non-empty bottle with the `autorepair` upgrade in the
+  hotbar or offhand (`MagicBottle.findWithUpgrade`) if `Config.canRepair` accepts the item (it has the
   configured `repair.enchantment`, Mending by default, or any item if set to `ANY`; parsed by `EnchantParser`
   from an enchantment registry key). It checks the cheap conditions first, has no cooldown (it must not interfere
   with clicks) and only repairs when the item's damage is odd, since 1 exp repairs 2 durability points. The exp it spends is reported to `AutoRepairFeedback`, which debounces an action bar message (`messages.repair.auto spent`, disabled by `repair.auto feedback`, reloadable): it is sent once the player has gone 3 seconds without auto-repairing, with the total spent meanwhile.
 
-**Recipes** (`Recipes.java`): registers a single recipe on enable, if `recipe.bottle.enabled` is on: the shaped
+**Recipes** (`Recipes.java`): registers the recipes on enable. The shaped
 "new bottle" recipe (`magicbottle:bottle`, result `MagicBottle(0)`) whose datapack-style `shape`/`ingredients`
 (item IDs or `#` item tags) come from config. `Config.loadNewBottleRecipe` validates them into
 `recipeNewBottleShape`/`recipeNewBottleIngredients`; if they're invalid it logs the problem and disables the
@@ -86,11 +101,12 @@ Need a Mint" advancement, so only players who already have it can craft one (the
 Like any shaped recipe it matches anywhere in the grid (and mirrored), so `CraftingGridListener` identifies it by its
 key (`Recipes.getKey`), never by grid positions, and refuses it when a MagicBottle is in the grid. Depositing and
 withdrawing are not recipes (see `CraftingGridListener`).
+The upgrades have one smithing recipe each, registered by the same class when enabled.
 
 **Commands** (`Commands.java`): the single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) is a Brigadier
 tree (`Commands#build`) registered from `Plugin.onEnable` through `LifecycleEvents.COMMANDS`; it is not in
-`plugin.yml`. Subcommands (`about`, `reload`, `give <level> [amount] [player]`, `recipe`, `autorepair [on|off]`) are
-literal nodes gated with `.requires(...)` on their permission in `Config` (`recipe` and `autorepair` also require a
+`plugin.yml`. Subcommands (`about`, `reload`, `give <level> [amount] [player]`, `recipe`) are
+literal nodes gated with `.requires(...)` on their permission in `Config` (`recipe` also requires a
 player executor), so senders only see and can run what they may; the menu shown by the bare command lists the
 nodes the source can use.
 `give` takes bounded arguments (`level` 0..`Config.maxLevel`, `amount` 1..64, `player` as Paper's player selector,

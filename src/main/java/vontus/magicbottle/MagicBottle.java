@@ -7,8 +7,8 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import vontus.magicbottle.config.Config;
@@ -18,7 +18,11 @@ import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
 
 public class MagicBottle {
 	// Every bottle is dragon's breath, one of the most inert items (its only use is brewing, which is blocked), while
@@ -28,12 +32,16 @@ public class MagicBottle {
 	private static final int DURABILITY_POINTS_PER_XP = 2;
 	private static NamespacedKey keyBottle;
 	private static NamespacedKey keyExp;
+	private static NamespacedKey keyUpgrades;
 	private ItemStack item;
 	private Integer exp;
+	// Ids, not Upgrade values: ids this version doesn't know (added by a newer one) are kept when the bottle is rewritten
+	private Set<String> upgrades = new LinkedHashSet<>();
 
 	static void init(Plugin plugin) {
 		keyBottle = new NamespacedKey(plugin, "bottle");
 		keyExp = new NamespacedKey(plugin, "exp");
+		keyUpgrades = new NamespacedKey(plugin, "upgrades");
 	}
 
 	public MagicBottle(int exp) {
@@ -45,11 +53,13 @@ public class MagicBottle {
 		LegacyBottle.migrateIfLegacy(expContainer);
 		item = expContainer;
 		exp = calculateExp(expContainer);
+		upgrades = readUpgrades(expContainer);
 	}
 
 	private MagicBottle(ItemStack expContainer, int exp) {
 		item = expContainer;
 		this.exp = exp;
+		upgrades = readUpgrades(expContainer);
 		recreate();
 	}
 
@@ -75,8 +85,23 @@ public class MagicBottle {
 		item.editMeta(meta -> {
 			meta.getPersistentDataContainer().remove(keyBottle);
 			meta.getPersistentDataContainer().remove(keyExp);
+			meta.getPersistentDataContainer().remove(keyUpgrades);
 		});
 		return item;
+	}
+
+	public boolean hasUpgrade(Upgrade upgrade) {
+		return upgrades.contains(upgrade.id());
+	}
+
+	public void addUpgrade(Upgrade upgrade) {
+		upgrades.add(upgrade.id());
+		recreate();
+	}
+
+	// The lore line the bottle shows for the upgrade
+	public Component getUpgradeLine(Upgrade upgrade) {
+		return Messages.renderItemText(Messages.texts.bottleText.upgrades.get(upgrade), placeholders());
 	}
 
 	public ItemStack getItem() {
@@ -185,6 +210,15 @@ public class MagicBottle {
 		lore.add(Messages.renderItemText(Messages.texts.bottleText.experienceTitle, placeholders));
 		lore.add(Messages.renderItemText(Messages.texts.bottleText.experience, placeholders));
 
+		// In the order of the enum, whatever the order they were applied in; unknown ids have no line
+		List<Upgrade> applied = Arrays.stream(Upgrade.values()).filter(this::hasUpgrade).toList();
+		if (!applied.isEmpty()) {
+			lore.add(Messages.renderItemText(Messages.texts.bottleText.upgradesTitle, placeholders));
+			for (Upgrade upgrade : applied) {
+				lore.add(getUpgradeLine(upgrade));
+			}
+		}
+
 		for (String line : Messages.texts.bottleText.lore) {
 			lore.add(Messages.renderItemText(line, placeholders));
 		}
@@ -196,6 +230,11 @@ public class MagicBottle {
 		meta.setItemModel(isEmpty() ? modelEmpty : null);
 		markAsBottle(meta);
 		meta.getPersistentDataContainer().set(keyExp, PersistentDataType.INTEGER, exp);
+		if (upgrades.isEmpty()) {
+			meta.getPersistentDataContainer().remove(keyUpgrades);
+		} else {
+			meta.getPersistentDataContainer().set(keyUpgrades, PersistentDataType.LIST.strings(), List.copyOf(upgrades));
+		}
 		item.setItemMeta(meta);
 	}
 	
@@ -225,6 +264,11 @@ public class MagicBottle {
 		return item.getItemMeta().getPersistentDataContainer().getOrDefault(keyExp, PersistentDataType.INTEGER, 0);
 	}
 
+	private static Set<String> readUpgrades(ItemStack item) {
+		List<String> ids = item.getItemMeta().getPersistentDataContainer().get(keyUpgrades, PersistentDataType.LIST.strings());
+		return ids == null ? new LinkedHashSet<>() : new LinkedHashSet<>(ids);
+	}
+
 	static boolean hasBottleMarker(ItemStack item) {
 		return item.getItemMeta().getPersistentDataContainer().has(keyBottle, PersistentDataType.BYTE);
 	}
@@ -242,12 +286,24 @@ public class MagicBottle {
 		}
 	}
 	
-	public static MagicBottle getUsableMBInInventory(Inventory inv) {
-		for (ItemStack item : inv) {
-			if (isUsableMagicBottle(item)) {
+	/**
+	 * The first bottle with the upgrade and accepted by the filter, looking only at the hotbar and the offhand: moving
+	 * a bottle out of them switches its upgrades off. Stacks of bottles don't count. Every feature that looks for a
+	 * bottle with an upgrade goes through here.
+	 */
+	public static MagicBottle findWithUpgrade(Player player, Upgrade upgrade, Predicate<MagicBottle> filter) {
+		PlayerInventory inv = player.getInventory();
+		List<ItemStack> candidates = new ArrayList<>();
+		for (int slot = 0; slot < 9; slot++) {
+			candidates.add(inv.getItem(slot));
+		}
+		candidates.add(inv.getItemInOffHand());
+		for (ItemStack item : candidates) {
+			if (isMagicBottle(item) && item.getAmount() == 1) {
 				MagicBottle mb = new MagicBottle(item);
-				if (!mb.isEmpty())
+				if (mb.hasUpgrade(upgrade) && filter.test(mb)) {
 					return mb;
+				}
 			}
 		}
 		return null;

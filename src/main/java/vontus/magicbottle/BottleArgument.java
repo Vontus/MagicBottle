@@ -1,5 +1,6 @@
 package vontus.magicbottle;
 
+import com.mojang.brigadier.Message;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -103,19 +104,56 @@ public class BottleArgument implements CustomArgumentType<BottleArgument.Spec, S
 		return StringArgumentType.greedyString();
 	}
 
-	/** After '[' and after each comma, suggests the upgrades not written yet. */
+	private static Message tip(String text) {
+		return MessageComponentSerializer.message().serialize(Component.text(text));
+	}
+
+	/**
+	 * Guides the whole argument: the level, then '[' for the upgrades (the ones not written yet after '[' and after
+	 * each comma, then ',' or ']'), then the count after the space.
+	 */
 	@Override
 	public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> ctx, SuggestionsBuilder builder) {
 		String typed = builder.getRemaining();
+		int space = typed.indexOf(' ');
 		int bracket = typed.indexOf('[');
-		if (bracket >= 0 && !typed.endsWith("]") && typed.indexOf(' ') < 0) {
-			int last = Math.max(bracket, typed.lastIndexOf(','));
-			String prefix = typed.substring(0, last + 1);
-			String written = typed.substring(bracket + 1);
+
+		if (space >= 0) {
+			String word = typed.substring(0, space);
+			boolean complete = word.endsWith("]") || (bracket < 0 && word.matches("\\d+"));
+			if (complete && typed.indexOf(' ', space + 1) < 0) {
+				for (String count : new String[]{"1", "16", "64"}) {
+					if (count.startsWith(typed.substring(space + 1))) {
+						builder.suggest(word + " " + count, tip("Count (1-" + MAX_COUNT + ")"));
+					}
+				}
+			}
+		} else if (bracket < 0) {
+			if (typed.isEmpty()) {
+				for (String level : new String[]{"1", "10", "30", "100"}) {
+					builder.suggest(level, tip("Level (0-" + Config.maxLevel + ")"));
+				}
+			} else if (typed.matches("\\d+")) {
+				builder.suggest(typed + "[", tip("Upgrades, separated by commas"));
+			}
+		} else if (!typed.endsWith("]")) {
+			int tokenStart = Math.max(bracket, typed.lastIndexOf(',')) + 1;
+			String prefix = typed.substring(0, tokenStart);
+			String partial = typed.substring(tokenStart);
+			Set<String> written = Set.of(typed.substring(bracket + 1).split(",", -1));
+			boolean unused = false;
 			for (Upgrade upgrade : Upgrade.values()) {
-				if (!(',' + written + ',').contains("," + upgrade.id() + ",")
-						&& upgrade.id().startsWith(typed.substring(last + 1))) {
-					builder.suggest(prefix + upgrade.id());
+				if (!written.contains(upgrade.id())) {
+					unused = true;
+					if (upgrade.id().startsWith(partial) && !upgrade.id().equals(partial)) {
+						builder.suggest(prefix + upgrade.id());
+					}
+				}
+			}
+			if (Upgrade.fromId(partial) != null) {
+				builder.suggest(typed + "]", tip("End of the upgrades"));
+				if (unused) {
+					builder.suggest(typed + ",", tip("Another upgrade"));
 				}
 			}
 		}

@@ -21,11 +21,15 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * A whole bottle as one command word, the counterpart of vanilla's {@code item[components]}: the level, optionally
- * followed by the upgrades in brackets separated by commas ({@code 30}, {@code 30[collect,autorepair]}).
+ * followed by the upgrades in brackets separated by commas ({@code 30}, {@code 30[collect,autorepair]}) and, after a
+ * space, the optional count.
  */
 public class BottleArgument implements CustomArgumentType<BottleArgument.Spec, String> {
+	// As vanilla /give: 100 stacks of 64
+	private static final int MAX_COUNT = 6400;
+
 	/** What was written: the level and the upgrades, which are a set. */
-	public record Spec(int level, Set<Upgrade> upgrades) {
+	public record Spec(int level, Set<Upgrade> upgrades, int count) {
 		/** Builds the bottle through {@link MagicBottle}, ignoring the upgrade permissions and settings (admin). */
 		public ItemStack createItem() {
 			MagicBottle bottle = new MagicBottle(Exp.getExpAtLevel(level));
@@ -41,6 +45,23 @@ public class BottleArgument implements CustomArgumentType<BottleArgument.Spec, S
 			reader.skip();
 		}
 		String word = reader.getString().substring(start, reader.getCursor());
+
+		// The count follows after a space; it is part of this argument because the client only accepts the brackets
+		// and commas of the word in a greedy string, which must be the last argument
+		int count = 1;
+		if (reader.canRead()) {
+			reader.skip();
+			String countText = reader.getRemaining();
+			try {
+				count = Integer.parseInt(countText);
+			} catch (NumberFormatException e) {
+				throw error("Expected a count, found '" + countText + "'");
+			}
+			if (count < 1 || count > MAX_COUNT) {
+				throw error("The count must be between 1 and " + MAX_COUNT);
+			}
+			reader.setCursor(reader.getTotalLength());
+		}
 
 		int bracket = word.indexOf('[');
 		String levelText = bracket < 0 ? word : word.substring(0, bracket);
@@ -69,7 +90,7 @@ public class BottleArgument implements CustomArgumentType<BottleArgument.Spec, S
 				}
 			}
 		}
-		return new Spec(level, upgrades);
+		return new Spec(level, upgrades, count);
 	}
 
 	private static CommandSyntaxException error(String message) {
@@ -79,7 +100,7 @@ public class BottleArgument implements CustomArgumentType<BottleArgument.Spec, S
 
 	@Override
 	public ArgumentType<String> getNativeType() {
-		return StringArgumentType.word();
+		return StringArgumentType.greedyString();
 	}
 
 	/** After '[' and after each comma, suggests the upgrades not written yet. */
@@ -87,7 +108,7 @@ public class BottleArgument implements CustomArgumentType<BottleArgument.Spec, S
 	public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> ctx, SuggestionsBuilder builder) {
 		String typed = builder.getRemaining();
 		int bracket = typed.indexOf('[');
-		if (bracket >= 0 && !typed.endsWith("]")) {
+		if (bracket >= 0 && !typed.endsWith("]") && typed.indexOf(' ') < 0) {
 			int last = Math.max(bracket, typed.lastIndexOf(','));
 			String prefix = typed.substring(0, last + 1);
 			String written = typed.substring(bracket + 1);

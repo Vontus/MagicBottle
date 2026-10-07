@@ -118,9 +118,10 @@ literal nodes gated with `.requires(...)` on their permission in `Config` (`reci
 player executor), so senders only see and can run what they may; the menu shown by the bare command lists the
 nodes the source can use.
 `give` follows vanilla `/give`: `targets` (Paper's players selector, fails if nobody matches; `@s` for the executor),
-`bottle` and `count` (1..6400, split into stacks; what doesn't fit is dropped at the player's feet). `bottle` is
-`BottleArgument`, a custom argument parsed as one word, the level (0..`Config.maxLevel`) optionally followed by the
-upgrades in brackets (`30`, `30[collect,autorepair]`); unknown or repeated ids are a parse error and the suggestions
+`bottle` with its optional count (1..6400, split into stacks; what doesn't fit is dropped at the player's feet).
+`bottle` is `BottleArgument`, a custom argument with a greedy native type (the client only accepts `[` and `,`
+there, so the count after the space is parsed by the argument itself): the level (0..`Config.maxLevel`) optionally
+followed by the upgrades in brackets (`30`, `30[collect,autorepair]`), then the count; unknown or repeated ids are a parse error and the suggestions
 come from `Upgrade.values()`. `give` is an admin command: it ignores `magicbottle.upgrade.<id>` and `upgrades.<id>.enabled`.
 New subcommands are added as nodes in `build`, with their line in `USAGES`.
 

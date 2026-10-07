@@ -41,9 +41,6 @@ public class Commands {
 			"give", "/magicbottle give <targets> <level>[upgrades] [count]",
 			"recipe", "/magicbottle recipe");
 
-	// As vanilla /give: 100 stacks of 64
-	private static final int MAX_GIVE_COUNT = 6400;
-
 	Commands(Plugin plugin) {
 		this.plugin = plugin;
 	}
@@ -65,9 +62,7 @@ public class Commands {
 						// Fails if the selector matches nobody
 						.then(argument("targets", ArgumentTypes.players())
 								.then(argument("bottle", new BottleArgument())
-										.executes(ctx -> give(ctx, 1))
-										.then(argument("count", integer(1, MAX_GIVE_COUNT))
-												.executes(ctx -> give(ctx, getInteger(ctx, "count")))))))
+										.executes(this::give))))
 				.then(literal("recipe").requires(perm(Config.permCraft).and(isPlayer())).executes(asPlayer(this::recipe)))
 				.build();
 		return root;
@@ -119,10 +114,11 @@ public class Commands {
 	}
 
 	/** Gives {@code count} bottles to each of the targets. */
-	private int give(CommandContext<CommandSourceStack> ctx, int count) throws CommandSyntaxException {
+	private int give(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		BottleArgument.Spec spec = ctx.getArgument("bottle", BottleArgument.Spec.class);
 		List<Player> targets = ctx.getArgument("targets", PlayerSelectorArgumentResolver.class).resolve(ctx.getSource());
 
+		int count = spec.count();
 		for (Player player : targets) {
 			giveBottles(spec.createItem(), count, player);
 		}

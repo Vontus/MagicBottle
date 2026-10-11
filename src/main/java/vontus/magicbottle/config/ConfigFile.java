@@ -26,7 +26,17 @@ final class ConfigFile {
 	private ConfigFile() {
 	}
 
+	/** Changes the loaded file before it is mapped, e.g. to rename an option of an older version. */
+	interface Migration {
+		void apply(CommentedConfigurationNode root) throws ConfigurateException;
+	}
+
 	static <T> T load(Plugin plugin, String fileName, Class<T> type, String header) {
+		return load(plugin, fileName, type, header, root -> {
+		});
+	}
+
+	static <T> T load(Plugin plugin, String fileName, Class<T> type, String header, Migration migration) {
 		Path path = plugin.getDataPath().resolve(fileName);
 		YamlConfigurationLoader loader = YamlConfigurationLoader.builder()
 				.path(path)
@@ -38,6 +48,7 @@ final class ConfigFile {
 				.build();
 		try {
 			CommentedConfigurationNode node = loader.load();
+			migration.apply(node);
 			T value = node.get(type);
 			if (value == null) {
 				value = newInstance(type);

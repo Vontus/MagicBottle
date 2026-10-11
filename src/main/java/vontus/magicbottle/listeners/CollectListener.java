@@ -33,7 +33,7 @@ public class CollectListener implements Listener {
 		int left = e.getAmount();
 		// The first bottle with room; when it fills up the next one is tried, and what doesn't fit anywhere goes to the player
 		MagicBottle bottle;
-		while (left > 0 && (bottle = MagicBottle.findWithUpgrade(p, Upgrade.COLLECT, b -> b.hasRoom(p))) != null) {
+		while (left > 0 && (bottle = MagicBottle.findWithUpgrade(p, Upgrade.COLLECT, MagicBottle::hasRoom)) != null) {
 			left = bottle.collect(p, left, gained -> plugin.collectFeedback.add(p, gained));
 		}
 		e.setAmount(left);

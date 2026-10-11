@@ -72,6 +72,8 @@ public final class MagicBottle {
 
 	// ItemStack#setType is deprecated in favor of withType, which returns a copy. The conversion has to mutate the stack
 	// in place: it is the one that lives in the player's inventory (see LegacyBottle.migrateInventory).
+	// TODO: once 2.0.0 is installed on the only server that uses the plugin and its bottles are migrated, remove
+	// LegacyBottle and the setType branch below; then this suppression is no longer needed.
 	@SuppressWarnings("deprecation")
 	private void recreate() {
 		if (item == null) {

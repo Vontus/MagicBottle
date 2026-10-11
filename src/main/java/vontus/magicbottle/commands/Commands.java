@@ -48,7 +48,7 @@ public class Commands {
 			"reload", "/magicbottle reload",
 			"give", "/magicbottle give <targets> <level>[upgrades] [count]",
 			"upgrade", "/magicbottle upgrade <add|remove> <upgrades>",
-			"recipe", "/magicbottle recipe");
+			"recipes", "/magicbottle recipes");
 
 	public Commands(Plugin plugin) {
 		this.plugin = plugin;
@@ -81,7 +81,7 @@ public class Commands {
 						.then(literal("remove")
 								.then(argument("upgrades", new UpgradeListArgument(false))
 										.executes(ctx -> changeUpgrades(ctx, false)))))
-				.then(literal("recipe").requires(perm(Config.permCraft).and(Commands::isPlayer)).executes(asPlayer(this::recipe)))
+				.then(literal("recipes").requires(perm(Config.permRecipes).and(Commands::isPlayer)).executes(asPlayer(this::recipes)))
 				.build();
 		return root;
 	}
@@ -110,7 +110,7 @@ public class Commands {
 	}
 
 
-	private void recipe(Player p) {
+	private void recipes(Player p) {
 		if (!RecipeMenu.open(plugin, p)) {
 			p.sendMessage(Messages.render(Messages.texts.messages.recipe.disabled));
 		}

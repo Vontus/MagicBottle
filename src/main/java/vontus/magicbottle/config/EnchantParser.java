@@ -57,6 +57,11 @@ public class EnchantParser {
 		return new EnchantParser(text, e, false, null);
 	}
 
+	/** The enchantment an item needs, or null if any item can be repaired (or the text is invalid). */
+	public @Nullable Enchantment enchantment() {
+		return ench;
+	}
+
 	public boolean canRepair(ItemStack item) {
 		return anyEnchant || (ench != null && item.containsEnchantment(ench));
 	}

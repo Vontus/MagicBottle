@@ -21,13 +21,16 @@ An easy-to-use Minecraft Bukkit plugin for storing player experience in glass bo
 The first time it runs, the plugin creates `config.yml` and `messages.yml` in its folder, with every option documented in comments. Options added in later versions are appended to your files with their default value when the plugin loads, keeping your values. The defaults are defined in [Settings.java](https://github.com/Vontus/MagicBottle/blob/master/src/main/java/vontus/magicbottle/config/Settings.java) and [Messages.java](https://github.com/Vontus/MagicBottle/blob/master/src/main/java/vontus/magicbottle/config/Messages.java).
 ## Permissions
 - **magicbottle.action.craft**
-	- Allows you to craft MagicBottles and see their recipe with `/mb recipe`.
+	- Allows you to craft MagicBottles.
 	- Players have this permission by default.
 - **magicbottle.action.deposit**
 	- Allows you to deposit experience in MagicBottles.
 	- Players have this permission by default.
 - **magicbottle.action.withdraw**
 	- Allows you to withdraw experience from MagicBottles.
+	- Players have this permission by default.
+- **magicbottle.command.recipes**
+	- Allows you to open `/mb recipes`, which shows the recipes you can use (new bottle, upgrades and repair), one tab per workstation.
 	- Players have this permission by default.
 - **magicbottle.command.give**
 	- Admin command. Gives players a number of bottles of a certain level, optionally with upgrades (ignoring the upgrade permissions and settings).

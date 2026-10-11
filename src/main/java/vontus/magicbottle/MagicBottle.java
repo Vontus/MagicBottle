@@ -90,9 +90,9 @@ public final class MagicBottle {
 		print();
 	}
 
-	// A copy of an empty bottle without the bottle markers, so it can't be used as one: for display only
-	static ItemStack createDisplayItem(Upgrade... upgrades) {
-		MagicBottle bottle = new MagicBottle(0);
+	// A copy of a bottle without the bottle markers, so it can't be used as one: for display only
+	static ItemStack createDisplayItem(int exp, Upgrade... upgrades) {
+		MagicBottle bottle = new MagicBottle(exp);
 		for (Upgrade upgrade : upgrades) {
 			bottle.addUpgrade(upgrade);
 		}

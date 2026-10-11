@@ -32,6 +32,11 @@ public class SoundEffect {
 			player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 0.2f, 1);
 	}
 	
+	public static void merge(Player player) {
+		if (Config.settings.effect.sound)
+			player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.5f, 1);
+	}
+
 	public static void newBottle(Player player) {
 		if (Config.settings.effect.sound)
 			player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 0.1f);

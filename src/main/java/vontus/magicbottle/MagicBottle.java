@@ -30,7 +30,9 @@ import java.util.function.Predicate;
 public final class MagicBottle {
 	// Every bottle is dragon's breath, one of the most inert items (its only use is brewing, which is blocked), while
 	// vanilla fills glass bottles with water or honey, dispensers included. Empty bottles only look like glass bottles.
-	public static final Material material = Material.DRAGON_BREATH;
+	public static final Material baseMaterial = Material.DRAGON_BREATH;
+	// The material of a bottle with the lantern upgrade (a Magic Lantern): placeable natively, see getMaterial
+	public static final Material lanternMaterial = Material.LANTERN;
 	private static final NamespacedKey modelEmpty = NamespacedKey.minecraft("glass_bottle");
 	private static final int DURABILITY_POINTS_PER_XP = 2;
 	private static NamespacedKey keyBottle;
@@ -91,10 +93,11 @@ public final class MagicBottle {
 	// LegacyBottle and the setType branch below; then this suppression is no longer needed.
 	@SuppressWarnings("deprecation")
 	private void recreate() {
+		Material material = getMaterial();
 		if (item == null) {
 			item = new ItemStack(material);
 		} else if (item.getType() != material) {
-			// Empty 1.5.x bottles were glass bottles (LegacyBottle)
+			// Empty 1.5.x bottles were glass bottles (LegacyBottle); the lantern upgrade changes it too (see getMaterial)
 			item.setType(material);
 		}
 
@@ -177,6 +180,21 @@ public final class MagicBottle {
 		Set<String> upgrades = new LinkedHashSet<>(first.upgrades);
 		upgrades.addAll(second.upgrades);
 		return new MagicBottle((int) size, upgrades);
+	}
+
+	/**
+	 * The material of the item, derived from the upgrades every time the bottle is written: a lantern with the
+	 * {@link Upgrade#LANTERN} upgrade, dragon's breath otherwise. Code must never assume the material of a bottle.
+	 * Note that {@code ItemStack#setType} may replace the handle of the stack it is called on, so a caller that changes the
+	 * upgrades of an item that lives in an inventory must put {@link #getItem()} back in its slot.
+	 */
+	public Material getMaterial() {
+		return isLantern() ? lanternMaterial : baseMaterial;
+	}
+
+	/** Whether this is a Magic Lantern (it has the lantern upgrade): the item that is placed to absorb XP orbs. */
+	public boolean isLantern() {
+		return hasUpgrade(Upgrade.LANTERN);
 	}
 
 	public boolean hasUpgrade(Upgrade upgrade) {
@@ -392,16 +410,18 @@ public final class MagicBottle {
 			}
 		}
 
-		for (String line : Messages.texts.bottleText.lore) {
+		// A lantern is placed, not clicked: the instructions of the bottle would be wrong
+		for (String line : isLantern() ? Messages.texts.bottleText.lanternLore : Messages.texts.bottleText.lore) {
 			lore.add(Messages.renderItemText(line, placeholders));
 		}
 
 		ItemMeta meta = item.getItemMeta();
-		String name = isFull() ? Messages.texts.bottleText.nameFull : Messages.texts.bottleText.name;
+		String name = isLantern() ? Messages.texts.bottleText.lanternName
+				: isFull() ? Messages.texts.bottleText.nameFull : Messages.texts.bottleText.name;
 		meta.displayName(Messages.renderItemText(name, placeholders));
 		meta.lore(lore);
-		// null keeps dragon's breath's own model
-		meta.setItemModel(isEmpty() ? modelEmpty : null);
+		// null keeps the model of the material: dragon's breath's, or the lantern's (a lantern never looks like a bottle)
+		meta.setItemModel(isEmpty() && !isLantern() ? modelEmpty : null);
 		// Bottles don't stack (identical full ones would fit 64 in a slot, and merging frees slots). A stack that already
 		// exists keeps stacking: an item with more than its max stack size may fail validation. It gets the limit once
 		// split, whenever the bottle is rewritten (limitStackSize does it for the inventories of a joining player).
@@ -434,7 +454,7 @@ public final class MagicBottle {
 	}
 	
 	// The exp the bottle can still take; 0 if it's full or above its capacity (it keeps what it has, see getCapacity)
-	private int getRoom() {
+	public int getRoom() {
 		return Math.max(0, getCapacity() - exp);
 	}
 

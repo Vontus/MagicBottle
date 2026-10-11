@@ -67,6 +67,18 @@ public class Messages {
 		@Comment("The name when the bottle is full (it holds its capacity or more). Placeholders: the ones above, <level> is the level it holds.")
 		public String nameFull = "<dark_purple><bold>MagicBottle</bold> <gray>| <gold>Level <level> ✦ <gray>| <xpbar>";
 
+		@Setting("lantern name")
+		@Comment("The name of a Magic Lantern (a bottle with the lantern upgrade), full or not. Placeholders: the ones above.")
+		public String lanternName = "<dark_purple><bold>Magic Lantern</bold> <gray>| <yellow>Level <level>/<max_level> <gray>| <xpbar>";
+
+		@Setting("lantern lore")
+		@Comment("The instructions of a Magic Lantern, instead of the ones of the bottle.")
+		public List<String> lanternLore = List.of(
+				"<dark_purple>Instructions:",
+				" <yellow>Place it: <gray>it absorbs the XP orbs around it.",
+				" <yellow>Take XP: <gray>right click it with a MagicBottle.",
+				" <yellow>Break it to get it back with its XP.");
+
 		@Setting("experience text")
 		public String experienceTitle = "<dark_purple>Experience points:";
 
@@ -108,10 +120,13 @@ public class Messages {
 
 		public String collect = " <yellow>Collect: <gray>stores the XP orbs you pick up.";
 
+		public String lantern = " <yellow>Lantern: <gray>placed, it absorbs nearby XP orbs.";
+
 		public String get(Upgrade upgrade) {
 			return switch (upgrade) {
 				case AUTO_REPAIR -> autoRepair;
 				case COLLECT -> collect;
+				case LANTERN -> lantern;
 			};
 		}
 	}
@@ -137,6 +152,18 @@ public class Messages {
 		public Collect collect = new Collect();
 		public Repair repair = new Repair();
 		public Merge merge = new Merge();
+		public Lantern lantern = new Lantern();
+	}
+
+	@ConfigSerializable
+	public static class Lantern {
+		@Setting("place denied")
+		@Comment("When a player can't place a Magic Lantern (no permission, or the upgrade is disabled). It stays in their hand.")
+		public String placeDenied = "<red>You can't place a Magic Lantern.";
+
+		@Setting("empty")
+		@Comment("When a Magic Lantern has no experience to take.")
+		public String empty = "<red>This Magic Lantern has no experience.";
 	}
 
 	@ConfigSerializable

@@ -182,6 +182,11 @@ public class Commands {
 			}
 		}
 
+		if (changed) {
+			// The lantern upgrade changes the material, which may not be done in place on the item of the inventory
+			player.getInventory().setItemInMainHand(bottle.getItem());
+		}
+
 		String now = Arrays.stream(Upgrade.values()).filter(bottle::hasUpgrade).map(Upgrade::id)
 				.collect(Collectors.joining(", "));
 		Messages.Commands texts = Messages.texts.messages.commands;

@@ -84,7 +84,15 @@ public class Config {
 		return switch (upgrade) {
 			case AUTO_REPAIR -> settings.upgrades.autoRepair;
 			case COLLECT -> settings.upgrades.collect;
+			case LANTERN -> settings.upgrades.lantern;
 		};
+	}
+
+	public static final int maxLanternRadius = 16;
+
+	/** How far a placed Magic Lantern pulls orbs from, in blocks: the option, brought to its valid range. */
+	public static int lanternRadius() {
+		return Math.clamp(settings.upgrades.lantern.radius, 1, maxLanternRadius);
 	}
 
 	public static boolean isUpgradeEnabled(Upgrade upgrade) {

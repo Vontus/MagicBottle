@@ -23,6 +23,8 @@ import org.jspecify.annotations.Nullable;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.effects.SoundEffect;
+import vontus.magicbottle.util.DepositMath;
+import vontus.magicbottle.util.DepositMath.Collected;
 import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
 
@@ -170,7 +172,8 @@ public final class MagicBottle {
         }
 
         exp += gain;
-        Exp.setPoints(player, Exp.getPoints(player) - getPointsForGain(player, gain, points));
+        Exp.setPoints(
+                player, Exp.getPoints(player) - DepositMath.pointsForGain(gain, points, getCostPercentage(player)));
         recreate();
         SoundEffect.fillBottle(player);
         return true;
@@ -192,61 +195,19 @@ public final class MagicBottle {
      * orb doesn't fit, the bottle is filled exactly and takes the fewest points that fill it, with the deterministic cost.
      */
     public int collect(Player player, int points, IntConsumer gained) {
-        int room = getRoom(player);
-        if (points <= 0 || room <= 0 || !canStore(player)) {
-            return points;
-        }
-        int taken = points;
-        int gain = points - getCollectCost(player, points);
-        if (gain > room) {
-            gain = room;
-            taken = getPointsForGain(player, room, points);
-        }
-        if (gain > 0) {
-            exp += gain;
+        Collected collected =
+                DepositMath.collect(points, getRoom(player), getCostPercentage(player), ThreadLocalRandom.current());
+        if (collected.gain() > 0) {
+            exp += collected.gain();
             recreate();
-            gained.accept(gain);
+            gained.accept(collected.gain());
         }
-        return points - taken;
-    }
-
-    // The cost in percent of points, rounded so that its mean is exactly points * percentage / 100: the part that
-    // doesn't make a whole point is paid with that probability (like Unbreaking). Integer math, so a cost that is a
-    // whole number of points is never random.
-    private static int getCollectCost(Player player, int points) {
-        int percentage = getCostPercentage(player);
-        long scaled = (long) points * percentage;
-        int cost = (int) (scaled / 100);
-        if (scaled % 100 > 0 && ThreadLocalRandom.current().nextInt(100) < scaled % 100) {
-            cost++;
-        }
-        return cost;
+        return points - collected.taken();
     }
 
     // The exp this bottle would gain if the player deposited the given points: what the cost leaves, up to its room
     public int getDepositGain(Player player, int points) {
-        return Math.clamp(getGainWithoutLimit(player, points), 0, Math.max(0, getRoom(player)));
-    }
-
-    // The fewest points, up to max, whose gain after the cost is at least the given one. The gain grows by 0 or 1 with
-    // each point paid, so it's exactly that gain if max reaches it.
-    private static int getPointsForGain(Player player, int gain, int max) {
-        int low = 0;
-        int high = max;
-        while (low < high) {
-            int mid = low + (high - low) / 2;
-            if (getGainWithoutLimit(player, mid) >= gain) {
-                high = mid;
-            } else {
-                low = mid + 1;
-            }
-        }
-        return low;
-    }
-
-    // The points minus their cost, rounded to the nearest point
-    private static long getGainWithoutLimit(Player player, int points) {
-        return points - ((long) points * getCostPercentage(player) + 50) / 100;
+        return DepositMath.depositGain(points, getCostPercentage(player), getRoom(player));
     }
 
     private static int getCostPercentage(Player player) {

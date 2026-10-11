@@ -11,9 +11,10 @@ kept as `archive/*` tags.
 
 ```
 ./gradlew build       # compile + produce the shaded plugin jar: build/libs/MagicBottle-<version>.jar
+./gradlew spotlessApply  # format the code; build runs spotlessCheck and fails on unformatted code
 ```
 
-Requires a JDK 25 (Gradle toolchain). On Windows use `gradlew.bat`. `./gradlew build` must pass after every change.
+Requires a JDK 25 (Gradle toolchain). On Windows use `gradlew.bat`. `./gradlew build` must pass after every change, and `spotlessApply` runs before committing.
 
 ## Rules
 
@@ -106,6 +107,7 @@ that moves items, with which of the ways listed above.
   git config pull.rebase true        # git pull rebases instead of merging
   git config rebase.updateRefs true  # rebasing a branch also moves the stacked branches on top of it
   git config rebase.autoSquash true  # fixup! commits are squashed when rebasing
+  git config blame.ignoreRevsFile .git-blame-ignore-revs  # git blame skips the formatting commits
   ```
 
 ## Reviewing

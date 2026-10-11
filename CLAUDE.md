@@ -53,8 +53,8 @@ and permission (the switches over `Upgrade` in `Config` and `Messages` don't com
 
 **Interaction flow**: all player-facing behavior is driven by Bukkit events, not GUIs. The listeners are split by
 concern, in the `listeners` package: `BottleInteractListener` (clicks in hand, throttled by the `ClickCooldown` that `PlayerListener` clears on
-quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafters), `InventoryListener` (recipe menu and
-anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (auto-repair), `SmithingListener` (upgrades) and `PlayerListener` (join migration, leave cleanup):
+quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafters), `InventoryListener` (anvil/brewing block), `RecipeMenuListener` (the read-only recipe menu and its tabs),
+`AnvilListener` (repair in the anvil), `RepairListener` (auto-repair), `SmithingListener` (upgrades) and `PlayerListener` (join migration, leave cleanup):
 - `onInteract` — left-click deposits, right-click withdraws, holding the bottle in hand (shift = 10 levels,
   no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`throttle`, a map of last click ticks).
 - `onPrepareCraft`/`onClickCraftResult` — a single MagicBottle (amount 1) alone in a crafting grid (3x3 or the
@@ -148,7 +148,7 @@ ingredient -> upgraded bottle) and anvil (repair: an example damaged item with t
 its row to that tab. The chest has 3 rows of content (more if the smithing tab needs them, up to 4), a row of dark panes and the row of buttons. With no
 tab it sends `messages.recipe.disabled`. Ingredients that accept several items, i.e. tags, cycle through them every second.
 It must stay strictly read-only: the inventory has a custom `InventoryHolder`
-(`RecipeMenu`), `InventoryListener` cancels every `InventoryClickEvent`/`InventoryDragEvent` while it is the *top* inventory of
+(`RecipeMenu`), `RecipeMenuListener` cancels every `InventoryClickEvent`/`InventoryDragEvent` while it is the *top* inventory of
 the view (which also covers shift-clicks, number keys, offhand swaps and double clicks from the player's own
 inventory), only calling `RecipeMenu#click` (which redraws the same inventory) on a plain left/right click in it, and
 clears it on `InventoryCloseEvent`; `Plugin.onDisable` closes it for whoever has it open. The bottles shown

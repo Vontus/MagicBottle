@@ -10,13 +10,16 @@ import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
+import vontus.magicbottle.lantern.LanternListener;
 import vontus.magicbottle.util.Exp;
 
 // Depositing and withdrawing exp by clicking with the bottle in hand
 public class BottleInteractListener implements Listener {
 	private final ClickCooldown cooldown;
+	private final LanternListener lanterns;
 
-	public BottleInteractListener(ClickCooldown cooldown) {
+	public BottleInteractListener(ClickCooldown cooldown, LanternListener lanterns) {
+		this.lanterns = lanterns;
 		this.cooldown = cooldown;
 	}
 
@@ -28,8 +31,9 @@ public class BottleInteractListener implements Listener {
 
 		if (MagicBottle.isMagicBottle(item)) {
 			MagicBottle mb = new MagicBottle(item);
-			// A Magic Lantern is placed, not clicked: cancelling the event here would keep it from being placed
-			if (mb.isLantern()) {
+			// A Magic Lantern is placed, not clicked (cancelling the event would keep it from being placed), and a right click
+			// on a placed one with a bottle takes its exp (LanternListener)
+			if (mb.isLantern() || (event.getAction() == Action.RIGHT_CLICK_BLOCK && lanterns.isPlaced(event.getClickedBlock()))) {
 				return;
 			}
 			if (item.getAmount() == 1 && cooldown.throttle(player)) {

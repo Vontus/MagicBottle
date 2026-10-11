@@ -17,6 +17,7 @@ import vontus.magicbottle.listeners.InventoryListener;
 import vontus.magicbottle.listeners.PlayerListener;
 import vontus.magicbottle.listeners.RepairListener;
 import vontus.magicbottle.listeners.SmithingListener;
+import vontus.magicbottle.lantern.LanternListener;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -28,6 +29,7 @@ public class Plugin extends JavaPlugin {
 	public DebouncedFeedback feedback;
 	public DebouncedFeedback.Channel autoRepairFeedback;
 	public DebouncedFeedback.Channel collectFeedback;
+	private LanternListener lanterns;
 
 	@Override
 	public void onEnable() {
@@ -49,7 +51,10 @@ public class Plugin extends JavaPlugin {
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new AnvilListener(this), this);
 		pm.registerEvents(new CollectListener(this), this);
-		pm.registerEvents(new BottleInteractListener(cooldown), this);
+		lanterns = new LanternListener(this, cooldown);
+		pm.registerEvents(lanterns, this);
+		lanterns.start();
+		pm.registerEvents(new BottleInteractListener(cooldown, lanterns), this);
 		pm.registerEvents(new CraftingGridListener(this), this);
 		pm.registerEvents(new InventoryListener(), this);
 		pm.registerEvents(new RepairListener(this), this);
@@ -63,6 +68,10 @@ public class Plugin extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
+		// Orbs in flight get their gravity back (it is saved with them) and the lanterns are written
+		if (lanterns != null) {
+			lanterns.shutdown();
+		}
 		// Its click handlers go away with the plugin, so nobody may be left holding the menu open
 		for (Player p : getServer().getOnlinePlayers()) {
 			if (RecipeMenu.isRecipeMenu(p.getOpenInventory().getTopInventory())) {

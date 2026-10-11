@@ -10,7 +10,7 @@ libraries:
 
 permissions:
   magicbottle.action.craft:
-    description: 'Allows a player to craft MagicBottles and see their recipe'
+    description: 'Allows a player to craft MagicBottles'
     default: true
   magicbottle.action.deposit:
     description: 'Allows a player to save experience in MagicBottles'
@@ -26,6 +26,9 @@ permissions:
     default: true
   magicbottle.upgrade.collect:
     description: 'Allows a player to apply the collect upgrade (stores picked up XP orbs) to a MagicBottle in the smithing table'
+    default: true
+  magicbottle.command.recipes:
+    description: 'Allows a player to open /mb recipes, which shows the recipes the player can use'
     default: true
   magicbottle.command.give:
     description: 'Admin command. Gives players a number of bottles of a certain level, optionally with upgrades'

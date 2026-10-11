@@ -171,8 +171,14 @@ public class Messages {
 
 	@ConfigSerializable
 	public static class Recipe {
-		public String title = "<dark_purple>MagicBottle recipe";
-		public String disabled = "<red>Crafting new MagicBottles is disabled in this server.";
+		public String title = "<dark_purple>MagicBottle recipes";
+		@Comment("When /mb recipes has nothing to show the player.")
+		public String disabled = "<red>There are no MagicBottle recipes you can use.";
+
+		@Comment("Lines on the tab buttons of /mb recipes, under the name of the workstation.")
+		public String crafting = "<gray>Craft a new MagicBottle";
+		public String smithing = "<gray>Add upgrades to a MagicBottle";
+		public String anvil = "<gray>Repair items with the experience of a MagicBottle";
 	}
 
 	@ConfigSerializable

@@ -53,8 +53,8 @@ and permission (the switches over `Upgrade` in `Config` and `Messages` don't com
 
 **Interaction flow**: all player-facing behavior is driven by Bukkit events, not GUIs. The listeners are split by
 concern, in the `listeners` package: `BottleInteractListener` (clicks in hand, throttled by the `ClickCooldown` that `PlayerListener` clears on
-quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafters), `InventoryListener` (recipe menu and
-anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (auto-repair), `SmithingListener` (upgrades) and `PlayerListener` (join migration, leave cleanup):
+quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafters), `InventoryListener` (anvil/brewing block), `RecipeMenuListener` (the read-only recipe menu and its tabs),
+`AnvilListener` (repair in the anvil), `RepairListener` (auto-repair), `SmithingListener` (upgrades) and `PlayerListener` (join migration, leave cleanup):
 - `onInteract` — left-click deposits, right-click withdraws, holding the bottle in hand (shift = 10 levels,
   no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`throttle`, a map of last click ticks).
 - `onPrepareCraft`/`onClickCraftResult` — a single MagicBottle (amount 1) alone in a crafting grid (3x3 or the
@@ -120,8 +120,8 @@ The upgrades have one smithing recipe each, registered by the same class when en
 
 **Commands** (`commands` package, `Commands.java` is the tree; `BottleArgument`, `UpgradeList` and `UpgradeListArgument` are its arguments): the single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) is a Brigadier
 tree (`Commands#build`) registered from `Plugin.onEnable` through `LifecycleEvents.COMMANDS`; it is not in
-`plugin.yml`. Subcommands (`about`, `reload`, `give <targets> <bottle> [count]`, `upgrade <add|remove> <upgrades>`, `recipe`) are
-literal nodes gated with `.requires(...)` on their permission in `Config` (`recipe` also requires a
+`plugin.yml`. Subcommands (`about`, `reload`, `give <targets> <bottle> [count]`, `upgrade <add|remove> <upgrades>`, `recipes`) are
+literal nodes gated with `.requires(...)` on their permission in `Config` (`recipes` also requires a
 player executor), so senders only see and can run what they may; the menu shown by the bare command lists the
 nodes the source can use.
 `give` follows vanilla `/give`: `targets` (Paper's players selector, fails if nobody matches; `@s` for the executor),
@@ -139,13 +139,20 @@ string (the client paints commas red in a word) that suggests what the bottle in
 or removing what is absent changes nothing and says so.
 New subcommands are added as nodes in `build`, with their line in `USAGES`.
 
-**Recipe menu** (`RecipeMenu.java`): `/mb recipe` (`magicbottle.action.craft`, the same permission as crafting it)
-opens a chest inventory showing the configured new-bottle recipe (any shape up to 3x3; ingredients that accept
-several items, i.e. tags, cycle through them every second). It must stay strictly read-only: the inventory has a custom `InventoryHolder`
-(`RecipeMenu`), `InventoryListener` cancels every `InventoryClickEvent`/`InventoryDragEvent` while it is the *top* inventory of
+**Recipe menu** (`RecipeMenu.java`): `/mb recipes` (`magicbottle.command.recipes`) opens a chest inventory with one tab
+per workstation, switched by the buttons (the workstation items) in its bottom row; only the tabs the player can use are
+there: crafting table (the configured new-bottle recipe, any shape up to 3x3; `recipe.bottle.enabled` and
+`magicbottle.action.craft`), smithing table (a row per enabled upgrade the player has the permission to apply: bottle +
+ingredient -> upgraded bottle) and anvil (repair: an example damaged item with the configured `repair.enchantment` + a bottle
+-> the item repaired; `repair.enabled` and `magicbottle.action.repair`). A new way of using a bottle in a workstation adds
+its row to that tab. The chest has 3 rows of content (more if the smithing tab needs them, up to 4), a row of dark panes and the row of buttons. With no
+tab it sends `messages.recipe.disabled`. Ingredients that accept several items, i.e. tags, cycle through them every second.
+It must stay strictly read-only: the inventory has a custom `InventoryHolder`
+(`RecipeMenu`), `RecipeMenuListener` cancels every `InventoryClickEvent`/`InventoryDragEvent` while it is the *top* inventory of
 the view (which also covers shift-clicks, number keys, offhand swaps and double clicks from the player's own
-inventory) and clears it on `InventoryCloseEvent`; `Plugin.onDisable` closes it for whoever has it open. The result
-is `MagicBottle.createDisplayItem()`, a bottle without the PDC markers, so it is never a real MagicBottle.
+inventory), only calling `RecipeMenu#click` (which redraws the same inventory) on a plain left/right click in it, and
+clears it on `InventoryCloseEvent`; `Plugin.onDisable` closes it for whoever has it open. The bottles shown
+are `MagicBottle.createDisplayItem(exp, upgrades...)`, a bottle without the PDC markers, so it is never a real MagicBottle.
 
 **Config layer** (`config/`): the files are mapped with [Configurate](https://github.com/SpongePowered/Configurate)
 (`configurate-yaml`, loaded by the server through `libraries:` in `plugin.yml`, not shaded). `Settings` (config.yml)

@@ -90,9 +90,13 @@ public final class MagicBottle {
 		print();
 	}
 
-	// A copy of an empty bottle without the bottle markers, so it can't be used as one: for display only
-	static ItemStack createDisplayItem() {
-		ItemStack item = new MagicBottle(0).getItem();
+	// A copy of a bottle without the bottle markers, so it can't be used as one: for display only
+	static ItemStack createDisplayItem(int exp, Upgrade... upgrades) {
+		MagicBottle bottle = new MagicBottle(exp);
+		for (Upgrade upgrade : upgrades) {
+			bottle.addUpgrade(upgrade);
+		}
+		ItemStack item = bottle.getItem();
 		item.editMeta(meta -> {
 			meta.getPersistentDataContainer().remove(keyBottle);
 			meta.getPersistentDataContainer().remove(keyExp);

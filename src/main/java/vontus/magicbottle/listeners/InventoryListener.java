@@ -1,47 +1,18 @@
 package vontus.magicbottle.listeners;
 
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.PlayerInventory;
 import vontus.magicbottle.MagicBottle;
-import vontus.magicbottle.RecipeMenu;
 
-// Inventories where the plugin must keep items from moving: the read-only recipe menu and the anvil/brewing stand
+// Inventories where bottles must not go: the anvil and the brewing stand (the recipe menu has its own RecipeMenuListener)
 public class InventoryListener implements Listener {
-	// The recipe menu is read-only. Every click is cancelled while it is the top inventory, including the ones
-	// in the player's own inventory (shift-click, number keys, offhand swap, double click collecting items...)
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onClickRecipeMenu(InventoryClickEvent e) {
-		if (RecipeMenu.isRecipeMenu(e.getView().getTopInventory())) {
-			e.setResult(Event.Result.DENY);
-			e.setCancelled(true);
-		}
-	}
-
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onDragRecipeMenu(InventoryDragEvent e) {
-		if (RecipeMenu.isRecipeMenu(e.getView().getTopInventory())) {
-			e.setResult(Event.Result.DENY);
-			e.setCancelled(true);
-		}
-	}
-
-	// Nothing in it is real, so it is emptied before the server can return any item to the player
-	@EventHandler(priority = EventPriority.MONITOR)
-	public void onCloseRecipeMenu(InventoryCloseEvent e) {
-		if (RecipeMenu.isRecipeMenu(e.getInventory())) {
-			e.getInventory().clear();
-		}
-	}
-
 	// Bottles can't be used as brewing stand items (dragon's breath is a brewing ingredient and its exp would be lost),
 	// so every route into it is blocked: shift-clicking a bottle (moving them around the player's own inventory is fine),
 	// the cursor, number keys and offhand swap onto a top slot, dragging and hoppers. The anvil is the same, except for

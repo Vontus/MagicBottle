@@ -56,8 +56,16 @@ Bottles live in player inventories for years.
   only look where they must (hotbar and offhand for upgrades). Elsewhere, readability wins over micro-optimizations.
 - Exp math uses integers.
 - Nullness is checked by NullAway: whatever can be null is annotated `@Nullable` (`org.jspecify.annotations`), and Bukkit calls that
-  return null (`getItemMeta()`, `getItem()`, PDC `get`) are checked before use. A field that is set later by `onEnable` is
-  suppressed with `@SuppressWarnings("NullAway.Init")` and a comment saying who sets it.
+  return null (`getItemMeta()`, `getItem()`, PDC `get`) are checked before use. A nullness warning is fixed, not silenced: a
+  passing build only says the warning is gone, not that the code is right. In order of preference:
+  1. The value can't be null by construction: a `final` field, or a default that is a real state (an upgrade ingredient
+     missing from the file is `Ingredient.parse(null)`, which carries its error), never a placeholder that only satisfies
+     the checker.
+  2. It is `@Nullable` and checked where it is used.
+  3. `@SuppressWarnings("NullAway.Init")` only when something really guarantees the field is set before use (e.g. `onEnable`
+     sets it before registering anything that reads it), on each field, never on a class, with a comment saying who sets it.
+
+  Code that such a guarantee makes unreachable fails loudly (throws) instead of returning quietly.
 - Reuse what exists (`Exp`, `ResultSlot.destination`, `MagicBottle.findWithUpgrade`, `UpgradeList`...) instead of
   reimplementing it, and write code like the code around it: naming, idioms, comments that say why.
 - A change to the architecture or to a rule updates CLAUDE.md or this file in the same PR.

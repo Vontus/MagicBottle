@@ -29,13 +29,17 @@ public class Config {
 	public static final int maxLevel = 20000;
 
 	/** The options of config.yml, as loaded. */
-	public static Settings settings = new Settings();
+	@SuppressWarnings("NullAway.Init") // set by load, which onEnable calls first
+	public static Settings settings;
 
 	// What the options become once validated. A recipe or an enchantment that is wrong disables what depends on it
 	// instead of the whole plugin.
 	public static boolean recipeNewBottleEnabled;
-	public static String[] recipeNewBottleShape = new String[0];
-	public static Map<Character, RecipeChoice> recipeNewBottleIngredients = Map.of();
+	// Set by load only when the recipe is enabled and valid; readers check recipeNewBottleEnabled first
+	@SuppressWarnings("NullAway.Init")
+	public static String[] recipeNewBottleShape;
+	@SuppressWarnings("NullAway.Init")
+	public static Map<Character, RecipeChoice> recipeNewBottleIngredients;
 	public static boolean repairEnabled;
 	public static boolean repairAutoEnabled;
 	// Whether an enabled upgrade has a wrong ingredient, which the admin must fix: the plugin doesn't enable like that

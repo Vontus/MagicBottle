@@ -19,11 +19,14 @@ import java.util.List;
  */
 public class Messages {
 	/** The messages, as loaded. */
-	public static Texts texts = new Texts();
+	@SuppressWarnings("NullAway.Init") // set by load, which onEnable calls first
+	public static Texts texts;
 
-	// The segments <xpbar> is made of
-	public static Component bottleFilledBar = Component.empty();
-	public static Component bottleEmptyBar = Component.empty();
+	// The segments <xpbar> is made of; set by load
+	@SuppressWarnings("NullAway.Init")
+	public static Component bottleFilledBar;
+	@SuppressWarnings("NullAway.Init")
+	public static Component bottleEmptyBar;
 
 	public static void load(Plugin plugin) {
 		texts = ConfigFile.load(plugin, "messages.yml", Texts.class, Texts.HEADER);

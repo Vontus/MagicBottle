@@ -21,24 +21,20 @@ import vontus.magicbottle.listeners.SmithingListener;
 import java.util.List;
 import java.util.logging.Logger;
 
-// The fields are set in onEnable, before anything uses them
-@SuppressWarnings("NullAway.Init")
-public class Plugin extends JavaPlugin {
+public final class Plugin extends JavaPlugin {
 	private static final int BSTATS_ID = 1183;
 
+	@SuppressWarnings("NullAway.Init") // set first thing in onEnable
 	public static Logger logger;
-	public DebouncedFeedback feedback;
-	public DebouncedFeedback.Channel autoRepairFeedback;
-	public DebouncedFeedback.Channel collectFeedback;
+	public final DebouncedFeedback feedback = new DebouncedFeedback(this);
+	public final DebouncedFeedback.Channel autoRepairFeedback = feedback.channel(
+			() -> Messages.texts.messages.repair.autoSpent, () -> Config.settings.repair.autoFeedback);
+	public final DebouncedFeedback.Channel collectFeedback = feedback.channel(
+			() -> Messages.texts.messages.collect.stored, () -> Config.settings.upgrades.collect.feedback);
 
 	@Override
 	public void onEnable() {
 		logger = getLogger();
-		feedback = new DebouncedFeedback(this);
-		autoRepairFeedback = feedback.channel(() -> Messages.texts.messages.repair.autoSpent,
-				() -> Config.settings.repair.autoFeedback);
-		collectFeedback = feedback.channel(() -> Messages.texts.messages.collect.stored,
-				() -> Config.settings.upgrades.collect.feedback);
 		MagicBottle.init(this);
 		loadConfig();
 		if (Config.invalidUpgrade) {

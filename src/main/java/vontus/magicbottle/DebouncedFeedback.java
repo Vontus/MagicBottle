@@ -1,6 +1,7 @@
 package vontus.magicbottle;
 
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
@@ -30,7 +31,7 @@ public class DebouncedFeedback {
 
 	private static class Pending {
 		final int[] totals;
-		BukkitTask task;
+		@Nullable BukkitTask task;
 
 		Pending(int channels) {
 			totals = new int[channels];

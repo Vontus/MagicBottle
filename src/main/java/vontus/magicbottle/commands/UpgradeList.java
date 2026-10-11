@@ -1,6 +1,7 @@
 package vontus.magicbottle.commands;
 
 import com.mojang.brigadier.Message;
+import org.jspecify.annotations.Nullable;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
@@ -38,7 +39,7 @@ final class UpgradeList {
 	 * is left) or the end. {@code head} is what precedes the list in the argument and is kept in every suggestion;
 	 * {@code end} is what closes it (null if nothing does, so the list just ends).
 	 */
-	static void suggest(SuggestionsBuilder builder, String head, String list, Set<Upgrade> candidates, String end) {
+	static void suggest(SuggestionsBuilder builder, String head, String list, Set<Upgrade> candidates, @Nullable String end) {
 		int tokenStart = list.lastIndexOf(',') + 1;
 		String prefix = head + list.substring(0, tokenStart);
 		String partial = list.substring(tokenStart);

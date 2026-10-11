@@ -19,10 +19,13 @@ import java.util.List;
  */
 public class Messages {
 	/** The messages, as loaded. */
+	@SuppressWarnings("NullAway.Init") // set by load, which onEnable calls first
 	public static Texts texts;
 
-	// The segments <xpbar> is made of
+	// The segments <xpbar> is made of; set by load
+	@SuppressWarnings("NullAway.Init")
 	public static Component bottleFilledBar;
+	@SuppressWarnings("NullAway.Init")
 	public static Component bottleEmptyBar;
 
 	public static void load(Plugin plugin) {

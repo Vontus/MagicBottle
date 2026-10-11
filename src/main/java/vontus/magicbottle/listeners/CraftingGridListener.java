@@ -1,6 +1,7 @@
 package vontus.magicbottle.listeners;
 
 import org.bukkit.Keyed;
+import org.jspecify.annotations.Nullable;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Crafter;
@@ -72,7 +73,7 @@ public class CraftingGridListener implements Listener {
 	}
 
 	// Deposits all the player's exp into the bottle or withdraws all of it, if still allowed. Returns the resulting bottle.
-	private ItemStack fillOrPour(Player player, ItemStack bottleItem) {
+	private @Nullable ItemStack fillOrPour(Player player, ItemStack bottleItem) {
 		MagicBottle bottle = new MagicBottle(bottleItem);
 		if (bottle.isEmpty()) {
 			if (!canFillInGrid(player) || !bottle.deposit(player, Exp.getPoints(player))) {
@@ -138,7 +139,7 @@ public class CraftingGridListener implements Listener {
 	}
 
 	// What depositing or withdrawing the lone bottle of a crafting grid would give, or null if the player can't do it
-	private ItemStack getGridPreview(MagicBottle ingredient, Player player) {
+	private @Nullable ItemStack getGridPreview(MagicBottle ingredient, Player player) {
 		if (ingredient.isEmpty()) {
 			// No result if the deposit would be refused (the bottle has no room or the cost leaves nothing)
 			int gain = ingredient.getDepositGain(player, Exp.getPoints(player));
@@ -152,7 +153,7 @@ public class CraftingGridListener implements Listener {
 	}
 
 	// The only item in the grid, if it's a single MagicBottle (not a stack)
-	private ItemStack getLoneBottle(CraftingInventory inv) {
+	private @Nullable ItemStack getLoneBottle(CraftingInventory inv) {
 		ItemStack lone = null;
 		for (ItemStack i : inv.getMatrix()) {
 			if (Utils.getMaterial(i) != Material.AIR) {

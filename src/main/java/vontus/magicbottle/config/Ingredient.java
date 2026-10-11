@@ -1,6 +1,7 @@
 package vontus.magicbottle.config;
 
 import org.bukkit.Bukkit;
+import org.jspecify.annotations.Nullable;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
@@ -29,19 +30,19 @@ final class Ingredient {
 		}
 	};
 
-	final String text;
+	final @Nullable String text;
 	// null if the text is invalid
-	final RecipeChoice choice;
+	final @Nullable RecipeChoice choice;
 	// null if the text is valid
-	final String error;
+	final @Nullable String error;
 
-	private Ingredient(String text, RecipeChoice choice, String error) {
+	private Ingredient(@Nullable String text, @Nullable RecipeChoice choice, @Nullable String error) {
 		this.text = text;
 		this.choice = choice;
 		this.error = error;
 	}
 
-	static Ingredient parse(String text) {
+	static Ingredient parse(@Nullable String text) {
 		if (text == null || text.isBlank()) {
 			return invalid(text, "it has no item");
 		}
@@ -64,7 +65,7 @@ final class Ingredient {
 		return new Ingredient(text, new RecipeChoice.MaterialChoice(m), null);
 	}
 
-	private static Ingredient invalid(String text, String error) {
+	private static Ingredient invalid(@Nullable String text, String error) {
 		return new Ingredient(text, null, error);
 	}
 }

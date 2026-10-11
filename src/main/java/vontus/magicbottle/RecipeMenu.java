@@ -89,6 +89,7 @@ public class RecipeMenu implements InventoryHolder {
 		}
 	}
 
+	@SuppressWarnings("ReferenceEquality") // the holder is compared by identity: it must be this very menu
 	private void startCycling(Plugin plugin, Player player) {
 		boolean cycles = Config.recipeNewBottleIngredients.values().stream()
 				.anyMatch(choice -> choice instanceof RecipeChoice.MaterialChoice materialChoice && materialChoice.getChoices().size() > 1);

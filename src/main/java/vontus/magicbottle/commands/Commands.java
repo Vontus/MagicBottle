@@ -39,6 +39,7 @@ import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
 
 public class Commands {
 	private final Plugin plugin;
+	@SuppressWarnings("NullAway.Init") // set by build(), which Plugin calls before the command can run
 	private LiteralCommandNode<CommandSourceStack> root;
 
 	// Usage shown in the menu for each subcommand node
@@ -73,14 +74,14 @@ public class Commands {
 										.executes(this::give))))
 				.then(literal("upgrade")
 						// The bottle is the one in the executor's hand
-						.requires(perm(Config.permUpgrade).and(isPlayer()))
+						.requires(perm(Config.permUpgrade).and(Commands::isPlayer))
 						.then(literal("add")
 								.then(argument("upgrades", new UpgradeListArgument(true))
 										.executes(ctx -> changeUpgrades(ctx, true))))
 						.then(literal("remove")
 								.then(argument("upgrades", new UpgradeListArgument(false))
 										.executes(ctx -> changeUpgrades(ctx, false)))))
-				.then(literal("recipe").requires(perm(Config.permCraft).and(isPlayer())).executes(asPlayer(this::recipe)))
+				.then(literal("recipe").requires(perm(Config.permCraft).and(Commands::isPlayer)).executes(asPlayer(this::recipe)))
 				.build();
 		return root;
 	}
@@ -96,7 +97,7 @@ public class Commands {
 		};
 	}
 
-	/** Runs the action on the executing player; the node must require {@link #isPlayer()}. */
+	/** Runs the action on the executing player; the node must require {@link #isPlayer(CommandSourceStack)}. */
 	private static Command<CommandSourceStack> asPlayer(Consumer<Player> action) {
 		return ctx -> {
 			action.accept((Player) ctx.getSource().getExecutor());
@@ -104,8 +105,8 @@ public class Commands {
 		};
 	}
 
-	private static Predicate<CommandSourceStack> isPlayer() {
-		return source -> source.getExecutor() instanceof Player;
+	private static boolean isPlayer(CommandSourceStack source) {
+		return source.getExecutor() instanceof Player;
 	}
 
 
@@ -155,7 +156,9 @@ public class Commands {
 	 * settings (admin). Adding what the bottle has or removing what it lacks changes nothing.
 	 */
 	private int changeUpgrades(CommandContext<CommandSourceStack> ctx, boolean adding) {
-		Player player = (Player) ctx.getSource().getExecutor();
+		if (!(ctx.getSource().getExecutor() instanceof Player player)) {
+			throw new IllegalStateException("the node requires a player");
+		}
 		CommandSender sender = ctx.getSource().getSender();
 		ItemStack held = player.getInventory().getItemInMainHand();
 		if (!MagicBottle.isMagicBottle(held)) {

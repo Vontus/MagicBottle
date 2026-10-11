@@ -29,12 +29,16 @@ public class Config {
 	public static final int maxLevel = 20000;
 
 	/** The options of config.yml, as loaded. */
+	@SuppressWarnings("NullAway.Init") // set by load, which onEnable calls first
 	public static Settings settings;
 
 	// What the options become once validated. A recipe or an enchantment that is wrong disables what depends on it
 	// instead of the whole plugin.
 	public static boolean recipeNewBottleEnabled;
+	// Set by load only when the recipe is enabled and valid; readers check recipeNewBottleEnabled first
+	@SuppressWarnings("NullAway.Init")
 	public static String[] recipeNewBottleShape;
+	@SuppressWarnings("NullAway.Init")
 	public static Map<Character, RecipeChoice> recipeNewBottleIngredients;
 	public static boolean repairEnabled;
 	public static boolean repairAutoEnabled;
@@ -72,10 +76,9 @@ public class Config {
 			if (!option.enabled) {
 				continue;
 			}
-			if (option.ingredient == null || option.ingredient.error != null) {
-				String error = option.ingredient == null ? "it has no item" : option.ingredient.error;
-				Plugin.logger.severe("Invalid 'upgrades." + upgrade.id() + ".ingredient' in config.yml: " + error
-						+ ".");
+			if (option.ingredient.error != null) {
+				Plugin.logger.severe("Invalid 'upgrades." + upgrade.id() + ".ingredient' in config.yml: "
+						+ option.ingredient.error + ".");
 				invalidUpgrade = true;
 			} else {
 				upgradeIngredients.put(upgrade, option.ingredient.choice);
@@ -136,7 +139,8 @@ public class Config {
 	private static Map<Character, RecipeChoice> parseRecipeIngredients(String[] shape, Map<String, Ingredient> section) {
 		Map<Character, RecipeChoice> ingredients = new HashMap<>();
 		for (String row : shape) {
-			for (char c : row.toCharArray()) {
+			for (int i = 0; i < row.length(); i++) {
+				char c = row.charAt(i);
 				if (c != ' ' && !ingredients.containsKey(c)) {
 					Ingredient ingredient = section.get(String.valueOf(c));
 					if (ingredient == null) {

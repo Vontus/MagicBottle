@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'com.gradleup.shadow' version '9.6.1'
+    id 'net.ltgt.errorprone' version '5.1.1'
 }
 
 String packagePath = 'vontus.magicbottle'
@@ -23,6 +24,9 @@ dependencies {
     // Downloaded by the server from Maven Central (see 'libraries' in plugin.yml), so it isn't shaded
     compileOnly 'org.spongepowered:configurate-yaml:4.2.0'
     implementation 'org.bstats:bstats-bukkit:3.2.1'
+
+    errorprone 'com.google.errorprone:error_prone_core:2.50.0'
+    errorprone 'com.uber.nullaway:nullaway:0.14.2'
 }
 
 processResources {
@@ -43,4 +47,8 @@ build.dependsOn shadowJar
 
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ['-Xlint:all', '-Werror']
+    options.errorprone {
+        check('NullAway', net.ltgt.gradle.errorprone.CheckSeverity.ERROR)
+        option('NullAway:AnnotatedPackages', packagePath)
+    }
 }

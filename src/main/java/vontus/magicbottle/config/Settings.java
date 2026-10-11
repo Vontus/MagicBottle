@@ -163,7 +163,7 @@ public class Settings {
 	public static class UpgradeOption {
 		public boolean enabled = true;
 
-		public Ingredient ingredient;
+		public Ingredient ingredient = Ingredient.parse(null);
 
 		public UpgradeOption() {
 		}

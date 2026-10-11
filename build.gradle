@@ -40,3 +40,7 @@ shadowJar {
 }
 
 build.dependsOn shadowJar
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ['-Xlint:all', '-Werror']
+}

@@ -10,6 +10,7 @@ import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.Upgrade;
 import vontus.magicbottle.config.Config;
+import vontus.magicbottle.util.Utils;
 
 // Auto-repair of tools and armor with the bottles that have the repair upgrade, in the player's hotbar or offhand
 public class RepairListener implements Listener {
@@ -30,14 +31,14 @@ public class RepairListener implements Listener {
 		ItemStack i = e.getItem();
 		// 1 exp repairs 2 durability points (like Mending), so only repair when the accumulated damage is odd: an even
 		// value would spend 1 exp on a single point. Intentional, not a bug.
-		if (i.getDurability() % 2 == 0 || e.isCancelled() || !Config.canRepair(i)) {
+		if (Utils.getDamage(i) % 2 == 0 || e.isCancelled() || !Config.canRepair(i)) {
 			return;
 		}
 		MagicBottle mb = MagicBottle.findWithUpgrade(p, Upgrade.AUTO_REPAIR, bottle -> !bottle.isEmpty());
 		if (mb == null) {
 			return;
 		}
-		i.setDurability((short) (i.getDurability() + e.getDamage()));
+		Utils.setDamage(i, Utils.getDamage(i) + e.getDamage());
 		plugin.autoRepairFeedback.add(p, mb.repair(i, false));
 		e.setCancelled(true);
 		p.updateInventory();

@@ -184,7 +184,7 @@ public final class MagicBottle {
 	 * The empty bottle that merging the two gives: the sizes added and the union of the upgrades (the ids this version
 	 * doesn't know too). Null if either isn't full or the size would go over {@link #getMaxSize()}.
 	 */
-	public static MagicBottle merge(MagicBottle first, MagicBottle second) {
+	public static @Nullable MagicBottle merge(MagicBottle first, MagicBottle second) {
 		long size = (long) first.getSize() + second.getSize();
 		if (!first.isFull() || !second.isFull() || size > getMaxSize()) {
 			return null;

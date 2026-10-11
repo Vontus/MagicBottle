@@ -11,14 +11,14 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.PlayerInventory;
 import vontus.magicbottle.MagicBottle;
 
-// Inventories where bottles must not go: the anvil and the brewing stand (the recipe menu has its own RecipeMenuListener)
+// Inventories where bottles must not go: the brewing stand (the recipe menu has its own RecipeMenuListener)
 public class InventoryListener implements Listener {
 	// Bottles can't be used as brewing stand items (dragon's breath is a brewing ingredient and its exp would be lost),
 	// so every route into it is blocked: shift-clicking a bottle (moving them around the player's own inventory is fine),
-	// the cursor, number keys and offhand swap onto a top slot, dragging and hoppers. The anvil is the same, except for
-	// its second slot: a bottle goes there to repair an item (see AnvilListener), but never in the first one.
+	// the cursor, number keys and offhand swap onto a top slot, dragging and hoppers. Anvils take bottles in both slots
+	// (repairing and merging, see AnvilListener).
 	private static boolean isBlockedInventory(InventoryType type) {
-		return type == InventoryType.ANVIL || type == InventoryType.BREWING;
+		return type == InventoryType.BREWING;
 	}
 
 	// Whether this click would put a bottle in the top inventory, or take one out of it, where that isn't allowed
@@ -27,9 +27,6 @@ public class InventoryListener implements Listener {
 		boolean inTop = e.getRawSlot() >= 0 && e.getRawSlot() < view.getTopInventory().getSize();
 		if (!inTop) {
 			return e.getClick().isShiftClick() && MagicBottle.isMagicBottle(e.getCurrentItem());
-		}
-		if (AnvilListener.acceptsBottle(view, e.getRawSlot())) {
-			return false;
 		}
 		if (MagicBottle.isMagicBottle(e.getCurrentItem())) {
 			return true;
@@ -55,7 +52,7 @@ public class InventoryListener implements Listener {
 			return;
 		}
 		int top = e.getView().getTopInventory().getSize();
-		if (e.getRawSlots().stream().anyMatch(slot -> slot < top && !AnvilListener.acceptsBottle(e.getView(), slot))) {
+		if (e.getRawSlots().stream().anyMatch(slot -> slot < top)) {
 			e.setCancelled(true);
 		}
 	}

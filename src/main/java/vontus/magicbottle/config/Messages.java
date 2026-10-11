@@ -140,6 +140,7 @@ public class Messages {
 		public Collect collect = new Collect();
 		public Repair repair = new Repair();
 		public Spend spend = new Spend();
+		public Merge merge = new Merge();
 	}
 
 	@ConfigSerializable
@@ -221,5 +222,13 @@ public class Messages {
 				  <levels>: levels the bottle loses (how much its level drops, e.g. from level 30 to 24 is 6)
 				  <levels_left>: the level the bottle will have after the repair""")
 		public String anvilCost = "<gray>Uses <yellow><xp></yellow> XP from the bottle (<yellow><xp_left></yellow> XP left)";
+	}
+
+	@ConfigSerializable
+	public static class Merge {
+		// Placeholders: <xp>
+		@Setting("anvil")
+		@Comment("Line added to the empty bottle shown in the anvil, before taking it. Placeholders: <xp> (the experience of both bottles, which is lost)")
+		public String anvil = "<red>Consumes the experience of both bottles (<yellow><xp></yellow> XP)";
 	}
 }

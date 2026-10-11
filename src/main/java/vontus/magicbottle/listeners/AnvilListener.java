@@ -14,7 +14,6 @@ import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.AnvilInventory;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.view.AnvilView;
 import vontus.magicbottle.MagicBottle;
@@ -31,12 +30,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-// The anvil and MagicBottles: repairing with a bottle as the second item, and paying the level cost of any other operation
-// with a bottle from the inventory. Vanilla would consume the second slot when the repair is taken (the bottle would
-// vanish), so the click on that result is cancelled and the transaction is done here. The level cost is lent to the
-// player by the bottle (XpLoan), so vanilla's own take charges it.
+// What a MagicBottle does in the anvil: repairing an item with it in the second slot, and merging two full bottles.
+// Vanilla would consume the bottles when the result is taken (a repair would make the bottle vanish, a merge would leave
+// the inputs in an inconsistent state), so the click on the result is cancelled and the transaction is done here.
+// Any other operation is paid from a bottle with a loan (XpLoan) when the player lacks the levels: the bottle raises the
+// player to the cost, so vanilla's own take charges it.
+//
+// First slot | Second slot | Result
+// damaged item accepted by Config.canRepair | MagicBottle with exp | repair
+// MagicBottle | MagicBottle | merge, if both are full
+// MagicBottle | anything else | none (vanilla would rename it, but print() rewrites the name)
 public class AnvilListener implements Listener {
-	private static final int BOTTLE_SLOT = 1;
 	private static final int RESULT_SLOT = 2;
 
 	private final Plugin plugin;
@@ -45,54 +49,65 @@ public class AnvilListener implements Listener {
 		this.plugin = plugin;
 	}
 
-	// Whether a bottle may be put in this raw slot of the top inventory: only the second slot of the anvil, to repair with it
-	static boolean acceptsBottle(InventoryView view, int rawSlot) {
-		return view.getType() == InventoryType.ANVIL && Config.repairEnabled && rawSlot == BOTTLE_SLOT;
-	}
-
-	// Vanilla has no result for a bottle in the second slot, so the preview is set here. It costs no levels, so the
-	// repair cost is 0 (the result is taken by hand, vanilla's own take never runs for it).
+	// Vanilla has no result for a bottle in the anvil, so the preview is set here. It costs no levels, so the repair
+	// cost is 0 (the result is taken by hand, vanilla's own take never runs for it).
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPrepareAnvil(PrepareAnvilEvent e) {
 		AnvilInventory inv = e.getInventory();
-		if (!isBottleRepair(inv) || !e.getView().getPlayer().hasPermission(Config.permRepair)) {
-			return;
+		Player player = (Player) e.getView().getPlayer();
+		if (MagicBottle.isMagicBottle(inv.getFirstItem())) {
+			prepareMerge(e, inv, player);
+		} else if (isBottleRepair(inv) && player.hasPermission(Config.permRepair)) {
+			prepareRepair(e, inv);
 		}
+	}
+
+	private void prepareRepair(PrepareAnvilEvent e, AnvilInventory inv) {
 		ItemStack result = inv.getFirstItem().clone();
 		MagicBottle bottle = new MagicBottle(inv.getSecondItem().clone());
 		double levelBefore = bottle.getLevel();
 		int spent = bottle.repair(result, true);
 		// Only the preview has this line: taking the result recalculates it from the first slot
-		result.editMeta(meta -> {
-			List<Component> lore = meta.hasLore() ? new ArrayList<>(meta.lore()) : new ArrayList<>();
-			lore.add(Messages.renderItemText(Messages.texts.messages.repair.anvilCost,
-					Placeholder.unparsed("xp", Utils.roundInt(spent)),
-					Placeholder.unparsed("xp_left", Utils.roundInt(bottle.getExp())),
-					Placeholder.unparsed("levels", Utils.roundDouble(levelBefore - bottle.getLevel())),
-					Placeholder.unparsed("levels_left", Utils.roundInt((int) bottle.getLevel()))));
-			meta.lore(lore);
-		});
+		addPreviewLine(result, Messages.renderItemText(Messages.texts.messages.repair.anvilCost,
+				Placeholder.unparsed("xp", Utils.roundInt(spent)),
+				Placeholder.unparsed("xp_left", Utils.roundInt(bottle.getExp())),
+				Placeholder.unparsed("levels", Utils.roundDouble(levelBefore - bottle.getLevel())),
+				Placeholder.unparsed("levels_left", Utils.roundInt((int) bottle.getLevel()))));
 		e.setResult(result);
 		e.getView().setRepairCost(0);
 	}
 
-	// Vanilla's shift-click would put the bottle in the first slot (InventoryListener cancels the click), so it is moved
-	// to the second one by hand
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onShiftClickBottle(InventoryClickEvent e) {
-		ItemStack item = e.getCurrentItem();
-		if (e.getClick().isShiftClick() && e.getView().getTopInventory() instanceof AnvilInventory inv
-				&& e.getRawSlot() >= inv.getSize() && acceptsBottle(e.getView(), BOTTLE_SLOT)
-				&& MagicBottle.isMagicBottle(item) && item.getAmount() == 1 && inv.getSecondItem() == null) {
-			inv.setSecondItem(item);
-			e.setCurrentItem(null);
+	// A bottle in the first slot never has a vanilla result (that would be renaming it), only the merge one
+	private void prepareMerge(PrepareAnvilEvent e, AnvilInventory inv, Player player) {
+		MagicBottle merged = merge(inv, player);
+		if (merged == null) {
+			e.setResult(null);
+			return;
 		}
+		ItemStack result = merged.getItem();
+		// Both are full bottles, as the merge needs
+		int consumed = new MagicBottle(inv.getFirstItem().clone()).getExp() + new MagicBottle(inv.getSecondItem().clone()).getExp();
+		addPreviewLine(result, Messages.renderItemText(Messages.texts.messages.merge.anvil,
+				Placeholder.unparsed("xp", Utils.roundInt(consumed))));
+		e.setResult(result);
+		e.getView().setRepairCost(0);
+	}
+
+	private static void addPreviewLine(ItemStack item, Component line) {
+		item.editMeta(meta -> {
+			List<Component> lore = meta.hasLore() ? new ArrayList<>(meta.lore()) : new ArrayList<>();
+			lore.add(line);
+			meta.lore(lore);
+		});
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onClickResult(InventoryClickEvent e) {
-		if (e.getRawSlot() != RESULT_SLOT || !(e.getView().getTopInventory() instanceof AnvilInventory inv)
-				|| !isBottleRepair(inv)) {
+		if (e.getRawSlot() != RESULT_SLOT || !(e.getView().getTopInventory() instanceof AnvilInventory inv)) {
+			return;
+		}
+		boolean merge = MagicBottle.isMagicBottle(inv.getFirstItem());
+		if (!merge && !isBottleRepair(inv)) {
 			return;
 		}
 		// Middle click only clones the result in creative, without consuming anything, so vanilla can handle it
@@ -106,7 +121,31 @@ public class AnvilListener implements Listener {
 
 		// Pick the destination before changing anything, so no exp is spent if the item can't be delivered
 		Consumer<ItemStack> destination = ResultSlot.destination(e, player);
-		if (destination == null || !player.hasPermission(Config.permRepair)) {
+		if (destination == null) {
+			return;
+		}
+		if (merge) {
+			takeMerge(inv, player, destination);
+		} else {
+			takeRepair(inv, player, destination);
+		}
+	}
+
+	private void takeMerge(AnvilInventory inv, Player player, Consumer<ItemStack> destination) {
+		MagicBottle merged = merge(inv, player);
+		if (merged == null) {
+			return;
+		}
+		// Both bottles are used up: their exp is the price
+		inv.setFirstItem(null);
+		inv.setSecondItem(null);
+		inv.setResult(null);
+		destination.accept(merged.getItem());
+		SoundEffect.merge(player);
+	}
+
+	private void takeRepair(AnvilInventory inv, Player player, Consumer<ItemStack> destination) {
+		if (!player.hasPermission(Config.permRepair)) {
 			return;
 		}
 		ItemStack repaired = inv.getFirstItem().clone();
@@ -184,6 +223,22 @@ public class AnvilListener implements Listener {
 	private static void reportSpent(Player player, int xp) {
 		player.sendActionBar(Messages.render(Messages.texts.messages.spend.fromBottle,
 				Placeholder.unparsed("xp", String.valueOf(xp))));
+	}
+
+	// The empty bottle that merging the two of the anvil gives, or null if the player can't: merging is off or not
+	// allowed for them, a slot isn't a single bottle, one isn't full or the result would go over the hard cap
+	private static @Nullable MagicBottle merge(AnvilInventory inv, Player player) {
+		ItemStack first = inv.getFirstItem();
+		ItemStack second = inv.getSecondItem();
+		if (!Config.settings.merge.enabled || !player.hasPermission(Config.permMerge)
+				|| !isSingleBottle(first) || !isSingleBottle(second)) {
+			return null;
+		}
+		return MagicBottle.merge(new MagicBottle(first.clone()), new MagicBottle(second.clone()));
+	}
+
+	private static boolean isSingleBottle(ItemStack item) {
+		return MagicBottle.isMagicBottle(item) && item.getAmount() == 1;
 	}
 
 	// A damaged item that can be repaired in the first slot and a usable MagicBottle in the second

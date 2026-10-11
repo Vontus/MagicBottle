@@ -12,9 +12,9 @@ their XP levels in glass bottles. Java 25, built with Gradle 9. Package root: `v
 
 ## Build
 
-./gradlew spotlessApply  # format the code: build runs spotlessCheck and fails if it is not formatted
+```
 ./gradlew build       # compile + produce the shaded plugin jar (relocates bstats): build/libs/MagicBottle-<version>.jar
-./gradlew spotlessApply # format the code: `build` runs spotlessCheck and fails if it is not formatted
+./gradlew spotlessApply  # format the code: build runs spotlessCheck and fails if it is not formatted
 ```
 
 Requires a JDK 25 (Gradle toolchain). On Windows use `gradlew.bat` instead of `./gradlew`. The compiler runs with

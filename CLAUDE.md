@@ -51,10 +51,24 @@ Each upgrade has `upgrades.<id>` in `Settings` (`enabled`, `ingredient`, parsed 
 applied in the smithing table (see `SmithingListener`). A new upgrade is an `Upgrade` value plus its settings, lore message
 and permission (the switches over `Upgrade` in `Config` and `Messages` don't compile until they are added).
 
+**Loans** (`XpLoan`): a workstation that only lets the player use what their real level affords is paid from a bottle by
+lending the player the points. `borrow` raises the player to exactly a target point total (the level the workstation needs,
+bar 0) with the difference taken from the first bottle of the whole inventory that covers it (`MagicBottle.lend`; bottles
+aren't combined), and the workstation spends the levels as vanilla does. The loan (`owed`) is stored in the player's PDC
+(`magicbottle:borrowed`) so a crash is recovered on join. `settle` gives the bottle `min(owed, the player's points now)`
+(`MagicBottle.repay`, no deposit cost: the points were the bottle's; to the bottle that lent them if it is still in its slot
+with room, else to the first bottle with room): own exp is spent first, orbs or other plugins can't create exp, and if no
+bottle has room the player keeps the points (never lost). Both ways the exp is set with `Exp.setPointsSilently`, since
+`Exp.setPoints` gives it level by level and vanilla plays the level up sound on every multiple of 5. What the bottle really
+paid is passed to the function given to `borrow`. `LoanListener` settles on `InventoryCloseEvent` (any
+inventory), join, quit, kick, a lethal `EntityDamageEvent` (before the death computes level and dropped exp) and
+`PlayerDeathEvent` (lowering `droppedExp` if a loan was settled); `Plugin.onDisable` settles too. Settling ignores the config
+and permissions: a loan is always repaid.
+
 **Interaction flow**: all player-facing behavior is driven by Bukkit events, not GUIs. The listeners are split by
 concern, in the `listeners` package: `BottleInteractListener` (clicks in hand, throttled by the `ClickCooldown` that `PlayerListener` clears on
 quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafters), `InventoryListener` (anvil/brewing block), `RecipeMenuListener` (the read-only recipe menu and its tabs),
-`AnvilListener` (repair in the anvil), `RepairListener` (auto-repair), `SmithingListener` (upgrades) and `PlayerListener` (join migration, leave cleanup):
+`AnvilListener` (repair in the anvil), `RepairListener` (auto-repair), `SmithingListener` (upgrades), `LoanListener` (returning loans, see above) and `PlayerListener` (join migration, leave cleanup):
 - `onInteract` — left-click deposits, right-click withdraws, holding the bottle in hand (shift = 10 levels,
   no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`throttle`, a map of last click ticks).
 - `onPrepareCraft`/`onClickCraftResult` — a single MagicBottle (amount 1) alone in a crafting grid (3x3 or the

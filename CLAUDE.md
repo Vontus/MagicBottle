@@ -141,10 +141,10 @@ New subcommands are added as nodes in `build`, with their line in `USAGES`.
 
 **Recipe menu** (`RecipeMenu.java`): `/mb recipe` (`magicbottle.action.craft`, the same permission as crafting it)
 opens a chest inventory showing the configured new-bottle recipe (if enabled; any shape up to 3x3) and, in one row each below it, the enabled upgrades the player has the permission to apply (bottle + ingredient -> upgraded bottle; at most what fits in 6 rows). With nothing to show it sends `messages.recipe.disabled`. Ingredients that accept
-several items, i.e. tags, cycle through them every second). It must stay strictly read-only: the inventory has a custom `InventoryHolder`
+several items, i.e. tags, cycle through them every second. It must stay strictly read-only: the inventory has a custom `InventoryHolder`
 (`RecipeMenu`), `InventoryListener` cancels every `InventoryClickEvent`/`InventoryDragEvent` while it is the *top* inventory of
 the view (which also covers shift-clicks, number keys, offhand swaps and double clicks from the player's own
-inventory) and clears it on `InventoryCloseEvent`; `Plugin.onDisable` closes it for whoever has it open. The result
+inventory) and clears it on `InventoryCloseEvent`; `Plugin.onDisable` closes it for whoever has it open. The bottles shown
 are `MagicBottle.createDisplayItem(upgrades...)`, a bottle without the PDC markers, so it is never a real MagicBottle.
 
 **Config layer** (`config/`): the files are mapped with [Configurate](https://github.com/SpongePowered/Configurate)

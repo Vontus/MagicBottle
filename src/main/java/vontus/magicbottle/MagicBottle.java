@@ -20,6 +20,7 @@ import vontus.magicbottle.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,7 +52,13 @@ public final class MagicBottle {
 	}
 
 	public MagicBottle(int exp) {
+		this(exp, List.of());
+	}
+
+	// A new bottle with the upgrades already in it, so the item is printed once
+	public MagicBottle(int exp, Collection<Upgrade> upgrades) {
 		this.exp = exp;
+		upgrades.forEach(upgrade -> this.upgrades.add(upgrade.id()));
 		recreate();
 	}
 
@@ -92,10 +99,7 @@ public final class MagicBottle {
 
 	// A copy of a bottle without the bottle markers, so it can't be used as one: for display only
 	static ItemStack createDisplayItem(int exp, Upgrade... upgrades) {
-		MagicBottle bottle = new MagicBottle(exp);
-		for (Upgrade upgrade : upgrades) {
-			bottle.addUpgrade(upgrade);
-		}
+		MagicBottle bottle = new MagicBottle(exp, List.of(upgrades));
 		ItemStack item = bottle.getItem();
 		item.editMeta(meta -> {
 			meta.getPersistentDataContainer().remove(keyBottle);

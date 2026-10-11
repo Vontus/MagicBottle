@@ -1,11 +1,9 @@
 package vontus.magicbottle.config;
 
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.Upgrade;
-import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
 
 import java.util.EnumMap;
@@ -21,10 +19,9 @@ public class Config {
 	public static final String permUpgrade = "magicbottle.command.upgrade";
 	public static final String permReload = "magicbottle.command.reload";
 	public static final String permRepair = "magicbottle.action.repair";
+	public static final String permMerge = "magicbottle.action.merge";
 	public static final String permDepositCostExempt = "magicbottle.action.deposit.cost.exempt";
 
-	private static final String maxLevelsBasePermission = "magicbottle.maxlevel.";
-	private static final String maxLevelsUnlimitedPermission = "magicbottle.maxlevel.unlimited";
 
 	public static final int maxLevel = 20000;
 
@@ -44,7 +41,7 @@ public class Config {
 	public static final Map<Upgrade, RecipeChoice> upgradeIngredients = new EnumMap<>(Upgrade.class);
 
 	public static void load(Plugin plugin) {
-		settings = ConfigFile.load(plugin, "config.yml", Settings.class, Settings.HEADER);
+		settings = ConfigFile.load(plugin, "config.yml", Settings.class, Settings.HEADER, Settings::migrate);
 
 		recipeNewBottleEnabled = settings.recipe.bottle.enabled;
 		if (recipeNewBottleEnabled) {
@@ -155,22 +152,5 @@ public class Config {
 			}
 		}
 		return ingredients;
-	}
-
-	public static int getMaxFillPointsFor(final Player p) {
-		return Exp.getExpAtLevel(getMaxLevelsFor(p));
-	}
-
-	public static int getMaxLevelsFor(final Player p) {
-		if (p.hasPermission(maxLevelsUnlimitedPermission)) {
-			return maxLevel;
-		}
-		int max = -1;
-		for (Map.Entry<String, Integer> entry : settings.maxLevel.permissions.entrySet()) {
-			if (p.hasPermission(maxLevelsBasePermission + entry.getKey())) {
-				max = Math.max(max, entry.getValue());
-			}
-		}
-		return max == -1 ? settings.maxLevel.def : max;
 	}
 }

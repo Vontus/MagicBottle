@@ -21,6 +21,9 @@ permissions:
   magicbottle.action.repair:
     description: 'Allows a player to repair tools and armor in the anvil using a MagicBottle'
     default: true
+  magicbottle.action.merge:
+    description: 'Allows a player to merge two full MagicBottles in the anvil into a bigger one'
+    default: true
   magicbottle.upgrade.autorepair:
     description: 'Allows a player to apply the repair (auto-repair) upgrade to a MagicBottle in the smithing table'
     default: true
@@ -33,9 +36,6 @@ permissions:
     description: 'Admin command. Adds or removes upgrades on the MagicBottle in the main hand, ignoring the upgrade permissions and settings'
   magicbottle.command.reload:
     description: 'Admin command. Reloads the plugin config'
-  magicbottle.maxlevel.unlimited:
-    description: 'Allows a player to save up to 20,000 levels in a single MagicBottle'
-    default: false
   magicbottle.action.deposit.cost.exempt:
     description: 'Exempts the player from paying the cost of saving experience into a bottle'
     default: false

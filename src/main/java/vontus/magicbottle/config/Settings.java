@@ -1,8 +1,12 @@
 package vontus.magicbottle.config;
 
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
+import vontus.magicbottle.Plugin;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,9 +31,18 @@ public class Settings {
 
 	public Recipe recipe = new Recipe();
 
-	@Setting("max level")
-	@Comment("Set the maximum level a player can save in a single MagicBottle.\nTIP: Set this depending on how difficult you made the recipe.")
-	public MaxLevel maxLevel = new MaxLevel();
+	@Comment("""
+			The level a plain MagicBottle holds. Every bottle has a size (1 unless it was made by merging bottles) and holds the
+			experience of 'size' bottles of this level, rounded down to a whole level: with 30, size 2 holds level 39 and size 4
+			holds level 51. The capacity is calculated from this option every time, so changing it (and '/mb reload') rescales
+			every bottle. A bottle that holds more than its capacity keeps all its experience and only refuses deposits until
+			it goes below. From 1 to 20,000, which is also the most any bottle can hold.
+			This replaces 'max level' of older versions: its 'default' is copied here once, and the permissions
+			'magicbottle.maxlevel.*' no longer exist (the capacity is a property of the bottle, not of who holds it).""")
+	public int capacity = 30;
+
+	@Comment("Merging two full bottles in the anvil gives an empty bottle with the capacity of both.")
+	public Merge merge = new Merge();
 
 	public Repair repair = new Repair();
 
@@ -101,27 +114,32 @@ public class Settings {
 	}
 
 	@ConfigSerializable
-	public static class MaxLevel {
-		@Comment("This will be applied when the player doesn't have any of the following permissions.")
-		@Setting("default")
-		public int def = 200;
-
+	public static class Merge {
 		@Comment("""
-				Allow players to have bottles with more levels than the default option.
-				To remove the limit entirely, give people 'magicbottle.maxlevel.unlimited'; still, the maximum level a bottle can hold is 20,000.
-				You need to grant people the permission 'magicbottle.maxlevel.<name>', being <name> in the list shown below.
-				If a player has two or more of these permissions, the maximum value will be applied, including 'magicbottle.maxlevel.unlimited'.
-				  For example, a Veteran user can have the permissions 'user' and 'veteran', but only 'veteran' will be applied.
-				You can modify, add or remove any of the following limits at will.""")
-		public Map<String, Integer> permissions = defaultPermissions();
+				Merging in the anvil: a full MagicBottle in the first slot and another one in the second give an empty bottle whose size is
+				the sum of both (and with the upgrades of both). The experience of both bottles is consumed. It needs the permission
+				'magicbottle.action.merge'. This option is applied with '/mb reload'.""")
+		public boolean enabled = true;
+	}
 
-		private static Map<String, Integer> defaultPermissions() {
-			Map<String, Integer> permissions = new LinkedHashMap<>();
-			permissions.put("user", 300);
-			permissions.put("veteran", 350);
-			permissions.put("vip", 400);
-			return permissions;
+	/**
+	 * Brings a config.yml of an older version to the current structure, before it is mapped: 'max level.default' becomes
+	 * 'capacity' (unless the file already has it) and the whole 'max level' node is removed, so no dead options stay.
+	 */
+	static void migrate(CommentedConfigurationNode root) throws ConfigurateException {
+		ConfigurationNode old = root.node("max level");
+		if (old.virtual()) {
+			return;
 		}
+		if (root.node("capacity").virtual() && old.node("default").raw() instanceof Number level) {
+			root.node("capacity").set(level.intValue());
+			Plugin.logger.info("config.yml: 'max level.default' (" + level.intValue() + ") is now 'capacity'.");
+		}
+		if (!old.node("permissions").empty()) {
+			Plugin.logger.warning("config.yml: 'max level.permissions' and the 'magicbottle.maxlevel.*' permissions no longer"
+					+ " exist: the capacity belongs to the bottle. Bottles above their capacity keep their experience.");
+		}
+		root.removeChild("max level");
 	}
 
 	@ConfigSerializable
@@ -152,8 +170,8 @@ public class Settings {
 
 		@Comment("""
 				Collect: with the bottle in the hotbar or the offhand, the experience orbs you pick up are stored in it instead of going to
-				your experience bar. Mending takes its share first, and what doesn't fit in the bottle (it is full, or the maximum level
-				for you was reached) goes to you. The deposit cost in 'costs' applies, rounded randomly orb by orb so small orbs
+				your experience bar. Mending takes its share first, and what doesn't fit in the bottle (it is full)
+				goes to you. The deposit cost in 'costs' applies, rounded randomly orb by orb so small orbs
 				aren't free (on average, you pay exactly the percentage). Take the bottle out of the hotbar to stop collecting.
 				Note that without keepInventory the bottle drops when you die.""")
 		public CollectOption collect = new CollectOption("heart_of_the_sea");

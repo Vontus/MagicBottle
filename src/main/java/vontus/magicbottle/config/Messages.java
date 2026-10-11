@@ -57,15 +57,23 @@ public class Messages {
 		public Chat messages = new Chat();
 	}
 
-	// Placeholders of the bottle texts: <level>, <points>, <xpbar>. They are not italic unless you add <italic>.
+	// Placeholders of the bottle texts: <level> (the whole level it holds), <max_level> (its capacity in levels), <size>,
+	// <points>, <xpbar>. They are not italic unless you add <italic>.
 	@ConfigSerializable
 	public static class BottleText {
-		public String name = "<dark_purple><bold>MagicBottle</bold> <gray>| <yellow>Level <level> <gray>| <xpbar>";
+		public String name = "<dark_purple><bold>MagicBottle</bold> <gray>| <yellow>Level <level>/<max_level> <gray>| <xpbar>";
+
+		@Setting("name full")
+		@Comment("The name when the bottle is full (it holds its capacity or more). Placeholders: the ones above, <level> is the level it holds.")
+		public String nameFull = "<dark_purple><bold>MagicBottle</bold> <gray>| <gold>Level <level> ✦ <gray>| <xpbar>";
 
 		@Setting("experience text")
 		public String experienceTitle = "<dark_purple>Experience points:";
 
 		public String experience = " <yellow><points>";
+
+		@Comment("A line under the experience of the bottles with a size above 1 (made by merging bottles).")
+		public String capacity = "<dark_purple>Capacity: <yellow>level <max_level> <gray>(×<size>)";
 
 		// <xpbar> is made of 18 parts, each one is the filled or the empty bar
 		@Setting("filled bar")
@@ -110,9 +118,10 @@ public class Messages {
 
 	@ConfigSerializable
 	public static class Chat {
-		// Placeholders: <level>
+		// Placeholders: <level> (the capacity of the bottle in levels)
 		@Setting("max level reached")
-		public String maxLevelReached = "<red>The maximum level you can save in a MagicBottle is <level>.";
+		@Comment("When the bottle is full. <level> is its capacity in levels.")
+		public String maxLevelReached = "<red>The maximum level this MagicBottle can hold is <level>.";
 
 		@Setting("nothing to store")
 		@Comment("When the deposit cost would leave no experience to save in the bottle, so nothing is taken.")

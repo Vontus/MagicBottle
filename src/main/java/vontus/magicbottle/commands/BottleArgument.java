@@ -9,15 +9,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Upgrade;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.util.Exp;
-
-import java.util.EnumSet;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * A whole bottle as one command word, the counterpart of vanilla's {@code item[components]}: the level, optionally
@@ -25,111 +24,115 @@ import java.util.concurrent.CompletableFuture;
  * space, the optional count.
  */
 public class BottleArgument implements CustomArgumentType<BottleArgument.Spec, String> {
-	// As vanilla /give: 100 stacks of 64
-	private static final int MAX_COUNT = 6400;
+    // As vanilla /give: 100 stacks of 64
+    private static final int MAX_COUNT = 6400;
 
-	/** What was written: the level and the upgrades, which are a set. */
-	public record Spec(int level, Set<Upgrade> upgrades, int count) {
-		/** Builds the bottle through {@link MagicBottle}, ignoring the upgrade permissions and settings (admin). */
-		public ItemStack createItem() {
-			MagicBottle bottle = new MagicBottle(Exp.getExpAtLevel(level));
-			upgrades.forEach(bottle::addUpgrade);
-			return bottle.getItem();
-		}
-	}
+    /** What was written: the level and the upgrades, which are a set. */
+    public record Spec(int level, Set<Upgrade> upgrades, int count) {
+        /** Builds the bottle through {@link MagicBottle}, ignoring the upgrade permissions and settings (admin). */
+        public ItemStack createItem() {
+            MagicBottle bottle = new MagicBottle(Exp.getExpAtLevel(level));
+            upgrades.forEach(bottle::addUpgrade);
+            return bottle.getItem();
+        }
+    }
 
-	@Override
-	public Spec parse(StringReader reader) throws CommandSyntaxException {
-		int start = reader.getCursor();
-		while (reader.canRead() && reader.peek() != ' ') {
-			reader.skip();
-		}
-		String word = reader.getString().substring(start, reader.getCursor());
+    @Override
+    public Spec parse(StringReader reader) throws CommandSyntaxException {
+        int start = reader.getCursor();
+        while (reader.canRead() && reader.peek() != ' ') {
+            reader.skip();
+        }
+        String word = reader.getString().substring(start, reader.getCursor());
 
-		// The count follows after a space; it is part of this argument because the client only accepts the brackets
-		// and commas of the word in a greedy string, which must be the last argument
-		int count = 1;
-		if (reader.canRead()) {
-			reader.skip();
-			String countText = reader.getRemaining();
-			try {
-				count = Integer.parseInt(countText);
-			} catch (NumberFormatException e) {
-				throw error("Expected a count, found '" + countText + "'");
-			}
-			if (count < 1 || count > MAX_COUNT) {
-				throw error("The count must be between 1 and " + MAX_COUNT);
-			}
-			reader.setCursor(reader.getTotalLength());
-		}
+        // The count follows after a space; it is part of this argument because the client only accepts the brackets
+        // and commas of the word in a greedy string, which must be the last argument
+        int count = 1;
+        if (reader.canRead()) {
+            reader.skip();
+            String countText = reader.getRemaining();
+            try {
+                count = Integer.parseInt(countText);
+            } catch (NumberFormatException e) {
+                throw error("Expected a count, found '" + countText + "'");
+            }
+            if (count < 1 || count > MAX_COUNT) {
+                throw error("The count must be between 1 and " + MAX_COUNT);
+            }
+            reader.setCursor(reader.getTotalLength());
+        }
 
-		int bracket = word.indexOf('[');
-		String levelText = bracket < 0 ? word : word.substring(0, bracket);
-		int level;
-		try {
-			level = Integer.parseInt(levelText);
-		} catch (NumberFormatException e) {
-			throw error("Expected a level, found '" + levelText + "'");
-		}
-		if (level < 0 || level > Config.maxLevel) {
-			throw error("The level must be between 0 and " + Config.maxLevel);
-		}
+        int bracket = word.indexOf('[');
+        String levelText = bracket < 0 ? word : word.substring(0, bracket);
+        int level;
+        try {
+            level = Integer.parseInt(levelText);
+        } catch (NumberFormatException e) {
+            throw error("Expected a level, found '" + levelText + "'");
+        }
+        if (level < 0 || level > Config.maxLevel) {
+            throw error("The level must be between 0 and " + Config.maxLevel);
+        }
 
-		Set<Upgrade> upgrades = EnumSet.noneOf(Upgrade.class);
-		if (bracket >= 0) {
-			if (!word.endsWith("]")) {
-				throw error("Expected ']' at the end of the upgrades");
-			}
-			upgrades = UpgradeList.parse(word.substring(bracket + 1, word.length() - 1));
-		}
-		return new Spec(level, upgrades, count);
-	}
+        Set<Upgrade> upgrades = EnumSet.noneOf(Upgrade.class);
+        if (bracket >= 0) {
+            if (!word.endsWith("]")) {
+                throw error("Expected ']' at the end of the upgrades");
+            }
+            upgrades = UpgradeList.parse(word.substring(bracket + 1, word.length() - 1));
+        }
+        return new Spec(level, upgrades, count);
+    }
 
-	private static CommandSyntaxException error(String message) {
-		return UpgradeList.error(message);
-	}
+    private static CommandSyntaxException error(String message) {
+        return UpgradeList.error(message);
+    }
 
-	@Override
-	public ArgumentType<String> getNativeType() {
-		return StringArgumentType.greedyString();
-	}
+    @Override
+    public ArgumentType<String> getNativeType() {
+        return StringArgumentType.greedyString();
+    }
 
-	private static Message tip(String text) {
-		return UpgradeList.tip(text);
-	}
+    private static Message tip(String text) {
+        return UpgradeList.tip(text);
+    }
 
-	/**
-	 * Guides the whole argument: the level, then '[' for the upgrades (the ones not written yet after '[' and after
-	 * each comma, then ',' or ']'), then the count after the space.
-	 */
-	@Override
-	public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> ctx, SuggestionsBuilder builder) {
-		String typed = builder.getRemaining();
-		int space = typed.indexOf(' ');
-		int bracket = typed.indexOf('[');
+    /**
+     * Guides the whole argument: the level, then '[' for the upgrades (the ones not written yet after '[' and after
+     * each comma, then ',' or ']'), then the count after the space.
+     */
+    @Override
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> ctx, SuggestionsBuilder builder) {
+        String typed = builder.getRemaining();
+        int space = typed.indexOf(' ');
+        int bracket = typed.indexOf('[');
 
-		if (space >= 0) {
-			String word = typed.substring(0, space);
-			boolean complete = word.endsWith("]") || (bracket < 0 && word.matches("\\d+"));
-			if (complete && typed.indexOf(' ', space + 1) < 0) {
-				for (String count : new String[]{"1", "16", "64"}) {
-					if (count.startsWith(typed.substring(space + 1))) {
-						builder.suggest(word + " " + count, tip("Count (1-" + MAX_COUNT + ")"));
-					}
-				}
-			}
-		} else if (bracket < 0) {
-			if (typed.isEmpty()) {
-				for (String level : new String[]{"1", "10", "30", "100"}) {
-					builder.suggest(level, tip("Level (0-" + Config.maxLevel + ")"));
-				}
-			} else if (typed.matches("\\d+")) {
-				builder.suggest(typed + "[", tip("Upgrades, separated by commas"));
-			}
-		} else if (!typed.endsWith("]")) {
-			UpgradeList.suggest(builder, typed.substring(0, bracket + 1), typed.substring(bracket + 1),
-					EnumSet.allOf(Upgrade.class), "]");
-		}
-		return builder.buildFuture();
-	}
+        if (space >= 0) {
+            String word = typed.substring(0, space);
+            boolean complete = word.endsWith("]") || (bracket < 0 && word.matches("\\d+"));
+            if (complete && typed.indexOf(' ', space + 1) < 0) {
+                for (String count : new String[] {"1", "16", "64"}) {
+                    if (count.startsWith(typed.substring(space + 1))) {
+                        builder.suggest(word + " " + count, tip("Count (1-" + MAX_COUNT + ")"));
+                    }
+                }
+            }
+        } else if (bracket < 0) {
+            if (typed.isEmpty()) {
+                for (String level : new String[] {"1", "10", "30", "100"}) {
+                    builder.suggest(level, tip("Level (0-" + Config.maxLevel + ")"));
+                }
+            } else if (typed.matches("\\d+")) {
+                builder.suggest(typed + "[", tip("Upgrades, separated by commas"));
+            }
+        } else if (!typed.endsWith("]")) {
+            UpgradeList.suggest(
+                    builder,
+                    typed.substring(0, bracket + 1),
+                    typed.substring(bracket + 1),
+                    EnumSet.allOf(Upgrade.class),
+                    "]");
+        }
+        return builder.buildFuture();
+    }
 }

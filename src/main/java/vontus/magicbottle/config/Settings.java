@@ -1,12 +1,11 @@
 package vontus.magicbottle.config;
 
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
-import org.spongepowered.configurate.objectmapping.meta.Comment;
-import org.spongepowered.configurate.objectmapping.meta.Setting;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
+import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 /**
  * The structure of config.yml. The initial value of each field is its default, and the keys keep the option names
@@ -14,7 +13,7 @@ import java.util.Map;
  */
 @ConfigSerializable
 public class Settings {
-	static final String HEADER = """
+    static final String HEADER = """
 			--------------------- MagicBottle Configuration ---------------------
 			If a value is wrong, MagicBottle logs the option and its path when it loads.
 			Options missing from this file are added with their default value when the plugin loads or reloads.
@@ -22,57 +21,61 @@ public class Settings {
 			I don't think you're an idiot.
 			------------------------------------------------------------------""";
 
-	@Comment("Enable or disable sound and particle effects when a MagicBottle is used.")
-	public Effect effect = new Effect();
+    @Comment("Enable or disable sound and particle effects when a MagicBottle is used.")
+    public Effect effect = new Effect();
 
-	public Recipe recipe = new Recipe();
+    public Recipe recipe = new Recipe();
 
-	@Setting("max level")
-	@Comment("Set the maximum level a player can save in a single MagicBottle.\nTIP: Set this depending on how difficult you made the recipe.")
-	public MaxLevel maxLevel = new MaxLevel();
+    @Setting("max level")
+    @Comment(
+            "Set the maximum level a player can save in a single MagicBottle.\nTIP: Set this depending on how difficult you made the recipe.")
+    public MaxLevel maxLevel = new MaxLevel();
 
-	public Repair repair = new Repair();
+    public Repair repair = new Repair();
 
-	@Comment("""
+    @Comment("""
 			Upgrades are applied to a MagicBottle in the smithing table: the bottle goes in the base slot and the ingredient in the
 			addition slot (the template slot stays empty). The bottle keeps its experience. Each upgrade has an 'enabled' option and
 			its 'ingredient', an item ID or an item tag like the ones of the bottle recipe. Applying an upgrade needs the permission
 			'magicbottle.upgrade.<upgrade>'. You must restart your server after changing an 'ingredient' or enabling an upgrade.""")
-	public Upgrades upgrades = new Upgrades();
+    public Upgrades upgrades = new Upgrades();
 
-	@Comment("Here you can configure what percentage of experience will be charged when transferring experience.")
-	public Costs costs = new Costs();
+    @Comment("Here you can configure what percentage of experience will be charged when transferring experience.")
+    public Costs costs = new Costs();
 
-	@ConfigSerializable
-	public static class Effect {
-		public boolean sound = true;
-		public boolean particles = true;
-	}
+    @ConfigSerializable
+    public static class Effect {
+        public boolean sound = true;
+        public boolean particles = true;
+    }
 
-	@ConfigSerializable
-	public static class Recipe {
-		@Comment("Enable or disable the ability to deposit or withdraw XP with the bottle by putting it alone in a crafting grid.\nThese two options are applied with '/mb reload'.")
-		public boolean deposit = true;
-		public boolean withdraw = true;
+    @ConfigSerializable
+    public static class Recipe {
+        @Comment(
+                "Enable or disable the ability to deposit or withdraw XP with the bottle by putting it alone in a crafting grid.\nThese two options are applied with '/mb reload'.")
+        public boolean deposit = true;
 
-		@Comment("Enable the ability to craft new MagicBottles.\nIf you disable this, players won't be able to craft new bottles but existing ones will remain usable.\nYou must restart your server after changing 'enabled', 'shape' or 'ingredients'.")
-		public Bottle bottle = new Bottle();
-	}
+        public boolean withdraw = true;
 
-	@ConfigSerializable
-	public static class Bottle {
-		public boolean enabled = true;
+        @Comment(
+                "Enable the ability to craft new MagicBottles.\nIf you disable this, players won't be able to craft new bottles but existing ones will remain usable.\nYou must restart your server after changing 'enabled', 'shape' or 'ingredients'.")
+        public Bottle bottle = new Bottle();
+    }
 
-		@Setting("allow crafters")
-		@Comment("""
+    @ConfigSerializable
+    public static class Bottle {
+        public boolean enabled = true;
+
+        @Setting("allow crafters")
+        @Comment("""
 				Allow crafters to craft new MagicBottles.
 				Crafting a bottle by hand requires the 'magicbottle.action.craft' permission, which is checked for each player.
 				Crafters are not operated by a player, so that permission can't be checked: with this enabled,
 				anyone can craft bottles through a crafter even without the permission.
 				Set this to false if you use the permission to restrict who can craft bottles (e.g. only VIPs).""")
-		public boolean allowCrafters = true;
+        public boolean allowCrafters = true;
 
-		@Comment("""
+        @Comment("""
 				The recipe to craft a new empty MagicBottle, written like a shaped recipe in a datapack.
 				shape: 1 to 3 rows of up to 3 characters, all the rows with the same length. Each character is a slot of the
 				  crafting grid and a space is an empty slot. Every other character must be defined in ingredients.
@@ -85,120 +88,119 @@ public class Settings {
 				Filled bottles are dragon's breath, so having one grants the "You Need a Mint" advancement (an End advancement).
 				The default recipe uses dragon_breath so that only players who have already got it can craft a bottle.
 				If you remove it from the recipe, players will be able to get the advancement without going to the End.""")
-		public List<String> shape = List.of("BEB", "GDG", "OOO");
+        public List<String> shape = List.of("BEB", "GDG", "OOO");
 
-		public Map<String, Ingredient> ingredients = defaultIngredients();
+        public Map<String, Ingredient> ingredients = defaultIngredients();
 
-		private static Map<String, Ingredient> defaultIngredients() {
-			Map<String, Ingredient> ingredients = new LinkedHashMap<>();
-			ingredients.put("B", Ingredient.parse("blaze_powder"));
-			ingredients.put("E", Ingredient.parse("ender_chest"));
-			ingredients.put("G", Ingredient.parse("glowstone_dust"));
-			ingredients.put("D", Ingredient.parse("dragon_breath"));
-			ingredients.put("O", Ingredient.parse("gold_block"));
-			return ingredients;
-		}
-	}
+        private static Map<String, Ingredient> defaultIngredients() {
+            Map<String, Ingredient> ingredients = new LinkedHashMap<>();
+            ingredients.put("B", Ingredient.parse("blaze_powder"));
+            ingredients.put("E", Ingredient.parse("ender_chest"));
+            ingredients.put("G", Ingredient.parse("glowstone_dust"));
+            ingredients.put("D", Ingredient.parse("dragon_breath"));
+            ingredients.put("O", Ingredient.parse("gold_block"));
+            return ingredients;
+        }
+    }
 
-	@ConfigSerializable
-	public static class MaxLevel {
-		@Comment("This will be applied when the player doesn't have any of the following permissions.")
-		@Setting("default")
-		public int def = 200;
+    @ConfigSerializable
+    public static class MaxLevel {
+        @Comment("This will be applied when the player doesn't have any of the following permissions.")
+        @Setting("default")
+        public int def = 200;
 
-		@Comment("""
+        @Comment("""
 				Allow players to have bottles with more levels than the default option.
 				To remove the limit entirely, give people 'magicbottle.maxlevel.unlimited'; still, the maximum level a bottle can hold is 20,000.
 				You need to grant people the permission 'magicbottle.maxlevel.<name>', being <name> in the list shown below.
 				If a player has two or more of these permissions, the maximum value will be applied, including 'magicbottle.maxlevel.unlimited'.
 				  For example, a Veteran user can have the permissions 'user' and 'veteran', but only 'veteran' will be applied.
 				You can modify, add or remove any of the following limits at will.""")
-		public Map<String, Integer> permissions = defaultPermissions();
+        public Map<String, Integer> permissions = defaultPermissions();
 
-		private static Map<String, Integer> defaultPermissions() {
-			Map<String, Integer> permissions = new LinkedHashMap<>();
-			permissions.put("user", 300);
-			permissions.put("veteran", 350);
-			permissions.put("vip", 400);
-			return permissions;
-		}
-	}
+        private static Map<String, Integer> defaultPermissions() {
+            Map<String, Integer> permissions = new LinkedHashMap<>();
+            permissions.put("user", 300);
+            permissions.put("veteran", 350);
+            permissions.put("vip", 400);
+            return permissions;
+        }
+    }
 
-	@ConfigSerializable
-	public static class Repair {
-		@Comment("""
+    @ConfigSerializable
+    public static class Repair {
+        @Comment("""
 				Enable or disable repairing in the anvil: a damaged tool or armor in the first slot and a MagicBottle with
 				experience in the second. The repair is paid with the bottle's experience (1 exp repairs 2 durability points,
 				like Mending) instead of the player's levels, which a vanilla anvil would charge.""")
-		public boolean enabled = true;
+        public boolean enabled = true;
 
-		@Setting("auto feedback")
-		@Comment("Show an action bar message with the experience spent by auto-repair (sent once you stop repairing for 3 seconds)")
-		public boolean autoFeedback = true;
+        @Setting("auto feedback")
+        @Comment(
+                "Show an action bar message with the experience spent by auto-repair (sent once you stop repairing for 3 seconds)")
+        public boolean autoFeedback = true;
 
-		@Comment("""
+        @Comment("""
 				Tools and armor will need this enchantment in order to be able to repair them (its Minecraft ID, e.g. MENDING or minecraft:mending)
 				Set this to ANY if you want MagicBottle to repair any repairable tool (unenchanted tools will be repaired too)""")
-		public EnchantParser enchantment = EnchantParser.parse("MENDING");
-	}
+        public EnchantParser enchantment = EnchantParser.parse("MENDING");
+    }
 
-	@ConfigSerializable
-	public static class Upgrades {
-		@Comment("""
+    @ConfigSerializable
+    public static class Upgrades {
+        @Comment("""
 				Auto-repair: with the bottle in the hotbar or the offhand, tools and armor repair themselves with its experience
 				as they take damage (which items can be repaired is set in 'repair').""")
-		@Setting("autorepair")
-		public UpgradeOption autoRepair = new UpgradeOption("totem_of_undying");
+        @Setting("autorepair")
+        public UpgradeOption autoRepair = new UpgradeOption("totem_of_undying");
 
-		@Comment("""
+        @Comment("""
 				Collect: with the bottle in the hotbar or the offhand, the experience orbs you pick up are stored in it instead of going to
 				your experience bar. Mending takes its share first, and what doesn't fit in the bottle (it is full, or the maximum level
 				for you was reached) goes to you. The deposit cost in 'costs' applies, rounded randomly orb by orb so small orbs
 				aren't free (on average, you pay exactly the percentage). Take the bottle out of the hotbar to stop collecting.
 				Note that without keepInventory the bottle drops when you die.""")
-		public CollectOption collect = new CollectOption("heart_of_the_sea");
-	}
+        public CollectOption collect = new CollectOption("heart_of_the_sea");
+    }
 
-	@ConfigSerializable
-	public static class UpgradeOption {
-		public boolean enabled = true;
+    @ConfigSerializable
+    public static class UpgradeOption {
+        public boolean enabled = true;
 
-		public Ingredient ingredient;
+        public Ingredient ingredient;
 
-		@SuppressWarnings("NullAway.Init") // Configurate fills it from the file
-		public UpgradeOption() {
-		}
+        @SuppressWarnings("NullAway.Init") // Configurate fills it from the file
+        public UpgradeOption() {}
 
-		UpgradeOption(String ingredient) {
-			this.ingredient = Ingredient.parse(ingredient);
-		}
-	}
+        UpgradeOption(String ingredient) {
+            this.ingredient = Ingredient.parse(ingredient);
+        }
+    }
 
-	@ConfigSerializable
-	public static class CollectOption extends UpgradeOption {
-		@Comment("Show an action bar message with the experience stored (sent once you stop collecting for 3 seconds)")
-		public boolean feedback = true;
+    @ConfigSerializable
+    public static class CollectOption extends UpgradeOption {
+        @Comment("Show an action bar message with the experience stored (sent once you stop collecting for 3 seconds)")
+        public boolean feedback = true;
 
-		public CollectOption() {
-		}
+        public CollectOption() {}
 
-		CollectOption(String ingredient) {
-			super(ingredient);
-		}
-	}
+        CollectOption(String ingredient) {
+            super(ingredient);
+        }
+    }
 
-	@ConfigSerializable
-	public static class Costs {
-		public Deposit deposit = new Deposit();
-	}
+    @ConfigSerializable
+    public static class Costs {
+        public Deposit deposit = new Deposit();
+    }
 
-	@ConfigSerializable
-	public static class Deposit {
-		@Setting("exp-percentage")
-		@Comment("""
+    @ConfigSerializable
+    public static class Deposit {
+        @Setting("exp-percentage")
+        @Comment("""
 				Percentage of the deposited experience that is lost, integer from 0 to 100.
 				A deposit takes only what fills the bottle plus its cost, and is refused if the cost would leave
 				nothing to save (always with 100).""")
-		public int expPercentage = 0;
-	}
+        public int expPercentage = 0;
+    }
 }

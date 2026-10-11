@@ -1,16 +1,15 @@
 package vontus.magicbottle.config;
 
+import java.lang.reflect.Type;
+import java.util.Locale;
 import org.bukkit.Bukkit;
-import org.jspecify.annotations.Nullable;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
 import org.bukkit.inventory.RecipeChoice;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.TypeSerializer;
-
-import java.lang.reflect.Type;
-import java.util.Locale;
 
 /**
  * An ingredient of the new bottle recipe: an item ID (blaze_powder, BLAZE_POWDER or minecraft:blaze_powder) or an
@@ -18,54 +17,54 @@ import java.util.Locale;
  * the config can still load and only the recipe is disabled.
  */
 final class Ingredient {
-	static final TypeSerializer<Ingredient> SERIALIZER = new TypeSerializer<>() {
-		@Override
-		public Ingredient deserialize(Type type, ConfigurationNode node) {
-			return parse(node.getString());
-		}
+    static final TypeSerializer<Ingredient> SERIALIZER = new TypeSerializer<>() {
+        @Override
+        public Ingredient deserialize(Type type, ConfigurationNode node) {
+            return parse(node.getString());
+        }
 
-		@Override
-		public void serialize(Type type, Ingredient ingredient, ConfigurationNode node) {
-			node.raw(ingredient == null ? null : ingredient.text);
-		}
-	};
+        @Override
+        public void serialize(Type type, Ingredient ingredient, ConfigurationNode node) {
+            node.raw(ingredient == null ? null : ingredient.text);
+        }
+    };
 
-	final @Nullable String text;
-	// null if the text is invalid
-	final @Nullable RecipeChoice choice;
-	// null if the text is valid
-	final @Nullable String error;
+    final @Nullable String text;
+    // null if the text is invalid
+    final @Nullable RecipeChoice choice;
+    // null if the text is valid
+    final @Nullable String error;
 
-	private Ingredient(@Nullable String text, @Nullable RecipeChoice choice, @Nullable String error) {
-		this.text = text;
-		this.choice = choice;
-		this.error = error;
-	}
+    private Ingredient(@Nullable String text, @Nullable RecipeChoice choice, @Nullable String error) {
+        this.text = text;
+        this.choice = choice;
+        this.error = error;
+    }
 
-	static Ingredient parse(@Nullable String text) {
-		if (text == null || text.isBlank()) {
-			return invalid(text, "it has no item");
-		}
-		text = text.trim();
-		if (text.startsWith("#")) {
-			NamespacedKey key = NamespacedKey.fromString(text.substring(1).toLowerCase(Locale.ROOT));
-			Tag<Material> tag = key == null ? null : Bukkit.getTag(Tag.REGISTRY_ITEMS, key, Material.class);
-			if (tag == null || tag.getValues().isEmpty()) {
-				return invalid(text, "unknown item tag '" + text + "'");
-			}
-			return new Ingredient(text, new RecipeChoice.MaterialChoice(tag), null);
-		}
-		Material m = Material.matchMaterial(text);
-		if (m != null && m.isAir()) {
-			return invalid(text, "it can't be AIR, use a space in the shape for an empty slot");
-		}
-		if (m == null || !m.isItem()) {
-			return invalid(text, "unknown item '" + text + "'");
-		}
-		return new Ingredient(text, new RecipeChoice.MaterialChoice(m), null);
-	}
+    static Ingredient parse(@Nullable String text) {
+        if (text == null || text.isBlank()) {
+            return invalid(text, "it has no item");
+        }
+        text = text.trim();
+        if (text.startsWith("#")) {
+            NamespacedKey key = NamespacedKey.fromString(text.substring(1).toLowerCase(Locale.ROOT));
+            Tag<Material> tag = key == null ? null : Bukkit.getTag(Tag.REGISTRY_ITEMS, key, Material.class);
+            if (tag == null || tag.getValues().isEmpty()) {
+                return invalid(text, "unknown item tag '" + text + "'");
+            }
+            return new Ingredient(text, new RecipeChoice.MaterialChoice(tag), null);
+        }
+        Material m = Material.matchMaterial(text);
+        if (m != null && m.isAir()) {
+            return invalid(text, "it can't be AIR, use a space in the shape for an empty slot");
+        }
+        if (m == null || !m.isItem()) {
+            return invalid(text, "unknown item '" + text + "'");
+        }
+        return new Ingredient(text, new RecipeChoice.MaterialChoice(m), null);
+    }
 
-	private static Ingredient invalid(@Nullable String text, String error) {
-		return new Ingredient(text, null, error);
-	}
+    private static Ingredient invalid(@Nullable String text, String error) {
+        return new Ingredient(text, null, error);
+    }
 }

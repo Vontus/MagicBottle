@@ -31,14 +31,14 @@ through `LifecycleEvents.COMMANDS`, and starts bStats metrics.
 **Core domain object**: `MagicBottle` wraps a Bukkit `ItemStack` and is the single source of truth for how
 XP is represented on an item. Bottles are identified by a `magicbottle:bottle` PersistentDataContainer marker
 and the XP amount is stored in `magicbottle:exp` (see `isMagicBottle`/`calculateExp`); the glint comes from
-`setEnchantmentGlintOverride`. The lore displays the XP and the upgrades (below). Every bottle is `DRAGON_BREATH` (`material`), which
+`setEnchantmentGlintOverride`. The lore displays the XP and the upgrades (below). Every bottle is `DRAGON_BREATH` (`baseMaterial`) unless it has the `lantern` upgrade (see Magic Lantern below), which
 is nearly inert (in no recipe or item tag; brewing is blocked), unlike a glass bottle, which vanilla and dispensers
 fill with water or honey; an empty bottle only looks like a glass bottle through the `item_model` component.
 Everything about the 1.5.x format (hidden Efficiency enchantment, XP parsed from lore line 1, empty bottles as
 `GLASS_BOTTLE`) lives in `LegacyBottle`: those bottles are recognized by `isMagicBottle` and rewritten in the current
 format when a `MagicBottle` is built from them or when their owner joins (inventory and ender chest), so no other
 code has to know about it. Any code creating/mutating a bottle must go through `MagicBottle` so the item's
-PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are created in `MagicBottle.init`, which
+PDC/lore/name/material stay in sync (`recreate()`/`print()`; the material is derived from the upgrades by `getMaterial()` every time, so nothing may assume a bottle is `DRAGON_BREATH`: use `isMagicBottle`/`getMaterial`). The keys are created in `MagicBottle.init`, which
 `onEnable` must call before anything else touches bottles.
 
 **Size and capacity** (`MagicBottle`): the capacity belongs to the bottle. `magicbottle:size` (INTEGER, missing = 1, written only when
@@ -52,7 +52,7 @@ all its exp, only refuses deposits (`getRoom()` is never negative) and counts as
 `max_stack_size` 1, set by `print()` on single bottles (a stack is left alone: it may fail validation above the component) and by
 `limitStackSize` for the inventories of a joining player. The old per-player limits (`max level`, `magicbottle.maxlevel.*`) don't exist.
 
-**Upgrades** (`Upgrade`): flags a bottle carries in `magicbottle:upgrades`, a PDC string list of lowercase ids (`autorepair`, `collect`;
+**Upgrades** (`Upgrade`): flags a bottle carries in `magicbottle:upgrades`, a PDC string list of lowercase ids (`autorepair`, `collect`, `lantern`;
 the id is persisted, so never change it) treated as a set: a missing key means none, and ids this version doesn't know are
 kept when the bottle is rewritten. Only `MagicBottle` reads and writes it (`hasUpgrade`/`addUpgrade`), and `print()` adds a
 lore line per upgrade (`bottle text.upgrades`), in enum order. Features that need a bottle with an upgrade call
@@ -61,6 +61,31 @@ Each upgrade has `upgrades.<id>` in `Settings` (`enabled`, `ingredient`, parsed 
 `Config.loadUpgrades` into `Config.upgradeIngredients`; a wrong ingredient of an enabled upgrade sets `Config.invalidUpgrade` and `onEnable` disables the plugin, so the admin notices) and the permission `magicbottle.upgrade.<id>` to apply it. They are
 applied in the smithing table (see `SmithingListener`). A new upgrade is an `Upgrade` value plus its settings, lore message
 and permission (the switches over `Upgrade` in `Config` and `Messages` don't compile until they are added).
+
+**Magic Lantern** (`lantern` package, `Upgrade.LANTERN`, `upgrades.lantern`, permission `magicbottle.upgrade.lantern`, which also gates placing): a bottle with the
+`lantern` upgrade is the item `LANTERN` (`MagicBottle.getMaterial()`, `isLantern()`), with the same PDC as any bottle, so it keeps its exp, size and other
+upgrades, can get the others in the smithing table (the base accepts both materials, `Recipes`) and merging keeps it. `ItemStack#setType` may replace the
+handle of the stack it is called on, so code that adds/removes upgrades on an item that lives in an inventory sets the item back (`Commands#changeUpgrades`).
+`BottleInteractListener` ignores a lantern in hand (cancelling would stop it from being placed, so it doesn't deposit/withdraw by clicking; the crafting
+grid and the anvil treat it like any bottle) and a right click on a placed lantern (`LanternListener` handles it). `LanternListener` is the entry point (`start`/`shutdown`
+from `Plugin`):
+- `Lanterns`: the registry. Storage is the chunk PDC `magicbottle:lanterns`, a list of containers `pos` (LONG, packed like `BlockPos`, `BlockPos` class), `exp`
+  (INTEGER, the only place the exp of a placed lantern lives) and `item` (the item with 0 exp as `serializeAsBytes`, so upgrades/size/name/future keys survive and
+  the server's DataFixer updates it); these keys are never renamed and an entry it can't read is written back untouched. An in-memory index per chunk is filled on
+  `ChunkLoadEvent` (and for the loaded chunks on enable) and dropped on unload, which writes the chunk if it changed; changes are written right away when placed/broken/emptied and
+  within 5 ticks when orbs are absorbed (`flush`). Whatever removes a lantern gives the exp back as the item (`breakAndDrop`): `BlockBreakEvent` (also creative) and Paper's `BlockDestroyEvent`
+  (lost support) at MONITOR, only if not cancelled; explosions, pistons (`getBlocks()`) and `EntityChangeBlockEvent` are cancelled for lanterns instead; a block that isn't a lantern anymore (`/setblock`,
+  WorldEdit, other plugins) is found when validated on every scan and dropped as the item (`dropStale`). Dispensers don't dispense Magic Lanterns (they could place the block without any
+  event). If the stored item can't be read, a plain Magic Lantern holds the exp.
+- Placing: `onPlaceCheck` (HIGHEST) cancels it if the upgrade is disabled or the player lacks the permission (the exp would be lost as a plain lantern); `onPlace` (MONITOR, not cancelled) registers it.
+- `Orbs`: claimed orbs and their flight. `ServerTickEndEvent` (the one repeating job, nothing runs without lanterns or orbs in flight): `move()` every tick sets the position of each claimed
+  orb along its own path (no gravity, `setNoPhysics`; velocity alone doesn't get through blocks because the orb's own tick pushes it out), absorbing it within 0.7 blocks, and `scan()` every 5 ticks claims the
+  orbs in the box of `upgrades.lantern.radius` (1..16) of each non-full lantern. Events claim on the spot (`EntityTargetLivingEntityEvent`, `PlayerPickupExperienceEvent`, via `Lanterns.findFor`, which only looks at
+  the chunks around), and claimed orbs always cancel both, so players and the `collect` upgrade never see them. Absorbing takes up to the room (`PlacedLantern.room()`, from the capacity of its item): a single orb keeps what is left,
+  a merged one gives whole units and the cut unit goes on as a new orb. Orbs are let go (gravity back) when the lantern is full, removed, disabled, after 100 ticks, and on unload/disable; ones marked with the
+  PDC key `magicbottle:claimed` that were left behind (crash) are fixed when they load.
+- Right click with a MagicBottle (`LanternListener#onInteract`): `MagicBottle.collect` (deposit with cost, fills exactly), what doesn't fit stays; needs `magicbottle.action.deposit`.
+- `LanternEffects`: particles for the players inside the radius (`ParticleBuilder.receivers(radius, true)`): trails (`Particle.TRAIL`, orb colors) while it has room, witch sparkles growing with the fill, and a sound and burst per absorbed orb.
 
 **Interaction flow**: all player-facing behavior is driven by Bukkit events, not GUIs. The listeners are split by
 concern, in the `listeners` package: `BottleInteractListener` (clicks in hand, throttled by the `ClickCooldown` that `PlayerListener` clears on

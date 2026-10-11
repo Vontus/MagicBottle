@@ -41,6 +41,17 @@ code has to know about it. Any code creating/mutating a bottle must go through `
 PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are created in `MagicBottle.init`, which
 `onEnable` must call before anything else touches bottles.
 
+**Size and capacity** (`MagicBottle`): the capacity belongs to the bottle. `magicbottle:size` (INTEGER, missing = 1, written only when
+above 1, never renamed) says how many base bottles it is worth; `getSize()` clamps it to `getMaxSize()` (what fits under the hard cap
+`Config.maxLevel`). `getCapacity()`/`getCapacityLevel()` are calculated every time, never stored, with no player or permission (so a
+placed lantern can use them): the points of `size` bases (`capacity` in `Settings`, in levels, default 30) rounded down to a whole level
+with `Exp.getLevelFloor`, in `long`. A bottle is `isFull()` when `exp >= capacity`; a bottle above its capacity (lowered config) keeps
+all its exp, only refuses deposits (`getRoom()` is never negative) and counts as full. Name (`name`/`name full`), the capacity lore line
+(only if size > 1) and `<xpbar>` (fill = exp/capacity, rounded down, complete only when full) come from it; placeholders `<level>`
+(whole level held), `<max_level>`, `<size>`. `MagicBottle.merge` joins two full bottles (sizes added, union of upgrade ids). Bottles have
+`max_stack_size` 1, set by `print()` on single bottles (a stack is left alone: it may fail validation above the component) and by
+`limitStackSize` for the inventories of a joining player. The old per-player limits (`max level`, `magicbottle.maxlevel.*`) don't exist.
+
 **Upgrades** (`Upgrade`): flags a bottle carries in `magicbottle:upgrades`, a PDC string list of lowercase ids (`autorepair`, `collect`;
 the id is persisted, so never change it) treated as a set: a missing key means none, and ids this version doesn't know are
 kept when the bottle is rewritten. Only `MagicBottle` reads and writes it (`hasUpgrade`/`addUpgrade`), and `print()` adds a
@@ -54,7 +65,7 @@ and permission (the switches over `Upgrade` in `Config` and `Messages` don't com
 **Interaction flow**: all player-facing behavior is driven by Bukkit events, not GUIs. The listeners are split by
 concern, in the `listeners` package: `BottleInteractListener` (clicks in hand, throttled by the `ClickCooldown` that `PlayerListener` clears on
 quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafters), `InventoryListener` (recipe menu and
-anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (auto-repair), `SmithingListener` (upgrades) and `PlayerListener` (join migration, leave cleanup):
+brewing block), `AnvilListener` (repair and merge in the anvil), `RepairListener` (auto-repair), `SmithingListener` (upgrades) and `PlayerListener` (join migration, leave cleanup):
 - `onInteract` — left-click deposits, right-click withdraws, holding the bottle in hand (shift = 10 levels,
   no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`throttle`, a map of last click ticks).
 - `onPrepareCraft`/`onClickCraftResult` — a single MagicBottle (amount 1) alone in a crafting grid (3x3 or the
@@ -74,17 +85,21 @@ anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (a
   (`Config.recipeNewBottleAllowCrafters`, reloadable) is on and no slot of the crafter holds a MagicBottle
   (otherwise it would be consumed as an ingredient). Crafters can't deposit or withdraw.
 - `onClickInventory`/`onDragInventory`/`onMoveItem` — bottles can't enter brewing stands (dragon's breath
-  is a brewing ingredient) or the first slot of anvils. Clicks are cancelled when the clicked item is a bottle in a top
+  is a brewing ingredient; anvils take them in both slots, see `AnvilListener`). Clicks are cancelled when the clicked item is a bottle in a top
   slot or is shift-clicked from the player's inventory (plain clicks there are fine) or, on a top slot, when the cursor,
   the number-key hotbar item or the offhand item (F) is one; drags over the top inventory and hopper moves into
-  those inventories are cancelled too. The exception is the anvil's second slot (`AnvilListener.acceptsBottle`, only if
-  `repair.enabled`), where a bottle is accepted; vanilla's shift-click would put it in the first slot, so
-  `AnvilListener.onShiftClickBottle` moves it by hand.
-- `AnvilListener` — repair in the anvil: a damaged item accepted by `Config.canRepair` in the first slot and a usable
-  MagicBottle in the second (`repair.enabled`, `magicbottle.action.repair`). `onPrepareAnvil` sets the repaired item as
-  the result with repair cost 0 (no levels) and a lore line with the exp it will spend and what the bottle keeps (`messages.repair.anvil cost`; only the preview has it); `onClickResult` cancels the click and takes it by hand like
-  `onClickCraftResult` does (`ResultSlot.destination`), because vanilla would consume the bottle. 1 exp repairs 2
+  those inventories are cancelled too.
+- `AnvilListener` — what a bottle does in the anvil (vanilla would consume the bottles when the result is taken, so `onClickResult`
+  cancels the click and takes it by hand like `onClickCraftResult` does, `ResultSlot.destination`, picking the destination first).
+  Damaged item accepted by `Config.canRepair` + usable MagicBottle in the second slot: repair (`repair.enabled`,
+  `magicbottle.action.repair`). `onPrepareAnvil` sets the repaired item as the result with repair cost 0 (no levels) and a lore line
+  with the exp it will spend and what the bottle keeps (`messages.repair.anvil cost`; only the preview has it). 1 exp repairs 2
   durability points; a bottle with less exp repairs partially and stays in the slot, empty.
+  MagicBottle + MagicBottle (single bottles, both `isFull`): merge (`merge.enabled`, `magicbottle.action.merge`), the result
+  is `MagicBottle.merge` (an empty bottle, sizes added, union of the upgrades; none if over the hard cap, so no exp is wasted),
+  with repair cost 0 and a preview line saying the exp of both is consumed (`messages.merge.anvil`). Both inputs are consumed
+  and the sound is `SoundEffect.merge`. A MagicBottle in the first slot with anything else in the second has no result at all
+  (vanilla would rename it, and `print()` rewrites the name).
 - `SmithingListener` — applies upgrades: each enabled upgrade has a `SmithingTransformRecipe` (`magicbottle:upgrade/<id>`,
   `Recipes.getUpgrade`; no template, any dragon's breath as base, the configured ingredient as addition) so the slots
   accept the items. `onPrepareSmithing` rebuilds the result from the bottle in the base slot (keeping its exp and upgrades,
@@ -157,7 +172,7 @@ its path and the defaults are used. Values that need the server registries are p
 (`Ingredient`, `EnchantParser`) that don't throw: they keep the error, so only the recipe or repairing is disabled
 (`Config.load`) instead of the whole file. `Config.load` and `Messages.load` (see `Plugin.loadConfig`, also invoked by
 `/magicbottle reload`) leave the result in `Config.settings`/`Messages.texts`; game logic reads those, plus the validated
-`Config.recipeNewBottle*`/`repairEnabled`/`repairAutoEnabled`. A new option is a field in `Settings`/`Messages`.
+`Config.recipeNewBottle*`/`repairEnabled`/`repairAutoEnabled`. A new option is a field in `Settings`/`Messages`. An option of an older version that changes is migrated before mapping with a `ConfigFile.Migration` (`Settings.migrate`: `max level.default` becomes `capacity` once and the `max level` node is removed); there is no versioned transformation yet.
 Permission node strings are also defined as constants on `Config`.
 
 **Messages**: `messages.yml` is written in MiniMessage (no `&` codes, no `ChatColor`), and everything player-facing is

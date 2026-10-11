@@ -58,7 +58,7 @@ public class EnchantParser {
 	}
 
 	/** The enchantment an item needs, or null if any item can be repaired (or the text is invalid). */
-	public @Nullable Enchantment enchantment() {
+	public @Nullable Enchantment getRequiredEnchantment() {
 		return ench;
 	}
 

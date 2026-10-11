@@ -192,7 +192,7 @@ public class RecipeMenu implements InventoryHolder {
 	// A damaged pickaxe that the configured enchantment lets repair, a bottle, and the pickaxe repaired
 	private void drawRepair(int start) {
 		ItemStack damaged = new ItemStack(Material.DIAMOND_PICKAXE);
-		Enchantment enchantment = Config.settings.repair.enchantment.enchantment();
+		Enchantment enchantment = Config.settings.repair.enchantment.getRequiredEnchantment();
 		if (enchantment != null) {
 			damaged.addUnsafeEnchantment(enchantment, enchantment.getMaxLevel());
 		}

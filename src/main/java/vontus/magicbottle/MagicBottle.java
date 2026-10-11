@@ -385,25 +385,36 @@ public final class MagicBottle {
 	}
 	
 	/**
-	 * The first bottle with the upgrade and accepted by the filter, looking only at the hotbar and the offhand: moving
-	 * a bottle out of them switches its upgrades off. Stacks of bottles don't count. Every feature that looks for a
-	 * bottle with an upgrade goes through here.
+	 * The first bottle accepted by the filter: the one in the selected slot, then the offhand, then the rest of the hotbar
+	 * and, with {@code wholeInventory}, the rest of the inventory. Armor slots and stacks of bottles don't count. Every
+	 * feature that looks for a bottle to use goes through here.
 	 */
-	public static @Nullable MagicBottle findWithUpgrade(Player player, Upgrade upgrade, Predicate<MagicBottle> filter) {
+	public static @Nullable MagicBottle find(Player player, boolean wholeInventory, Predicate<MagicBottle> filter) {
 		PlayerInventory inv = player.getInventory();
 		List<ItemStack> candidates = new ArrayList<>();
-		for (int slot = 0; slot < 9; slot++) {
-			candidates.add(inv.getItem(slot));
-		}
+		candidates.add(inv.getItemInMainHand());
 		candidates.add(inv.getItemInOffHand());
+		for (int slot = 0; slot < (wholeInventory ? 36 : 9); slot++) {
+			if (slot != inv.getHeldItemSlot()) {
+				candidates.add(inv.getItem(slot));
+			}
+		}
 		for (ItemStack item : candidates) {
 			if (isMagicBottle(item) && item.getAmount() == 1) {
 				MagicBottle mb = new MagicBottle(item);
-				if (mb.hasUpgrade(upgrade) && filter.test(mb)) {
+				if (filter.test(mb)) {
 					return mb;
 				}
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * The first bottle with the upgrade and accepted by the filter, looking only at the hotbar and the offhand: moving
+	 * a bottle out of them switches its upgrades off.
+	 */
+	public static @Nullable MagicBottle findWithUpgrade(Player player, Upgrade upgrade, Predicate<MagicBottle> filter) {
+		return find(player, false, mb -> mb.hasUpgrade(upgrade) && filter.test(mb));
 	}
 }

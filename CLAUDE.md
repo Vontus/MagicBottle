@@ -1,6 +1,9 @@
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+It describes the architecture; the rules for writing, testing, reviewing and merging code are in CONTRIBUTING.md:
+
+@CONTRIBUTING.md
 
 ## Project overview
 
@@ -14,7 +17,7 @@ their XP levels in glass bottles. Java 25, built with Gradle 9. Package root: `v
 ```
 
 Requires a JDK 25 (Gradle toolchain). On Windows use `gradlew.bat` instead of `./gradlew`. There is no test
-suite, so there is no single-test command to run.
+suite, so there is no single-test command to run (see Testing in CONTRIBUTING.md).
 
 The plugin version lives only in `build.gradle`; `plugin.yml` gets it through `processResources` expansion.
 
@@ -174,43 +177,5 @@ actions.
 
 ## Notes
 
-- **Players never lose XP because of a change in the plugin.** A new version, a migration or a config change
-  (e.g. a lower capacity) must keep the XP stored in every existing bottle: a bottle left above a new limit keeps
-  all its XP and only refuses deposits until it goes below it. XP is only lost through something the player does
-  knowingly (a deposit cost, a repair, a feature that consumes it and says so).
 - Crafting a new bottle has no money cost (Vault support was removed). In a crafting grid it requires the
   `magicbottle.action.craft` permission; crafters can't check it, hence the `allow crafters` option.
-- There is a single supported line: current Paper. The old per-Minecraft-version branches were removed; their
-  tips are kept as `archive/*` tags.
-
-## Git workflow
-
-- `master` is always releasable. Nothing is committed to it directly: every change goes through a PR.
-- **Branch names**: `<type>/<issue>-<short-description>`, lowercase kebab-case, a few words; the issue number
-  only when there is one. Types: `feat` (new behavior), `fix` (bug), `refactor`, `perf`, `docs`, `build`
-  (Gradle, dependencies), `chore` (repo housekeeping), `release`. Examples: `fix/61-crafter-dupe`,
-  `feat/recipe-command`, `build/bstats-3.2.1`. Worktrees (including subagent ones) use a branch that follows this
-  convention, never an auto-generated name like `worktree-agent-*`.
-- **One change per branch/PR**, even when several changes are developed together, so each PR can be reviewed on
-  its own; follow-ups get their own PR instead of being folded into an open one. A change that depends on an
-  unmerged one is stacked: its branch starts from the parent branch and its PR targets it. Once the parent is
-  merged, rebase it onto master (`git rebase --onto origin/master <parent>`) and retarget the PR to `master`.
-- **Keeping up to date**: rebase onto `origin/master` and push with `--force-with-lease`; never merge master into
-  a branch. Force pushes are fine on feature branches, never on `master`. The Claude Code hook
-  `.claude/hooks/block-merge-into-branch.sh` blocks `git merge` (except `--ff-only`/`--abort`/`--continue`) and
-  merging `git pull`s.
-- **Commits**: English, imperative, capitalized subject without a trailing period, ~72 chars max; the body says
-  why when it isn't obvious. Each commit is one logical, compiling step. The PR description links its issue
-  (`Fixes #61`).
-- **Merging**: PRs are merged on GitHub with a merge commit (the branch's commits stay grouped under the PR).
-  GitHub deletes the remote branch on merge; delete the local one (`git branch -d`, `git fetch --prune`) and its
-  worktree.
-- **Releases**: a `release/X.Y.Z` PR bumps the version in `build.gradle`; after merging it, master is tagged with an
-  annotated `X.Y.Z` tag (semver). The GitHub release carries a changelog summarizing the user-facing changes of
-  every PR merged since the previous tag.
-- **Local setup** (git config isn't versioned, run it once per clone):
-  ```
-  git config pull.rebase true        # git pull rebases instead of merging
-  git config rebase.updateRefs true  # rebasing a branch also moves the stacked branches on top of it
-  git config rebase.autoSquash true  # fixup! commits are squashed when rebasing
-  ```

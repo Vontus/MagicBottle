@@ -7,6 +7,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -98,6 +99,16 @@ public final class MagicBottle {
 		}
 
 		print();
+	}
+
+	// Rewrites the single bottles of the inventory that were made before bottles stopped stacking, so they get the limit.
+	// Stacks stay as they are (see print).
+	public static void limitStackSize(Inventory inv) {
+		for (ItemStack item : inv) {
+			if (isMagicBottle(item) && item.getAmount() == 1 && item.getMaxStackSize() != 1) {
+				new MagicBottle(item).recreate();
+			}
+		}
 	}
 
 	// A copy of an empty bottle without the bottle markers, so it can't be used as one: for display only
@@ -391,6 +402,12 @@ public final class MagicBottle {
 		meta.lore(lore);
 		// null keeps dragon's breath's own model
 		meta.setItemModel(isEmpty() ? modelEmpty : null);
+		// Bottles don't stack (identical full ones would fit 64 in a slot, and merging frees slots). A stack that already
+		// exists keeps stacking: an item with more than its max stack size may fail validation. It gets the limit once
+		// split, whenever the bottle is rewritten (limitStackSize does it for the inventories of a joining player).
+		if (item.getAmount() == 1) {
+			meta.setMaxStackSize(1);
+		}
 		markAsBottle(meta);
 		meta.getPersistentDataContainer().set(keyExp, PersistentDataType.INTEGER, exp);
 		// A missing key means 1: bottles that were never merged are written as they always were

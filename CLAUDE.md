@@ -46,6 +46,9 @@ the id is persisted, so never change it) treated as a set: a missing key means n
 kept when the bottle is rewritten. Only `MagicBottle` reads and writes it (`hasUpgrade`/`addUpgrade`), and `print()` adds a
 lore line per upgrade (`bottle text.upgrades`), in enum order. Features that need a bottle with an upgrade call
 `MagicBottle.findWithUpgrade`, which only looks in the hotbar and the offhand (moving the bottle out is the off switch).
+Both go through `MagicBottle.find`, which decides which bottle a feature uses: the selected slot, then the offhand, then the
+rest of the hotbar and, if asked (`wholeInventory`), the rest of the inventory. Upgrades never ask for the whole inventory;
+loans (`XpLoan`) do.
 Each upgrade has `upgrades.<id>` in `Settings` (`enabled`, `ingredient`, parsed by `Ingredient`; validated in
 `Config.loadUpgrades` into `Config.upgradeIngredients`; a wrong ingredient of an enabled upgrade sets `Config.invalidUpgrade` and `onEnable` disables the plugin, so the admin notices) and the permission `magicbottle.upgrade.<id>` to apply it. They are
 applied in the smithing table (see `SmithingListener`). A new upgrade is an `Upgrade` value plus its settings, lore message
@@ -99,6 +102,19 @@ quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafter
   the result with repair cost 0 (no levels) and a lore line with the exp it will spend and what the bottle keeps (`messages.repair.anvil cost`; only the preview has it); `onClickResult` cancels the click and takes it by hand like
   `onClickCraftResult` does (`ResultSlot.destination`), because vanilla would consume the bottle. 1 exp repairs 2
   durability points; a bottle with less exp repairs partially and stays in the slot, empty.
+  `lendCost` pays the level cost of any other anvil result (`spend.enabled`, `magicbottle.action.spend`) when the
+  player lacks the levels, with a loan (`XpLoan`): the client and the server only let the player take a result their real
+  level affords, so the bottle raises the player to exactly the cost's level with an empty bar. The cost shows affordable
+  and vanilla's own take (every click type, the items, the anvil's wear) charges it: it spends the levels and keeps the bar,
+  so it takes `Exp.getExpAtLevel(cost)` points, not the levels above the player's own (they depend on the player's level).
+  Own exp goes first, then the first bottle of the whole inventory that covers the rest (bottles aren't combined; if none
+  covers it, the anvil is vanilla). It runs on `PrepareAnvilEvent` (MONITOR, the final cost) and next tick after a click or
+  drag in the anvil by a player with a loan, in case no prepare follows: unless the loan for the current cost is untouched,
+  it settles the loan for what the anvil showed before (after a take, the bottle's share goes to the action bar right away,
+  `messages.spend.from bottle`, not through `DebouncedFeedback`: an anvil operation isn't repeated like the upgrades) and
+  lends what the current result needs. Cost 0, "Too Expensive!", creative and players
+  who can afford it are vanilla. A fake client level (`Player#sendExperienceChange`) doesn't work: the server overwrites
+  it on the first click.
 - `SmithingListener` — applies upgrades: each enabled upgrade has a `SmithingTransformRecipe` (`magicbottle:upgrade/<id>`,
   `Recipes.getUpgrade`; no template, any dragon's breath as base, the configured ingredient as addition) so the slots
   accept the items. `onPrepareSmithing` rebuilds the result from the bottle in the base slot (keeping its exp and upgrades,

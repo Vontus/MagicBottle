@@ -33,6 +33,8 @@ public class Settings {
 
 	public Repair repair = new Repair();
 
+	public Spend spend = new Spend();
+
 	@Comment("""
 			Upgrades are applied to a MagicBottle in the smithing table: the bottle goes in the base slot and the ingredient in the
 			addition slot (the template slot stays empty). The bottle keeps its experience. Each upgrade has an 'enabled' option and
@@ -140,6 +142,19 @@ public class Settings {
 				Tools and armor will need this enchantment in order to be able to repair them (its Minecraft ID, e.g. MENDING or minecraft:mending)
 				Set this to ANY if you want MagicBottle to repair any repairable tool (unenchanted tools will be repaired too)""")
 		public EnchantParser enchantment = EnchantParser.parse("MENDING");
+	}
+
+	@ConfigSerializable
+	public static class Spend {
+		@Comment("""
+				Pay the level cost of anvil operations (combining enchantments, renaming...) with a MagicBottle in your inventory
+				when you don't have enough levels. The cost is charged in experience points, not levels (the same points a vanilla
+				anvil would take from level 0 up to the cost): your own experience goes first and the bottle covers the rest.
+				The bottle in the selected slot is used first, then the offhand, then the rest of the inventory; if the first one
+				doesn't cover the difference the anvil works as in vanilla (bottles aren't combined). Applied with '/mb reload'.
+				While the anvil shows that result, the bottle lends you the levels (your experience bar shows them); what you don't
+				spend goes back to the bottle as soon as the anvil changes, or when you close it.""")
+		public boolean enabled = true;
 	}
 
 	@ConfigSerializable

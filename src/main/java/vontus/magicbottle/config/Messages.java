@@ -130,6 +130,7 @@ public class Messages {
 		public Recipe recipe = new Recipe();
 		public Collect collect = new Collect();
 		public Repair repair = new Repair();
+		public Spend spend = new Spend();
 	}
 
 	@ConfigSerializable
@@ -185,6 +186,13 @@ public class Messages {
 	public static class Collect {
 		// Placeholders: <xp>
 		public String stored = "<yellow>Collect <dark_purple>+<xp></dark_purple> XP";
+	}
+
+	@ConfigSerializable
+	public static class Spend {
+		// Placeholders: <xp>
+		@Setting("from bottle")
+		public String fromBottle = "<gray>Your MagicBottle covered the anvil: <yellow>-<xp> XP</yellow>";
 	}
 
 	@ConfigSerializable

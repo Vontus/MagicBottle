@@ -157,7 +157,7 @@ public class Commands {
 	 */
 	private int changeUpgrades(CommandContext<CommandSourceStack> ctx, boolean adding) {
 		if (!(ctx.getSource().getExecutor() instanceof Player player)) {
-			return 0; // not reachable: the node requires a player
+			throw new IllegalStateException("the node requires a player");
 		}
 		CommandSender sender = ctx.getSource().getSender();
 		ItemStack held = player.getInventory().getItemInMainHand();

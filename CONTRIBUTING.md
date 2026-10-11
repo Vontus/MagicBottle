@@ -65,8 +65,9 @@ Bottles live in player inventories for years.
 
 ## Testing
 
-Until there are unit tests, behavior is tested by hand on a Paper server. The PR says what was tried; for anything
-that moves items, with which of the ways listed above.
+Logic that does not need a server has unit tests (JUnit 6, `src/test`, run by `build`): add or update them with the change.
+The pure math lives apart from Bukkit objects (`Exp`, `DepositMath`) so it can be tested. The rest is tested by hand on a
+Paper server: the PR says what was tried; for anything that moves items, with which of the ways listed above.
 
 ## Git workflow
 

@@ -17,9 +17,11 @@ their XP levels in glass bottles. Java 25, built with Gradle 9. Package root: `v
 ./gradlew spotlessApply  # format the code: build runs spotlessCheck and fails if it is not formatted
 ```
 
-Requires a JDK 25 (Gradle toolchain). On Windows use `gradlew.bat` instead of `./gradlew`. The compiler runs with
-`-Xlint:all -Werror` plus Error Prone and NullAway (scoped to `vontus.magicbottle`): a warning or a nullness error fails the build, so fix it or suppress it narrowly with a comment saying why. There is no test
-suite, so there is no single-test command to run (see Testing in CONTRIBUTING.md).
+Requires a JDK 25 (Gradle toolchain). On Windows use `gradlew.bat` instead of `./gradlew`. `./gradlew build` must pass after every change
+(and `spotlessApply` runs before committing). The compiler runs with
+`-Xlint:all -Werror` plus Error Prone and NullAway (scoped to `vontus.magicbottle`): a warning or a nullness error fails the build, so fix it or suppress it narrowly with a comment saying why.
+Unit tests (JUnit, `src/test`) run with `build`; a single one: `./gradlew test --tests vontus.magicbottle.util.ExpTest`. They cover the logic that
+doesn't need a server (`Exp`, `DepositMath`, command parsing); the rest is tested by hand (see Testing in CONTRIBUTING.md).
 
 The plugin version lives only in `build.gradle`; `plugin.yml` gets it through `processResources` expansion.
 
@@ -173,6 +175,8 @@ italic).
 **XP math** (`util/Exp.java`): ported from EssentialsX. Bukkit's built-in level/exp handling only tracks the
 in-progress level, so this class recomputes true total XP points and implements the get/set/give/take API
 plus the level↔exp conversion formulas (`getLevelFromExp`, `getExpAtLevel`) that vanilla Minecraft uses.
+`util/DepositMath` holds the integer math of the deposit cost (gain, fewest points for a gain, the stochastic rounding of
+`collect`) apart from the player and the bottle, so it is unit tested; `MagicBottle` only feeds it the percentage and the room.
 
 **Effects** (`effects/SoundEffect`): sounds and particles (Bukkit `spawnParticle`) for deposit/withdraw/craft
 actions.

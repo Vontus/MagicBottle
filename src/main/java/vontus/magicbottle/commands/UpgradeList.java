@@ -1,14 +1,13 @@
 package vontus.magicbottle.commands;
 
+import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import io.papermc.paper.command.brigadier.MessageComponentSerializer;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
-import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 import vontus.magicbottle.Upgrade;
 
@@ -66,6 +65,6 @@ final class UpgradeList {
     }
 
     static Message tip(String text) {
-        return MessageComponentSerializer.message().serialize(Component.text(text));
+        return new LiteralMessage(text);
     }
 }

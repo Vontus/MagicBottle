@@ -57,6 +57,10 @@ quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafter
 anvil/brewing block), `AnvilListener` (repair in the anvil), `RepairListener` (auto-repair), `SmithingListener` (upgrades) and `PlayerListener` (join migration, leave cleanup):
 - `onInteract` — left-click deposits, right-click withdraws, holding the bottle in hand (shift = 10 levels,
   no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`throttle`, a map of last click ticks).
+  A right click on a block from `INTERACTABLE` (menus and toggles; our own list, not `Material#isInteractable`, which also
+  counts blocks that react only to certain items) by a player who isn't sneaking is passed to the block: the event isn't
+  cancelled, only `useItemInHand` is denied, and the click neither withdraws nor starts the cooldown. Blocks that accept any
+  item (decorated pot...) stay out of the list, and left clicks always deposit.
 - `onPrepareCraft`/`onClickCraftResult` — a single MagicBottle (amount 1) alone in a crafting grid (3x3 or the
   2x2 inventory grid) withdraws/deposits *all* XP. These aren't registered recipes (the recipe book would autofill
   any dragon's breath), so `onPrepareCraft` sets the preview itself (PrepareItemCraftEvent fires

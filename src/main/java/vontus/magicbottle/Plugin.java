@@ -13,6 +13,7 @@ import vontus.magicbottle.listeners.BottleInteractListener;
 import vontus.magicbottle.listeners.ClickCooldown;
 import vontus.magicbottle.listeners.CollectListener;
 import vontus.magicbottle.listeners.CraftingGridListener;
+import vontus.magicbottle.listeners.EnchantListener;
 import vontus.magicbottle.listeners.InventoryListener;
 import vontus.magicbottle.listeners.LoanListener;
 import vontus.magicbottle.listeners.PlayerListener;
@@ -52,6 +53,7 @@ public final class Plugin extends JavaPlugin {
 		pm.registerEvents(new CollectListener(this), this);
 		pm.registerEvents(new BottleInteractListener(cooldown), this);
 		pm.registerEvents(new CraftingGridListener(this), this);
+		pm.registerEvents(new EnchantListener(this), this);
 		pm.registerEvents(new InventoryListener(), this);
 		pm.registerEvents(new LoanListener(loan), this);
 		pm.registerEvents(new RecipeMenuListener(), this);

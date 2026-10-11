@@ -115,6 +115,16 @@ quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafter
   lends what the current result needs. Cost 0, "Too Expensive!", creative and players
   who can afford it are vanilla. A fake client level (`Player#sendExperienceChange`) doesn't work: the server overwrites
   it on the first click.
+- `EnchantListener` — pays the enchanting table from a bottle with a loan (`XpLoan`; `spend.enabled`, `magicbottle.action.spend`,
+  same switch as the anvil). The client and the server refuse an unaffordable option before any event, so the real level must
+  exist when the offers are computed: `onPrepare` (every time the item/lapis change, HIGHEST) takes the highest offer the player
+  can't afford (required level = `max(cost, button + 1)`, vanilla's check; at most 30) and borrows exactly
+  `Exp.getExpAtLevel(required)` points, otherwise a lower offer, or nothing (vanilla). Unless the loan for that level is
+  untouched, it settles the earlier one first (which also returns the points of an enchantment just done). Vanilla then spends
+  `button + 1` levels (1 to 3, not the cost) keeping the bar, which is 0 here. Closing, join, quit, death... are `LoanListener`'s;
+  `EnchantListener` adds the next tick check after an `EnchantItemEvent` or a click/drag by a player with a loan, which settles
+  if the table shows no offers any more (item taken out or enchanted: Paper fires no prepare then). The bottle's share goes to the
+  action bar right away (`messages.spend.enchant`), like the anvil.
 - `SmithingListener` — applies upgrades: each enabled upgrade has a `SmithingTransformRecipe` (`magicbottle:upgrade/<id>`,
   `Recipes.getUpgrade`; no template, any dragon's breath as base, the configured ingredient as addition) so the slots
   accept the items. `onPrepareSmithing` rebuilds the result from the bottle in the base slot (keeping its exp and upgrades,

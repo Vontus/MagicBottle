@@ -193,6 +193,9 @@ public class Messages {
 		// Placeholders: <xp>
 		@Setting("from bottle")
 		public String fromBottle = "<gray>Your MagicBottle covered the anvil: <yellow>-<xp> XP</yellow>";
+
+		// Placeholders: <xp>
+		public String enchant = "<gray>Your MagicBottle covered the enchanting: <yellow>-<xp> XP</yellow>";
 	}
 
 	@ConfigSerializable

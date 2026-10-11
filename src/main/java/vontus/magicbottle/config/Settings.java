@@ -147,13 +147,16 @@ public class Settings {
 	@ConfigSerializable
 	public static class Spend {
 		@Comment("""
-				Pay the level cost of anvil operations (combining enchantments, renaming...) with a MagicBottle in your inventory
-				when you don't have enough levels. The cost is charged in experience points, not levels (the same points a vanilla
+				Pay the level cost of anvil operations (combining enchantments, renaming...) and of the enchanting table with a
+				MagicBottle in your inventory when you don't have enough levels. The cost is charged in experience points, not levels (the same points a vanilla
 				anvil would take from level 0 up to the cost): your own experience goes first and the bottle covers the rest.
 				The bottle in the selected slot is used first, then the offhand, then the rest of the inventory; if the first one
 				doesn't cover the difference the anvil works as in vanilla (bottles aren't combined). Applied with '/mb reload'.
 				While the anvil shows that result, the bottle lends you the levels (your experience bar shows them); what you don't
-				spend goes back to the bottle as soon as the anvil changes, or when you close it.""")
+				spend goes back to the bottle as soon as the anvil changes, or when you close it.
+				In the enchanting table the bottle lends you the points to reach the level of the best offer you can't afford; the
+				table spends its 1 to 3 levels as usual and what is left goes back into the bottle when you close the table (or
+				leave, die...), so only the exp the table spends is taken from it.""")
 		public boolean enabled = true;
 	}
 

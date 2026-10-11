@@ -32,9 +32,7 @@ public class BottleArgument implements CustomArgumentType<BottleArgument.Spec, S
 	public record Spec(int level, Set<Upgrade> upgrades, int count) {
 		/** Builds the bottle through {@link MagicBottle}, ignoring the upgrade permissions and settings (admin). */
 		public ItemStack createItem() {
-			MagicBottle bottle = new MagicBottle(Exp.getExpAtLevel(level));
-			upgrades.forEach(bottle::addUpgrade);
-			return bottle.getItem();
+			return new MagicBottle(Exp.getExpAtLevel(level), upgrades).getItem();
 		}
 	}
 

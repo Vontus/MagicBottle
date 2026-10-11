@@ -6,7 +6,9 @@ package vontus.magicbottle;
  */
 public enum Upgrade {
 	AUTO_REPAIR("autorepair"),
-	COLLECT("collect");
+	COLLECT("collect"),
+	// Turns the bottle into a placeable lantern that absorbs the XP orbs around it (see the lantern package)
+	LANTERN("lantern");
 
 	private final String id;
 

@@ -28,6 +28,10 @@ public class BottleInteractListener implements Listener {
 
 		if (MagicBottle.isMagicBottle(item)) {
 			MagicBottle mb = new MagicBottle(item);
+			// A Magic Lantern is placed, not clicked: cancelling the event here would keep it from being placed
+			if (mb.isLantern()) {
+				return;
+			}
 			if (item.getAmount() == 1 && cooldown.throttle(player)) {
 				if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK) {
 					onInteractDeposit(mb, player);

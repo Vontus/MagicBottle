@@ -39,10 +39,11 @@ public class Recipes {
 
 	// Smithing slots only accept the items of a recipe, hence a real recipe per upgrade. It is a base for the preview:
 	// SmithingListener builds the actual result from the bottle in the base slot, so it keeps its exp and upgrades.
-	// Any dragon's breath matches the base (an exact choice would compare the PDC); the template slot stays empty.
+	// Any dragon's breath or lantern (a Magic Lantern can get more upgrades) matches the base: an exact choice would
+	// compare the PDC. The template slot stays empty.
 	private SmithingTransformRecipe getUpgradeRecipe(Upgrade upgrade, RecipeChoice ingredient) {
 		return new SmithingTransformRecipe(getKey(plugin, upgradePrefix + upgrade.id()), new MagicBottle(0).getItem(),
-				null, new RecipeChoice.MaterialChoice(MagicBottle.material), ingredient);
+				null, new RecipeChoice.MaterialChoice(MagicBottle.baseMaterial, MagicBottle.lanternMaterial), ingredient);
 	}
 
 	private ShapedRecipe getNewBottleRecipe() {

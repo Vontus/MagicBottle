@@ -175,6 +175,15 @@ public class Settings {
 				aren't free (on average, you pay exactly the percentage). Take the bottle out of the hotbar to stop collecting.
 				Note that without keepInventory the bottle drops when you die.""")
 		public CollectOption collect = new CollectOption("heart_of_the_sea");
+
+		@Comment("""
+				Lantern: turns the bottle into a Magic Lantern, a lantern you place. Placed, it pulls the experience orbs around it
+				(through blocks, so in a farm they all end up there) and stores their experience, up to the capacity of the bottle.
+				Right click it with a MagicBottle to take the experience (the deposit cost in 'costs' applies, and what doesn't fit
+				stays in the lantern). Breaking it drops the lantern with its experience, upgrades and name. Nobody owns a lantern:
+				anyone can empty it, like a chest. Disabling it stops the lanterns that are placed from absorbing (they keep their
+				experience and can still be broken) and keeps Magic Lantern items from being placed.""")
+		public LanternOption lantern = new LanternOption("nether_star");
 	}
 
 	@ConfigSerializable
@@ -200,6 +209,21 @@ public class Settings {
 		}
 
 		CollectOption(String ingredient) {
+			super(ingredient);
+		}
+	}
+
+	@ConfigSerializable
+	public static class LanternOption extends UpgradeOption {
+		@Comment("""
+				How far (in blocks) a placed Magic Lantern pulls experience orbs from, from 1 to 16 (other values are brought to
+				that range). This is applied with '/mb reload'.""")
+		public int radius = 8;
+
+		public LanternOption() {
+		}
+
+		LanternOption(String ingredient) {
 			super(ingredient);
 		}
 	}

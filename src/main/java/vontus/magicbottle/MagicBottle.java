@@ -26,7 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 
-public class MagicBottle {
+public final class MagicBottle {
 	// Every bottle is dragon's breath, one of the most inert items (its only use is brewing, which is blocked), while
 	// vanilla fills glass bottles with water or honey, dispensers included. Empty bottles only look like glass bottles.
 	public static final Material material = Material.DRAGON_BREATH;
@@ -70,6 +70,9 @@ public class MagicBottle {
 		new MagicBottle(item, exp);
 	}
 
+	// ItemStack#setType is deprecated in favor of withType, which returns a copy. The conversion has to mutate the stack
+	// in place: it is the one that lives in the player's inventory (see LegacyBottle.migrateInventory).
+	@SuppressWarnings("deprecation")
 	private void recreate() {
 		if (item == null) {
 			item = new ItemStack(material);
@@ -262,13 +265,13 @@ public class MagicBottle {
 	private int repairNoRecreate(ItemStack i, boolean fullRepair) {
 		if (Utils.getMaterial(i) != Material.AIR) {
 			if (Config.canRepair(i)) {
-				short usedDurability = i.getDurability();
+				int usedDurability = Utils.getDamage(i);
 				if (usedDurability >= DURABILITY_POINTS_PER_XP || fullRepair) {
 					int repairable = Math.min(exp * DURABILITY_POINTS_PER_XP, usedDurability);
 					int remainder = fullRepair ? repairable % 2 : 0;
 					int xpToUse = (int)Math.floor(repairable / 2) + remainder;
 					exp -= xpToUse;
-					i.setDurability((short) (i.getDurability() - repairable));
+					Utils.setDamage(i, usedDurability - repairable);
 					return xpToUse;
 				}
 			}

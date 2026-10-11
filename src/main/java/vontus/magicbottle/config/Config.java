@@ -6,6 +6,7 @@ import org.bukkit.inventory.RecipeChoice;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.Upgrade;
 import vontus.magicbottle.util.Exp;
+import vontus.magicbottle.util.Utils;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -97,7 +98,7 @@ public class Config {
 		return (repairEnabled || repairAutoEnabled)
 				&& settings.repair.enchantment.canRepair(is)
 				&& is.getType().getMaxDurability() > 0
-				&& is.getDurability() > 0;
+				&& Utils.getDamage(is) > 0;
 	}
 
 	// Validates the shape against the ingredients. If anything is wrong, the recipe is disabled instead of failing to

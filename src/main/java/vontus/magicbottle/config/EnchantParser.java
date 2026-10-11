@@ -1,7 +1,8 @@
 package vontus.magicbottle.config;
 
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -48,7 +49,7 @@ public class EnchantParser {
 			return new EnchantParser(text, null, true, null);
 		}
 		NamespacedKey key = text == null ? null : NamespacedKey.fromString(text.toLowerCase(Locale.ROOT));
-		Enchantment e = key == null ? null : Registry.ENCHANTMENT.get(key);
+		Enchantment e = key == null ? null : RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).get(key);
 		if (e == null) {
 			return new EnchantParser(text, null, false, "The enchantment '" + text + "' is not supported");
 		}

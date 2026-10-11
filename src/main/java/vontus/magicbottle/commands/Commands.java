@@ -111,9 +111,7 @@ public class Commands {
 
 
 	private void recipe(Player p) {
-		if (Config.recipeNewBottleEnabled) {
-			RecipeMenu.open(plugin, p);
-		} else {
+		if (!RecipeMenu.open(plugin, p)) {
 			p.sendMessage(Messages.render(Messages.texts.messages.recipe.disabled));
 		}
 	}

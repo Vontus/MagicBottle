@@ -72,10 +72,9 @@ public class Config {
 			if (!option.enabled) {
 				continue;
 			}
-			if (option.ingredient == null || option.ingredient.error != null) {
-				String error = option.ingredient == null ? "it has no item" : option.ingredient.error;
-				Plugin.logger.severe("Invalid 'upgrades." + upgrade.id() + ".ingredient' in config.yml: " + error
-						+ ".");
+			if (option.ingredient.error != null) {
+				Plugin.logger.severe("Invalid 'upgrades." + upgrade.id() + ".ingredient' in config.yml: "
+						+ option.ingredient.error + ".");
 				invalidUpgrade = true;
 			} else {
 				upgradeIngredients.put(upgrade, option.ingredient.choice);

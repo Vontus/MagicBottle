@@ -1,6 +1,7 @@
 package vontus.magicbottle.listeners;
 
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Keyed;
 import org.bukkit.entity.HumanEntity;
@@ -49,12 +50,12 @@ public class SmithingListener implements Listener {
 		}
 	}
 
-	private Upgrade upgradeOf(SmithingInventory inv) {
+	private @Nullable Upgrade upgradeOf(SmithingInventory inv) {
 		return inv.getRecipe() instanceof Keyed recipe ? Recipes.getUpgrade(plugin, recipe.getKey()) : null;
 	}
 
 	// The bottle with the upgrade applied, or null if it can't be (or the recipe isn't an upgrade's)
-	private ItemStack buildResult(SmithingInventory inv, HumanEntity player, boolean preview) {
+	private @Nullable ItemStack buildResult(SmithingInventory inv, HumanEntity player, boolean preview) {
 		Upgrade upgrade = upgradeOf(inv);
 		ItemStack base = inv.getInputEquipment();
 		if (upgrade == null || !MagicBottle.isMagicBottle(base) || !Config.isUpgradeEnabled(upgrade)

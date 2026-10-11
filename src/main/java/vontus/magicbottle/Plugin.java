@@ -21,6 +21,8 @@ import vontus.magicbottle.listeners.SmithingListener;
 import java.util.List;
 import java.util.logging.Logger;
 
+// The fields are set in onEnable, before anything uses them
+@SuppressWarnings("NullAway.Init")
 public class Plugin extends JavaPlugin {
 	private static final int BSTATS_ID = 1183;
 

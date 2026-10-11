@@ -1,6 +1,7 @@
 package vontus.magicbottle;
 
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -32,8 +33,11 @@ public final class MagicBottle {
 	public static final Material material = Material.DRAGON_BREATH;
 	private static final NamespacedKey modelEmpty = NamespacedKey.minecraft("glass_bottle");
 	private static final int DURABILITY_POINTS_PER_XP = 2;
+	@SuppressWarnings("NullAway.Init") // created by init(), which onEnable calls first
 	private static NamespacedKey keyBottle;
+	@SuppressWarnings("NullAway.Init")
 	private static NamespacedKey keyExp;
+	@SuppressWarnings("NullAway.Init")
 	private static NamespacedKey keyUpgrades;
 	private ItemStack item;
 	private Integer exp;
@@ -271,7 +275,7 @@ public final class MagicBottle {
 				if (usedDurability >= DURABILITY_POINTS_PER_XP || fullRepair) {
 					int repairable = Math.min(exp * DURABILITY_POINTS_PER_XP, usedDurability);
 					int remainder = fullRepair ? repairable % 2 : 0;
-					int xpToUse = (int)Math.floor(repairable / 2) + remainder;
+					int xpToUse = repairable / 2 + remainder;
 					exp -= xpToUse;
 					Utils.setDamage(i, usedDurability - repairable);
 					return xpToUse;
@@ -377,7 +381,7 @@ public final class MagicBottle {
 	 * a bottle out of them switches its upgrades off. Stacks of bottles don't count. Every feature that looks for a
 	 * bottle with an upgrade goes through here.
 	 */
-	public static MagicBottle findWithUpgrade(Player player, Upgrade upgrade, Predicate<MagicBottle> filter) {
+	public static @Nullable MagicBottle findWithUpgrade(Player player, Upgrade upgrade, Predicate<MagicBottle> filter) {
 		PlayerInventory inv = player.getInventory();
 		List<ItemStack> candidates = new ArrayList<>();
 		for (int slot = 0; slot < 9; slot++) {

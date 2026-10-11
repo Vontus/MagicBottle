@@ -29,13 +29,13 @@ public class Config {
 	public static final int maxLevel = 20000;
 
 	/** The options of config.yml, as loaded. */
-	public static Settings settings;
+	public static Settings settings = new Settings();
 
 	// What the options become once validated. A recipe or an enchantment that is wrong disables what depends on it
 	// instead of the whole plugin.
 	public static boolean recipeNewBottleEnabled;
-	public static String[] recipeNewBottleShape;
-	public static Map<Character, RecipeChoice> recipeNewBottleIngredients;
+	public static String[] recipeNewBottleShape = new String[0];
+	public static Map<Character, RecipeChoice> recipeNewBottleIngredients = Map.of();
 	public static boolean repairEnabled;
 	public static boolean repairAutoEnabled;
 	// Whether an enabled upgrade has a wrong ingredient, which the admin must fix: the plugin doesn't enable like that
@@ -136,7 +136,8 @@ public class Config {
 	private static Map<Character, RecipeChoice> parseRecipeIngredients(String[] shape, Map<String, Ingredient> section) {
 		Map<Character, RecipeChoice> ingredients = new HashMap<>();
 		for (String row : shape) {
-			for (char c : row.toCharArray()) {
+			for (int i = 0; i < row.length(); i++) {
+				char c = row.charAt(i);
 				if (c != ' ' && !ingredients.containsKey(c)) {
 					Ingredient ingredient = section.get(String.valueOf(c));
 					if (ingredient == null) {

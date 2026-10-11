@@ -1,6 +1,7 @@
 package vontus.magicbottle;
 
 import org.bukkit.NamespacedKey;
+import org.jspecify.annotations.Nullable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
@@ -51,7 +52,7 @@ public class Recipes {
 	}
 
 	// The upgrade a recipe applies, or null if it isn't the recipe of an upgrade
-	public static Upgrade getUpgrade(Plugin plugin, NamespacedKey key) {
+	public static @Nullable Upgrade getUpgrade(Plugin plugin, NamespacedKey key) {
 		if (!key.getNamespace().equals(plugin.getName().toLowerCase(Locale.ROOT)) || !key.getKey().startsWith(upgradePrefix)) {
 			return null;
 		}

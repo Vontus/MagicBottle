@@ -165,6 +165,7 @@ public class Settings {
 
 		public Ingredient ingredient;
 
+		@SuppressWarnings("NullAway.Init") // Configurate fills it from the file
 		public UpgradeOption() {
 		}
 

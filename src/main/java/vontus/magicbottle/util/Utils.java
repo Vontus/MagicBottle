@@ -15,8 +15,7 @@ public class Utils {
 	}
 
 	public static String roundInt(int number) {
-		Double round = Math.round(number * 10) / 10d;
-		return NumberFormat.getNumberInstance(Locale.US).format(round);
+		return NumberFormat.getNumberInstance(Locale.US).format(number);
 	}
 	
 	public static Material getMaterial(ItemStack is) {

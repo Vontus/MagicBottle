@@ -55,6 +55,9 @@ Bottles live in player inventories for years.
 - Hot events (`PlayerExpChangeEvent`, `PlayerItemDamageEvent`, inventory clicks) check the cheap conditions first and
   only look where they must (hotbar and offhand for upgrades). Elsewhere, readability wins over micro-optimizations.
 - Exp math uses integers.
+- Nullness is checked by NullAway: whatever can be null is annotated `@Nullable` (`org.jspecify.annotations`), and Bukkit calls that
+  return null (`getItemMeta()`, `getItem()`, PDC `get`) are checked before use. A field that is set later by `onEnable` is
+  suppressed with `@SuppressWarnings("NullAway.Init")` and a comment saying who sets it.
 - Reuse what exists (`Exp`, `ResultSlot.destination`, `MagicBottle.findWithUpgrade`, `UpgradeList`...) instead of
   reimplementing it, and write code like the code around it: naming, idioms, comments that say why.
 - A change to the architecture or to a rule updates CLAUDE.md or this file in the same PR.

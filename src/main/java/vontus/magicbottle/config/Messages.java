@@ -19,11 +19,11 @@ import java.util.List;
  */
 public class Messages {
 	/** The messages, as loaded. */
-	public static Texts texts;
+	public static Texts texts = new Texts();
 
 	// The segments <xpbar> is made of
-	public static Component bottleFilledBar;
-	public static Component bottleEmptyBar;
+	public static Component bottleFilledBar = Component.empty();
+	public static Component bottleEmptyBar = Component.empty();
 
 	public static void load(Plugin plugin) {
 		texts = ConfigFile.load(plugin, "messages.yml", Texts.class, Texts.HEADER);

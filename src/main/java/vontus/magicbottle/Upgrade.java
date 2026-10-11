@@ -1,5 +1,7 @@
 package vontus.magicbottle;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * The upgrades a bottle can carry. The id is what is persisted in the bottle's PDC (and names its config section,
  * permission and recipe), so it must never change. They are listed in the order their lore lines are shown.
@@ -23,7 +25,7 @@ public enum Upgrade {
 		return "magicbottle.upgrade." + id();
 	}
 
-	public static Upgrade fromId(String id) {
+	public static @Nullable Upgrade fromId(String id) {
 		for (Upgrade upgrade : values()) {
 			if (upgrade.id().equals(id)) {
 				return upgrade;

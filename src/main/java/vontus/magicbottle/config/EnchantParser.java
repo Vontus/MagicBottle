@@ -1,6 +1,7 @@
 package vontus.magicbottle.config;
 
 import io.papermc.paper.registry.RegistryAccess;
+import org.jspecify.annotations.Nullable;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
@@ -31,20 +32,20 @@ public class EnchantParser {
 
 	private static final String ANY_ENCHANTMENT = "ANY";
 
-	private final String text;
-	private final Enchantment ench;
+	private final @Nullable String text;
+	private final @Nullable Enchantment ench;
 	private final boolean anyEnchant;
 	// null if the text is valid
-	final String error;
+	final @Nullable String error;
 
-	private EnchantParser(String text, Enchantment ench, boolean anyEnchant, String error) {
+	private EnchantParser(@Nullable String text, @Nullable Enchantment ench, boolean anyEnchant, @Nullable String error) {
 		this.text = text;
 		this.ench = ench;
 		this.anyEnchant = anyEnchant;
 		this.error = error;
 	}
 
-	public static EnchantParser parse(String text) {
+	public static EnchantParser parse(@Nullable String text) {
 		if (ANY_ENCHANTMENT.equals(text)) {
 			return new EnchantParser(text, null, true, null);
 		}

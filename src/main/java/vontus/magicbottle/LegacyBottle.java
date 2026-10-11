@@ -1,6 +1,7 @@
 package vontus.magicbottle;
 
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -26,8 +27,8 @@ public class LegacyBottle {
 	}
 
 	static void migrateIfLegacy(ItemStack item) {
-		if (isLegacyBottle(item)) {
-			int exp = parseExp(item);
+		Integer exp = isLegacyBottle(item) ? parseExp(item) : null;
+		if (exp != null) {
 			ItemMeta meta = item.getItemMeta();
 			meta.removeEnchant(MARKER);
 			meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -44,7 +45,7 @@ public class LegacyBottle {
 		}
 	}
 
-	private static Integer parseExp(ItemStack item) {
+	private static @Nullable Integer parseExp(ItemStack item) {
 		try {
 			// The lore was written with legacy color codes; only its text matters
 			Component line = item.lore().get(XP_LINE);

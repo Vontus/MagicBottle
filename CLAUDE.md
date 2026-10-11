@@ -17,7 +17,7 @@ their XP levels in glass bottles. Java 25, built with Gradle 9. Package root: `v
 ```
 
 Requires a JDK 25 (Gradle toolchain). On Windows use `gradlew.bat` instead of `./gradlew`. The compiler runs with
-`-Xlint:all -Werror`: a warning fails the build, so fix it or suppress it narrowly with a comment saying why. There is no test
+`-Xlint:all -Werror` plus Error Prone and NullAway (scoped to `vontus.magicbottle`): a warning or a nullness error fails the build, so fix it or suppress it narrowly with a comment saying why. There is no test
 suite, so there is no single-test command to run (see Testing in CONTRIBUTING.md).
 
 The plugin version lives only in `build.gradle`; `plugin.yml` gets it through `processResources` expansion.

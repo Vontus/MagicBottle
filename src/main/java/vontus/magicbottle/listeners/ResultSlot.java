@@ -1,6 +1,7 @@
 package vontus.magicbottle.listeners;
 
 import org.bukkit.Material;
+import org.jspecify.annotations.Nullable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -15,7 +16,7 @@ final class ResultSlot {
 	}
 
 	// Where a click on the result puts the item, like vanilla would, or null if it has nowhere to go
-	static Consumer<ItemStack> destination(InventoryClickEvent e, Player player) {
+	static @Nullable Consumer<ItemStack> destination(InventoryClickEvent e, Player player) {
 		PlayerInventory inv = player.getInventory();
 		return switch (e.getClick()) {
 			case LEFT, RIGHT -> isAir(player.getItemOnCursor()) ? player::setItemOnCursor : null;

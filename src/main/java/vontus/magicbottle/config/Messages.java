@@ -61,7 +61,7 @@ public class Messages {
 	}
 
 	// Placeholders of the bottle texts: <level> (the whole level it holds), <max_level> (its capacity in levels), <size>,
-	// <points>, <xpbar>. They are not italic unless you add <italic>.
+	// <points>, <max_points> (its capacity in experience points), <xpbar>. They are not italic unless you add <italic>.
 	@ConfigSerializable
 	public static class BottleText {
 		public String name = "<dark_purple><bold>MagicBottle</bold> <gray>| <yellow>Level <level>/<max_level> <gray>| <xpbar>";
@@ -73,10 +73,14 @@ public class Messages {
 		@Setting("experience text")
 		public String experienceTitle = "<dark_purple>Experience points:";
 
-		public String experience = " <yellow><points>";
+		public String experience = " <yellow><points><gray>/<max_points>";
 
-		@Comment("A line under the experience of the bottles with a size above 1 (made by merging bottles).")
-		public String capacity = "<dark_purple>Capacity: <yellow>level <max_level> <gray>(×<size>)";
+		@Setting("capacity text")
+		@Comment("The title of the capacity, under the experience of the bottles with a size above 1 (made by merging bottles).")
+		public String capacityTitle = "<dark_purple>Capacity:";
+
+		@Comment("The line under the title of the capacity.")
+		public String capacity = " <yellow>level <max_level> <gray>(×<size>)";
 
 		// <xpbar> is made of 18 parts, each one is the filled or the empty bar
 		@Setting("filled bar")

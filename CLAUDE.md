@@ -47,8 +47,8 @@ above 1, never renamed) says how many base bottles it is worth; `getSize()` clam
 placed lantern can use them): the points of `size` bases (`capacity` in `Settings`, in levels, default 30) rounded down to a whole level
 with `Exp.getLevelFloor`, in `long`. A bottle is `isFull()` when `exp >= capacity`; a bottle above its capacity (lowered config) keeps
 all its exp, only refuses deposits (`getRoom()` is never negative) and counts as full. Name (`name`/`name full`), the capacity lore line
-(only if size > 1) and `<xpbar>` (fill = exp/capacity, rounded down, complete only when full) come from it; placeholders `<level>`
-(whole level held), `<max_level>`, `<size>`. `MagicBottle.merge` joins two full bottles (sizes added, union of upgrade ids). Bottles have
+(only if size > 1, a title `capacity text` and a line `capacity`, like the experience) and `<xpbar>` (fill = exp/capacity, rounded down, complete only when full) come from it; placeholders `<level>`
+(whole level held), `<max_level>`, `<size>`, `<points>`, `<max_points>` (the capacity in points, shown by `experience` as `points/max`). `MagicBottle.merge` joins two full bottles (sizes added, union of upgrade ids). Bottles have
 `max_stack_size` 1, set by `print()` on single bottles (a stack is left alone: it may fail validation above the component) and by
 `limitStackSize` for the inventories of a joining player. The old per-player limits (`max level`, `magicbottle.maxlevel.*`) don't exist.
 

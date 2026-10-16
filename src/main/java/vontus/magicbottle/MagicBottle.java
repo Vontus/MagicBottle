@@ -395,6 +395,7 @@ public final class MagicBottle {
 		lore.add(Messages.renderItemText(Messages.texts.bottleText.experienceTitle, placeholders));
 		lore.add(Messages.renderItemText(Messages.texts.bottleText.experience, placeholders));
 		if (getSize() > 1) {
+			lore.add(Messages.renderItemText(Messages.texts.bottleText.capacityTitle, placeholders));
 			lore.add(Messages.renderItemText(Messages.texts.bottleText.capacity, placeholders));
 		}
 
@@ -445,6 +446,7 @@ public final class MagicBottle {
 				Placeholder.unparsed("max_level", Utils.roundInt(getCapacityLevel())),
 				Placeholder.unparsed("size", Integer.toString(getSize())),
 				Placeholder.unparsed("points", Utils.roundDouble(getExp())),
+				Placeholder.unparsed("max_points", Utils.roundInt(getCapacity())),
 				Placeholder.component("xpbar", getXpBar()));
 	}
 	

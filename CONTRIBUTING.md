@@ -37,7 +37,8 @@ They are ordered by how much a mistake costs: the first ones are what a review b
 
 Bottles live in player inventories for years.
 
-- The PDC keys (`magicbottle:bottle`, `magicbottle:exp`, `magicbottle:upgrades`) and the upgrade ids are never renamed.
+- The PDC keys (`magicbottle:bottle`, `magicbottle:exp`, `magicbottle:upgrades` on bottles, `magicbottle:borrowed` on players)
+  and the upgrade ids are never renamed.
 - Upgrade ids this version doesn't know are kept when a bottle is rewritten (a downgrade or a newer version must not lose them).
 - Everything about the 1.5.x format stays in `LegacyBottle`.
 

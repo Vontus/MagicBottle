@@ -46,15 +46,32 @@ the id is persisted, so never change it) treated as a set: a missing key means n
 kept when the bottle is rewritten. Only `MagicBottle` reads and writes it (`hasUpgrade`/`addUpgrade`), and `print()` adds a
 lore line per upgrade (`bottle text.upgrades`), in enum order. Features that need a bottle with an upgrade call
 `MagicBottle.findWithUpgrade`, which only looks in the hotbar and the offhand (moving the bottle out is the off switch).
+Both go through `MagicBottle.find`, which decides which bottle a feature uses: the selected slot, then the offhand, then the
+rest of the hotbar and, if asked (`wholeInventory`), the rest of the inventory. Upgrades never ask for the whole inventory;
+loans (`XpLoan`) do.
 Each upgrade has `upgrades.<id>` in `Settings` (`enabled`, `ingredient`, parsed by `Ingredient`; validated in
 `Config.loadUpgrades` into `Config.upgradeIngredients`; a wrong ingredient of an enabled upgrade sets `Config.invalidUpgrade` and `onEnable` disables the plugin, so the admin notices) and the permission `magicbottle.upgrade.<id>` to apply it. They are
 applied in the smithing table (see `SmithingListener`). A new upgrade is an `Upgrade` value plus its settings, lore message
 and permission (the switches over `Upgrade` in `Config` and `Messages` don't compile until they are added).
 
+**Loans** (`XpLoan`): a workstation that only lets the player use what their real level affords is paid from a bottle by
+lending the player the points. `borrow` raises the player to exactly a target point total (the level the workstation needs,
+bar 0) with the difference taken from the first bottle of the whole inventory that covers it (`MagicBottle.lend`; bottles
+aren't combined), and the workstation spends the levels as vanilla does. The loan (`owed`) is stored in the player's PDC
+(`magicbottle:borrowed`) so a crash is recovered on join. `settle` gives the bottle `min(owed, the player's points now)`
+(`MagicBottle.repay`, no deposit cost: the points were the bottle's; to the bottle that lent them if it is still in its slot
+with room, else to the first bottle with room): own exp is spent first, orbs or other plugins can't create exp, and if no
+bottle has room the player keeps the points (never lost). Both ways the exp is set with `Exp.setPointsSilently`, since
+`Exp.setPoints` gives it level by level and vanilla plays the level up sound on every multiple of 5. What the bottle really
+paid is passed to the function given to `borrow`. `LoanListener` settles on `InventoryCloseEvent` (any
+inventory), join, quit, kick, a lethal `EntityDamageEvent` (before the death computes level and dropped exp) and
+`PlayerDeathEvent` (lowering `droppedExp` if a loan was settled); `Plugin.onDisable` settles too. Settling ignores the config
+and permissions: a loan is always repaid.
+
 **Interaction flow**: all player-facing behavior is driven by Bukkit events, not GUIs. The listeners are split by
 concern, in the `listeners` package: `BottleInteractListener` (clicks in hand, throttled by the `ClickCooldown` that `PlayerListener` clears on
 quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafters), `InventoryListener` (anvil/brewing block), `RecipeMenuListener` (the read-only recipe menu and its tabs),
-`AnvilListener` (repair in the anvil), `RepairListener` (auto-repair), `SmithingListener` (upgrades) and `PlayerListener` (join migration, leave cleanup):
+`AnvilListener` (repair in the anvil), `RepairListener` (auto-repair), `SmithingListener` (upgrades), `LoanListener` (returning loans, see above) and `PlayerListener` (join migration, leave cleanup):
 - `onInteract` — left-click deposits, right-click withdraws, holding the bottle in hand (shift = 10 levels,
   no shift = 1 level). Accepted clicks start a 3 tick per-player cooldown (`throttle`, a map of last click ticks).
 - `onPrepareCraft`/`onClickCraftResult` — a single MagicBottle (amount 1) alone in a crafting grid (3x3 or the
@@ -85,6 +102,19 @@ quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafter
   the result with repair cost 0 (no levels) and a lore line with the exp it will spend and what the bottle keeps (`messages.repair.anvil cost`; only the preview has it); `onClickResult` cancels the click and takes it by hand like
   `onClickCraftResult` does (`ResultSlot.destination`), because vanilla would consume the bottle. 1 exp repairs 2
   durability points; a bottle with less exp repairs partially and stays in the slot, empty.
+  `lendCost` pays the level cost of any other anvil result (`spend.enabled`, `magicbottle.action.spend`) when the
+  player lacks the levels, with a loan (`XpLoan`): the client and the server only let the player take a result their real
+  level affords, so the bottle raises the player to exactly the cost's level with an empty bar. The cost shows affordable
+  and vanilla's own take (every click type, the items, the anvil's wear) charges it: it spends the levels and keeps the bar,
+  so it takes `Exp.getExpAtLevel(cost)` points, not the levels above the player's own (they depend on the player's level).
+  Own exp goes first, then the first bottle of the whole inventory that covers the rest (bottles aren't combined; if none
+  covers it, the anvil is vanilla). It runs on `PrepareAnvilEvent` (MONITOR, the final cost) and next tick after a click or
+  drag in the anvil by a player with a loan, in case no prepare follows: unless the loan for the current cost is untouched,
+  it settles the loan for what the anvil showed before (after a take, the bottle's share goes to the action bar right away,
+  `messages.spend.from bottle`, not through `DebouncedFeedback`: an anvil operation isn't repeated like the upgrades) and
+  lends what the current result needs. Cost 0, "Too Expensive!", creative and players
+  who can afford it are vanilla. A fake client level (`Player#sendExperienceChange`) doesn't work: the server overwrites
+  it on the first click.
 - `SmithingListener` — applies upgrades: each enabled upgrade has a `SmithingTransformRecipe` (`magicbottle:upgrade/<id>`,
   `Recipes.getUpgrade`; no template, any dragon's breath as base, the configured ingredient as addition) so the slots
   accept the items. `onPrepareSmithing` rebuilds the result from the bottle in the base slot (keeping its exp and upgrades,

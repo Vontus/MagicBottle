@@ -14,6 +14,7 @@ import vontus.magicbottle.listeners.ClickCooldown;
 import vontus.magicbottle.listeners.CollectListener;
 import vontus.magicbottle.listeners.CraftingGridListener;
 import vontus.magicbottle.listeners.InventoryListener;
+import vontus.magicbottle.listeners.LoanListener;
 import vontus.magicbottle.listeners.PlayerListener;
 import vontus.magicbottle.listeners.RecipeMenuListener;
 import vontus.magicbottle.listeners.RepairListener;
@@ -32,6 +33,7 @@ public final class Plugin extends JavaPlugin {
 			() -> Messages.texts.messages.repair.autoSpent, () -> Config.settings.repair.autoFeedback);
 	public final DebouncedFeedback.Channel collectFeedback = feedback.channel(
 			() -> Messages.texts.messages.collect.stored, () -> Config.settings.upgrades.collect.feedback);
+	public final XpLoan loan = new XpLoan(this);
 
 	@Override
 	public void onEnable() {
@@ -51,6 +53,7 @@ public final class Plugin extends JavaPlugin {
 		pm.registerEvents(new BottleInteractListener(cooldown), this);
 		pm.registerEvents(new CraftingGridListener(this), this);
 		pm.registerEvents(new InventoryListener(), this);
+		pm.registerEvents(new LoanListener(loan), this);
 		pm.registerEvents(new RecipeMenuListener(), this);
 		pm.registerEvents(new RepairListener(this), this);
 		pm.registerEvents(new SmithingListener(this), this);
@@ -63,8 +66,10 @@ public final class Plugin extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		// Its click handlers go away with the plugin, so nobody may be left holding the menu open
+		// Its click handlers go away with the plugin, so nobody may be left holding the menu open. Borrowed points go back
+		// to the bottles too, since the handlers that return them go away as well.
 		for (Player p : getServer().getOnlinePlayers()) {
+			loan.settle(p, false);
 			if (RecipeMenu.isRecipeMenu(p.getOpenInventory().getTopInventory())) {
 				p.closeInventory();
 			}

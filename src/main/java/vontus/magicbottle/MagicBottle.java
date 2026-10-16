@@ -32,6 +32,8 @@ public final class MagicBottle {
 	// Every bottle is dragon's breath, one of the most inert items (its only use is brewing, which is blocked), while
 	// vanilla fills glass bottles with water or honey, dispensers included. Empty bottles only look like glass bottles.
 	public static final Material material = Material.DRAGON_BREATH;
+	// The offhand in PlayerInventory#getItem
+	private static final int OFFHAND_SLOT = 40;
 	private static final NamespacedKey modelEmpty = NamespacedKey.minecraft("glass_bottle");
 	private static final int DURABILITY_POINTS_PER_XP = 2;
 	@SuppressWarnings("NullAway.Init") // created by init(), which onEnable calls first
@@ -385,25 +387,86 @@ public final class MagicBottle {
 	}
 	
 	/**
-	 * The first bottle with the upgrade and accepted by the filter, looking only at the hotbar and the offhand: moving
-	 * a bottle out of them switches its upgrades off. Stacks of bottles don't count. Every feature that looks for a
-	 * bottle with an upgrade goes through here.
+	 * The first bottle accepted by the filter: the one in the selected slot, then the offhand, then the rest of the hotbar
+	 * and, with {@code wholeInventory}, the rest of the inventory. Armor slots and stacks of bottles don't count. Every
+	 * feature that looks for a bottle to use goes through here.
 	 */
-	public static @Nullable MagicBottle findWithUpgrade(Player player, Upgrade upgrade, Predicate<MagicBottle> filter) {
+	public static @Nullable MagicBottle find(Player player, boolean wholeInventory, Predicate<MagicBottle> filter) {
+		int slot = findSlot(player, wholeInventory, filter);
+		return slot < 0 ? null : bottleAt(player, slot, filter);
+	}
+
+	// The slot of the bottle find returns, or -1
+	private static int findSlot(Player player, boolean wholeInventory, Predicate<MagicBottle> filter) {
 		PlayerInventory inv = player.getInventory();
-		List<ItemStack> candidates = new ArrayList<>();
-		for (int slot = 0; slot < 9; slot++) {
-			candidates.add(inv.getItem(slot));
+		List<Integer> slots = new ArrayList<>();
+		slots.add(inv.getHeldItemSlot());
+		slots.add(OFFHAND_SLOT);
+		for (int slot = 0; slot < (wholeInventory ? 36 : 9); slot++) {
+			if (slot != inv.getHeldItemSlot()) {
+				slots.add(slot);
+			}
 		}
-		candidates.add(inv.getItemInOffHand());
-		for (ItemStack item : candidates) {
-			if (isMagicBottle(item) && item.getAmount() == 1) {
-				MagicBottle mb = new MagicBottle(item);
-				if (mb.hasUpgrade(upgrade) && filter.test(mb)) {
-					return mb;
-				}
+		for (int slot : slots) {
+			if (bottleAt(player, slot, filter) != null) {
+				return slot;
+			}
+		}
+		return -1;
+	}
+
+	// The bottle in that slot of the player's inventory if it is a single one accepted by the filter
+	private static @Nullable MagicBottle bottleAt(Player player, int slot, Predicate<MagicBottle> filter) {
+		ItemStack item = player.getInventory().getItem(slot);
+		if (isMagicBottle(item) && item.getAmount() == 1) {
+			MagicBottle mb = new MagicBottle(item);
+			if (filter.test(mb)) {
+				return mb;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * The first bottle with the upgrade and accepted by the filter, looking only at the hotbar and the offhand: moving
+	 * a bottle out of them switches its upgrades off.
+	 */
+	public static @Nullable MagicBottle findWithUpgrade(Player player, Upgrade upgrade, Predicate<MagicBottle> filter) {
+		return find(player, false, mb -> mb.hasUpgrade(upgrade) && filter.test(mb));
+	}
+
+	/**
+	 * Takes exactly the points out of the first bottle (see {@link #find}) that has them, for {@link XpLoan}: the caller gives
+	 * the points to the player and records them. Returns the slot of that bottle, or -1 if none had them (nothing changes).
+	 */
+	static int lend(Player player, int points) {
+		Predicate<MagicBottle> covers = mb -> mb.exp >= points;
+		int slot = findSlot(player, true, covers);
+		MagicBottle bottle = slot < 0 ? null : bottleAt(player, slot, covers);
+		if (bottle == null) {
+			return -1;
+		}
+		bottle.exp -= points;
+		bottle.recreate();
+		return slot;
+	}
+
+	/**
+	 * Puts points back, with no deposit cost (they are points {@link #lend} took), into the bottle in {@code slot} if it is
+	 * still there with room for all of them (the one that lent them; -1 if unknown), or else into the first bottle (see
+	 * {@link #find}) with room. Returns whether a bottle took them; if not, nothing changes.
+	 */
+	static boolean repay(Player player, int points, int slot) {
+		Predicate<MagicBottle> fits = mb -> mb.getRoom(player) >= points;
+		MagicBottle bottle = slot < 0 ? null : bottleAt(player, slot, fits);
+		if (bottle == null) {
+			bottle = find(player, true, fits);
+		}
+		if (bottle == null) {
+			return false;
+		}
+		bottle.exp += points;
+		bottle.recreate();
+		return true;
 	}
 }

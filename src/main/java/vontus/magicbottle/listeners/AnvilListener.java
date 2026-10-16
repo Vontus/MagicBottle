@@ -2,30 +2,39 @@ package vontus.magicbottle.listeners;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.view.AnvilView;
 import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Plugin;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
 import vontus.magicbottle.effects.SoundEffect;
+import vontus.magicbottle.util.Exp;
 import vontus.magicbottle.util.Utils;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-// Repairing in the anvil with a MagicBottle as the second item. Vanilla would consume the second slot when the result is
-// taken (the bottle would vanish), so the click on the result is cancelled and the transaction is done here.
+// The anvil and MagicBottles: repairing with a bottle as the second item, and paying the level cost of any other operation
+// with a bottle from the inventory. Vanilla would consume the second slot when the repair is taken (the bottle would
+// vanish), so the click on that result is cancelled and the transaction is done here. The level cost is lent to the
+// player by the bottle (XpLoan), so vanilla's own take charges it.
 public class AnvilListener implements Listener {
 	private static final int BOTTLE_SLOT = 1;
 	private static final int RESULT_SLOT = 2;
@@ -112,6 +121,69 @@ public class AnvilListener implements Listener {
 		inv.setResult(null);
 		destination.accept(repaired);
 		SoundEffect.pourBottle(player);
+	}
+
+	// The anvil works out the result and its level cost whenever its slots or the new name change. Read at MONITOR, once
+	// nothing else changes the cost (the bottle repair sets it to 0); only the player's exp is changed, not the event.
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPrepareSpend(PrepareAnvilEvent e) {
+		lendCost((Player) e.getView().getPlayer(), e.getView(), e.getResult());
+	}
+
+	// Taking the result, or moving items around, may leave no result that needs the loan: it is checked again next tick, in
+	// case no PrepareAnvilEvent follows
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onClickWithLoan(InventoryClickEvent e) {
+		checkLoanLater(e);
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onDragWithLoan(InventoryDragEvent e) {
+		checkLoanLater(e);
+	}
+
+	private void checkLoanLater(InventoryInteractEvent e) {
+		if (!(e.getView() instanceof AnvilView) || !(e.getWhoClicked() instanceof Player player)
+				|| !plugin.loan.hasLoan(player)) {
+			return;
+		}
+		// Closed meanwhile: closing settles it (LoanListener)
+		plugin.getServer().getScheduler().runTask(plugin, () -> {
+			if (player.isOnline() && player.getOpenInventory() instanceof AnvilView view) {
+				lendCost(player, view, view.getTopInventory().getResult());
+			}
+		});
+	}
+
+	/**
+	 * Settles the loan made for what the anvil showed before (reporting what the bottle paid, if the result was taken), and
+	 * lends what the result shown now needs, if the player can't afford its cost: the bottle raises the player to exactly
+	 * the cost's level with an empty bar (XpLoan), so the anvil shows the cost affordable and vanilla's own take, which
+	 * spends the levels and keeps the bar, charges {@code Exp.getExpAtLevel(cost)} points instead of the levels above the
+	 * player's own. Own exp goes first. No loan for a cost the player can pay, "Too Expensive!" (no result can be taken),
+	 * creative players (they don't pay) or the bottle repair (it costs no levels).
+	 */
+	private void lendCost(Player player, AnvilView view, @Nullable ItemStack result) {
+		int cost = view.getRepairCost();
+		boolean pays = Config.settings.spend.enabled && result != null && !ResultSlot.isAir(result) && cost > 0
+				&& cost < view.getMaximumRepairCost() && player.getGameMode() != GameMode.CREATIVE
+				&& player.hasPermission(Config.permSpend);
+		int target = Exp.getExpAtLevel(cost);
+		// The loan for this cost is untouched (nothing taken, nothing changed): settling and lending again would rewrite the
+		// bottle on every click
+		if (pays && plugin.loan.hasLoan(player) && Exp.getPoints(player) == target) {
+			return;
+		}
+		plugin.loan.settle(player, true);
+		if (pays && player.getLevel() < cost) {
+			plugin.loan.borrow(player, target, AnvilListener::reportSpent);
+		}
+	}
+
+	// Right away, unlike the upgrades' DebouncedFeedback: an anvil operation is a single action, not one of many in a row
+	private static void reportSpent(Player player, int xp) {
+		player.sendActionBar(Messages.render(Messages.texts.messages.spend.fromBottle,
+				Placeholder.unparsed("xp", String.valueOf(xp))));
 	}
 
 	// A damaged item that can be repaired in the first slot and a usable MagicBottle in the second

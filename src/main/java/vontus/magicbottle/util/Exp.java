@@ -35,6 +35,23 @@ public class Exp {
 		}
 	}
 
+	// Like setPoints, but setting the level and the bar directly: giving the exp level by level, as setPoints does, makes
+	// vanilla play the level up sound (for nearby players too) on every multiple of 5, and a loan (XpLoan) gives nothing
+	public static void setPointsSilently(final Player player, final int exp) {
+		if (exp < 0) {
+			throw new IllegalArgumentException("Experience is negative!");
+		}
+		int level = 0;
+		int left = exp;
+		while (left >= getExpToLvlUp(level)) {
+			left -= getExpToLvlUp(level);
+			level++;
+		}
+		player.setLevel(level);
+		player.setExp((float) left / getExpToLvlUp(level));
+		player.setTotalExperience(exp);
+	}
+
 	// This method is required because the bukkit player.getTotalExperience()
 	// method, shows exp that has been 'spent'.
 	// Without this people would be able to use exp and then still sell it.

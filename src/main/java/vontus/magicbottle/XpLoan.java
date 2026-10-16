@@ -79,16 +79,43 @@ public final class XpLoan {
 		}
 		int points = Exp.getPoints(player);
 		int back = Math.min(owed, points);
-		int returned = 0;
 		// A loan left by a crash or a stop, settled on join, doesn't know the bottle
 		if (back > 0 && MagicBottle.repay(player, back, loan == null ? -1 : loan.slot())) {
 			Exp.setPointsSilently(player, points - back);
-			returned = back;
 		}
 		player.getPersistentDataContainer().remove(key);
-		if (report && loan != null && owed > returned) {
-			loan.report().accept(player, owed - returned);
+		// What the workstation took from the loan, not what failed to go back (the player keeps those points)
+		if (report && loan != null && owed > back) {
+			loan.report().accept(player, owed - back);
 		}
+	}
+
+	/**
+	 * Lowers the loan so the player has {@code target} points, or their own exp if that is more (then the whole loan is
+	 * returned), giving the difference back to the bottle at once. For a workstation that turns out to need a lower level
+	 * than the one the loan was made for (the enchanting table, whose offers are paid for the highest one before the
+	 * player picks), right before it spends the levels. If no bottle can take the points back, nothing changes.
+	 */
+	public void lower(Player player, int target) {
+		Loan loan = loans.get(player.getUniqueId());
+		int owed = owed(player);
+		int points = Exp.getPoints(player);
+		int back = Math.min(owed, points - Math.max(points - owed, target));
+		if (loan == null || back <= 0 || !MagicBottle.repay(player, back, loan.slot())) {
+			return;
+		}
+		Exp.setPointsSilently(player, points - back);
+		if (owed > back) {
+			player.getPersistentDataContainer().set(key, PersistentDataType.INTEGER, owed - back);
+		} else {
+			loans.remove(player.getUniqueId());
+			player.getPersistentDataContainer().remove(key);
+		}
+	}
+
+	/** The player's points without the loan: what they have of their own. */
+	public int ownPoints(Player player) {
+		return Math.max(0, Exp.getPoints(player) - owed(player));
 	}
 
 	private int owed(Player player) {

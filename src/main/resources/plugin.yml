@@ -22,7 +22,7 @@ permissions:
     description: 'Allows a player to repair tools and armor in the anvil using a MagicBottle'
     default: true
   magicbottle.action.spend:
-    description: 'Allows a player to pay the level cost of anvil operations with a MagicBottle when they lack the levels'
+    description: 'Allows a player to pay the level cost of anvil operations and enchanting table offers with a MagicBottle when they lack the levels'
     default: true
   magicbottle.upgrade.autorepair:
     description: 'Allows a player to apply the repair (auto-repair) upgrade to a MagicBottle in the smithing table'

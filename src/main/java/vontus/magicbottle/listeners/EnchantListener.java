@@ -40,7 +40,9 @@ public class EnchantListener implements Listener {
 		Player player = e.getEnchanter();
 		boolean pays = !e.isCancelled() && Config.settings.spend.enabled && player.hasPermission(Config.permSpend)
 				&& player.getGameMode() != GameMode.CREATIVE && player.getGameMode() != GameMode.SPECTATOR;
-		int level = player.getLevel();
+		// The level without the loan from the previous offers: this event fires several times in a row, and the loan
+		// itself must not make a later offer look affordable
+		int level = Exp.getLevelFromExp(plugin.loan.ownPoints(player)).intValue();
 		EnchantmentOffer[] offers = e.getOffers();
 		for (int slot = offers.length - 1; pays && slot >= 0; slot--) {
 			if (offers[slot] == null || offers[slot].getCost() <= 0) {
@@ -74,11 +76,19 @@ public class EnchantListener implements Listener {
 				Placeholder.unparsed("xp", String.valueOf(xp))));
 	}
 
-	// Vanilla spends the levels and re-computes the offers after this; an enchanted item has none, and then no
-	// PrepareItemEnchantEvent comes, so the loan is checked on the next tick, once the levels are spent.
-	@EventHandler(priority = EventPriority.MONITOR)
+	// The loan was made for the highest offer the player couldn't afford, but they picked one: vanilla is about to spend
+	// its levels, which must come off the level that offer needs (what a player of that level would pay), so the loan is
+	// lowered to it first. Then vanilla spends the levels and re-computes the offers; an enchanted item has none, and
+	// then no PrepareItemEnchantEvent comes, so the loan is checked on the next tick, once the levels are spent.
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEnchant(EnchantItemEvent e) {
-		checkLater(e.getEnchanter());
+		Player player = e.getEnchanter();
+		if (plugin.loan.hasLoan(player) && e.getView() instanceof EnchantmentView view) {
+			EnchantmentOffer offer = view.getOffers()[e.whichButton()];
+			int cost = offer == null ? 0 : offer.getCost();
+			plugin.loan.lower(player, Exp.getExpAtLevel(Math.max(cost, e.whichButton() + 1)));
+		}
+		checkLater(player);
 	}
 
 	// Taking the item out (or the lapis, or moving it around) fires no enchanting event when it leaves no offers

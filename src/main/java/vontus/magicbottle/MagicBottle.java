@@ -152,7 +152,7 @@ public final class MagicBottle {
 	 * A merge that would go over it has no result, so no exp is consumed for capacity that would be thrown away.
 	 */
 	public static int getMaxSize() {
-		return (int) ((Exp.getExpAtLevelExact(Config.maxLevel + 1L) - 1) / getBasePoints());
+		return (int) ((Exp.getExpAtLevel(Config.maxLevel + 1) - 1) / getBasePoints());
 	}
 
 	/**
@@ -177,7 +177,7 @@ public final class MagicBottle {
 	}
 
 	private static long getBasePoints() {
-		return Exp.getExpAtLevelExact(Math.clamp(Config.settings.capacity, 1, Config.maxLevel));
+		return Exp.getExpAtLevel(Math.clamp(Config.settings.capacity, 1, Config.maxLevel));
 	}
 
 	/**
@@ -193,7 +193,7 @@ public final class MagicBottle {
 			return null;
 		}
 		long excess = ((long) first.exp - first.getCapacity()) + ((long) second.exp - second.getCapacity());
-		if (excess > Math.min(Exp.getExpAtLevelExact(Config.maxLevel + 1L) - 1, Integer.MAX_VALUE)) {
+		if (excess > Exp.getExpAtLevel(Config.maxLevel + 1) - 1) {
 			return null;
 		}
 		Set<String> upgrades = new LinkedHashSet<>(first.upgrades);

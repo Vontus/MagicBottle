@@ -104,11 +104,12 @@ public class Exp {
 	}
 
 	public static Integer getExpAtLevel(int level) {
-		return (int) Math.min(getExpAtLevelExact(level), Integer.MAX_VALUE);
+		return (int) Math.min(expAtLevel(level), Integer.MAX_VALUE);
 	}
 
-	// The points needed to reach the level, without the int limit (closed form of the sum of getExpToLvlUp)
-	public static long getExpAtLevelExact(long level) {
+	// The points needed to reach the level (closed form of the sum of getExpToLvlUp). It is a long because the product
+	// inside the formula passes the int range for the levels above ~15,000, even if the result fits.
+	private static long expAtLevel(long level) {
 		if (level <= 0) {
 			return 0;
 		} else if (level <= 16) {
@@ -126,10 +127,10 @@ public class Exp {
 			return 0;
 		}
 		long level = (long) Math.floor(getLevelFromExp((double) points));
-		while (level > 0 && getExpAtLevelExact(level) > points) {
+		while (level > 0 && expAtLevel(level) > points) {
 			level--;
 		}
-		while (getExpAtLevelExact(level + 1) <= points) {
+		while (expAtLevel(level + 1) <= points) {
 			level++;
 		}
 		return (int) level;

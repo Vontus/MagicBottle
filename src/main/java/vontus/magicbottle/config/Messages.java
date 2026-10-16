@@ -80,7 +80,7 @@ public class Messages {
 		public String capacityTitle = "<dark_purple>Capacity:";
 
 		@Comment("The line under the title of the capacity.")
-		public String capacity = " <yellow>level <max_level> <gray>(×<size>)";
+		public String capacity = " <yellow>Level <max_level> <gray>(×<size>)";
 
 		// <xpbar> is made of 18 parts, each one is the filled or the empty bar
 		@Setting("filled bar")

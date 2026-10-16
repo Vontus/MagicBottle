@@ -86,9 +86,9 @@ public final class MagicBottle {
 		recreate();
 	}
 
-	// An empty bottle of the given size with the given upgrades (see merge)
-	private MagicBottle(int size, Set<String> upgrades) {
-		this.exp = 0;
+	// A bottle of the given size, exp and upgrades (see merge)
+	private MagicBottle(int size, int exp, Set<String> upgrades) {
+		this.exp = exp;
 		this.size = size;
 		this.upgrades = upgrades;
 		recreate();
@@ -181,17 +181,29 @@ public final class MagicBottle {
 	}
 
 	/**
-	 * The empty bottle that merging the two gives: the sizes added and the union of the upgrades (the ids this version
-	 * doesn't know too). Null if either isn't full or the size would go over {@link #getMaxSize()}.
+	 * The bottle that merging the two gives: the sizes added and the union of the upgrades (the ids this version
+	 * doesn't know too). Null if either isn't full, the size would go over {@link #getMaxSize()} or the exp left over
+	 * wouldn't fit in a bottle. The merge takes only the capacity of each bottle ({@link #getMergeCost}); what a bottle
+	 * holds above its capacity (an older bottle, a lowered {@code capacity}, {@code /mb give}) is not lost: it passes to the
+	 * new bottle, which then holds it even if it is above its own capacity.
 	 */
 	public static @Nullable MagicBottle merge(MagicBottle first, MagicBottle second) {
 		long size = (long) first.getSize() + second.getSize();
 		if (!first.isFull() || !second.isFull() || size > getMaxSize()) {
 			return null;
 		}
+		long excess = ((long) first.exp - first.getCapacity()) + ((long) second.exp - second.getCapacity());
+		if (excess > Math.min(Exp.getExpAtLevelExact(Config.maxLevel + 1L) - 1, Integer.MAX_VALUE)) {
+			return null;
+		}
 		Set<String> upgrades = new LinkedHashSet<>(first.upgrades);
 		upgrades.addAll(second.upgrades);
-		return new MagicBottle((int) size, upgrades);
+		return new MagicBottle((int) size, (int) excess, upgrades);
+	}
+
+	/** The exp that {@link #merge} consumes: the capacity of each bottle. The rest of their exp goes to the new bottle. */
+	public static long getMergeCost(MagicBottle first, MagicBottle second) {
+		return (long) first.getCapacity() + second.getCapacity();
 	}
 
 	public boolean hasUpgrade(Upgrade upgrade) {

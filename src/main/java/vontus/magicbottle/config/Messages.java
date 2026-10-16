@@ -232,7 +232,7 @@ public class Messages {
 	public static class Merge {
 		// Placeholders: <xp>
 		@Setting("anvil")
-		@Comment("Line added to the empty bottle shown in the anvil, before taking it. Placeholders: <xp> (the experience of both bottles, which is lost)")
-		public String anvil = "<red>Consumes the experience of both bottles (<yellow><xp></yellow> XP)";
+		@Comment("Line added to the empty bottle shown in the anvil, before taking it. Placeholders: <xp> (the experience that is consumed: the capacity of both bottles; the rest stays in the new bottle)")
+		public String anvil = "<red>Consumes <yellow><xp></yellow> XP from the two bottles";
 	}
 }

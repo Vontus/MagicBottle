@@ -119,7 +119,7 @@ public class Settings {
 	public static class Merge {
 		@Comment("""
 				Merging in the anvil: a full MagicBottle in the first slot and another one in the second give an empty bottle whose size is
-				the sum of both (and with the upgrades of both). The experience of both bottles is consumed. It needs the permission
+				the sum of both (and with the upgrades of both). The capacity of each bottle is consumed; what a bottle holds above its capacity passes to the new bottle. It needs the permission
 				'magicbottle.action.merge'. This option is applied with '/mb reload'.""")
 		public boolean enabled = true;
 	}

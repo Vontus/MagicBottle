@@ -48,7 +48,7 @@ placed lantern can use them): the points of `size` bases (`capacity` in `Setting
 with `Exp.getLevelFloor`, in `long`. A bottle is `isFull()` when `exp >= capacity`; a bottle above its capacity (lowered config) keeps
 all its exp, only refuses deposits (`getRoom()` is never negative) and counts as full. Name (`name`/`name full`), the capacity lore line
 (only if size > 1, a title `capacity text` and a line `capacity`, like the experience) and `<xpbar>` (fill = exp/capacity, rounded down, complete only when full) come from it; placeholders `<level>`
-(whole level held), `<max_level>`, `<size>`, `<points>`, `<max_points>` (the capacity in points, shown by `experience` as `points/max`). `MagicBottle.merge` joins two full bottles (sizes added, union of upgrade ids). Bottles have
+(whole level held), `<max_level>`, `<size>`, `<points>`, `<max_points>` (the capacity in points, shown by `experience` as `points/max`). `MagicBottle.merge` joins two full bottles (sizes added, union of upgrade ids) and consumes only the capacity of each (`getMergeCost`): what a bottle holds above its capacity (older bottles, a lowered `capacity`, `/mb give`) passes to the new one, which keeps it above its own capacity if need be; no result if it would not fit in a bottle (never lose exp). Bottles have
 `max_stack_size` 1, set by `print()` on single bottles (a stack is left alone: it may fail validation above the component) and by
 `limitStackSize` for the inventories of a joining player. The old per-player limits (`max level`, `magicbottle.maxlevel.*`) don't exist.
 
@@ -113,9 +113,9 @@ quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafter
   with the exp it will spend and what the bottle keeps (`messages.repair.anvil cost`; only the preview has it). 1 exp repairs 2
   durability points; a bottle with less exp repairs partially and stays in the slot, empty.
   MagicBottle + MagicBottle (single bottles, both `isFull`): merge (`merge.enabled`, `magicbottle.action.merge`), the result
-  is `MagicBottle.merge` (an empty bottle, sizes added, union of the upgrades; none if over the hard cap, so no exp is wasted),
-  with repair cost 0 and a preview line saying the exp of both is consumed (`messages.merge.anvil`). Both inputs are consumed
-  and the sound is `SoundEffect.merge`. A MagicBottle in the first slot with anything else in the second has no result at all
+  is `MagicBottle.merge` (sizes added, union of the upgrades, the exp above the capacities of both; none if over the hard cap, so no exp is wasted),
+  with repair cost 0 and a preview line saying the exp consumed, the capacity of both (`messages.merge.anvil`). Both inputs are consumed
+  and the sound is `SoundEffect.merge`. Vanilla's take never runs, so the anvil is not worn by a merge (nor by a repair). A MagicBottle in the first slot with anything else in the second has no result at all
   (vanilla would rename it, and `print()` rewrites the name).
   `lendCost` pays the level cost of any other anvil result (`spend.enabled`, `magicbottle.action.spend`) when the
   player lacks the levels, with a loan (`XpLoan`): the client and the server only let the player take a result their real

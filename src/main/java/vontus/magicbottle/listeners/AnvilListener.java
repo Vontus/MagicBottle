@@ -85,10 +85,10 @@ public class AnvilListener implements Listener {
 			return;
 		}
 		ItemStack result = merged.getItem();
-		// Both are full bottles, as the merge needs
-		int consumed = new MagicBottle(inv.getFirstItem().clone()).getExp() + new MagicBottle(inv.getSecondItem().clone()).getExp();
+		// What the merge consumes, not all the exp of the bottles: what is above their capacity stays in the new one
+		long consumed = MagicBottle.getMergeCost(new MagicBottle(inv.getFirstItem().clone()), new MagicBottle(inv.getSecondItem().clone()));
 		addPreviewLine(result, Messages.renderItemText(Messages.texts.messages.merge.anvil,
-				Placeholder.unparsed("xp", Utils.roundInt(consumed))));
+				Placeholder.unparsed("xp", Utils.roundInt((int) consumed))));
 		e.setResult(result);
 		e.getView().setRepairCost(0);
 	}

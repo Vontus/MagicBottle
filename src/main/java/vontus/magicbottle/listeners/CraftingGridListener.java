@@ -144,10 +144,13 @@ public class CraftingGridListener implements Listener {
 			// No result if the deposit would be refused (the bottle has no room or the cost leaves nothing)
 			int gain = ingredient.getDepositGain(player, Exp.getPoints(player));
 			if (canFillInGrid(player) && gain > 0) {
-				return new MagicBottle(gain).getItem();
+				// The same bottle as the action leaves, so it keeps its size and upgrades
+				ingredient.setExp(gain);
+				return ingredient.getItem();
 			}
 		} else if (canPourInGrid(player)) {
-			return new MagicBottle(0).getItem();
+			ingredient.setExp(0);
+			return ingredient.getItem();
 		}
 		return null;
 	}

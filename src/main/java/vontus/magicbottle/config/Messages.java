@@ -60,15 +60,27 @@ public class Messages {
 		public Chat messages = new Chat();
 	}
 
-	// Placeholders of the bottle texts: <level>, <points>, <xpbar>. They are not italic unless you add <italic>.
+	// Placeholders of the bottle texts: <level> (the whole level it holds), <max_level> (its capacity in levels), <size>,
+	// <points>, <max_points> (its capacity in experience points), <xpbar>. They are not italic unless you add <italic>.
 	@ConfigSerializable
 	public static class BottleText {
-		public String name = "<dark_purple><bold>MagicBottle</bold> <gray>| <yellow>Level <level> <gray>| <xpbar>";
+		public String name = "<dark_purple><bold>MagicBottle</bold> <gray>| <yellow>Level <level>/<max_level> <gray>| <xpbar>";
+
+		@Setting("name full")
+		@Comment("The name when the bottle is full (it holds its capacity or more). Placeholders: the ones above, <level> is the level it holds.")
+		public String nameFull = "<dark_purple><bold>MagicBottle</bold> <gray>| <gold>Level <level> ✦ <gray>| <xpbar>";
 
 		@Setting("experience text")
 		public String experienceTitle = "<dark_purple>Experience points:";
 
-		public String experience = " <yellow><points>";
+		public String experience = " <yellow><points><gray>/<max_points>";
+
+		@Setting("capacity text")
+		@Comment("The title of the capacity, under the experience of the bottles with a size above 1 (made by merging bottles).")
+		public String capacityTitle = "<dark_purple>Capacity:";
+
+		@Comment("The line under the title of the capacity.")
+		public String capacity = " <yellow>Level <max_level> <gray>(×<size>)";
 
 		// <xpbar> is made of 18 parts, each one is the filled or the empty bar
 		@Setting("filled bar")
@@ -113,9 +125,10 @@ public class Messages {
 
 	@ConfigSerializable
 	public static class Chat {
-		// Placeholders: <level>
+		// Placeholders: <level> (the capacity of the bottle in levels)
 		@Setting("max level reached")
-		public String maxLevelReached = "<red>The maximum level you can save in a MagicBottle is <level>.";
+		@Comment("When the bottle is full. <level> is its capacity in levels.")
+		public String maxLevelReached = "<red>The maximum level this MagicBottle can hold is <level>.";
 
 		@Setting("nothing to store")
 		@Comment("When the deposit cost would leave no experience to save in the bottle, so nothing is taken.")
@@ -131,6 +144,7 @@ public class Messages {
 		public Collect collect = new Collect();
 		public Repair repair = new Repair();
 		public Spend spend = new Spend();
+		public Merge merge = new Merge();
 	}
 
 	@ConfigSerializable
@@ -212,5 +226,13 @@ public class Messages {
 				  <levels>: levels the bottle loses (how much its level drops, e.g. from level 30 to 24 is 6)
 				  <levels_left>: the level the bottle will have after the repair""")
 		public String anvilCost = "<gray>Uses <yellow><xp></yellow> XP from the bottle (<yellow><xp_left></yellow> XP left)";
+	}
+
+	@ConfigSerializable
+	public static class Merge {
+		// Placeholders: <xp>
+		@Setting("anvil")
+		@Comment("Line added to the empty bottle shown in the anvil, before taking it. Placeholders: <xp> (the experience that is consumed: the capacity of both bottles; the rest stays in the new bottle)")
+		public String anvil = "<red>Consumes <yellow><xp></yellow> XP from the two bottles";
 	}
 }

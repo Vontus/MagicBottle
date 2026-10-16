@@ -104,12 +104,36 @@ public class Exp {
 	}
 
 	public static Integer getExpAtLevel(int level) {
-		long exp = 0;
-		while (level > 0) {
-			level--;
-			exp += getExpToLvlUp(level);
+		return (int) Math.min(expAtLevel(level), Integer.MAX_VALUE);
+	}
+
+	// The points needed to reach the level (closed form of the sum of getExpToLvlUp). It is a long because the product
+	// inside the formula passes the int range for the levels above ~15,000, even if the result fits.
+	private static long expAtLevel(long level) {
+		if (level <= 0) {
+			return 0;
+		} else if (level <= 16) {
+			return level * level + 6 * level;
+		} else if (level <= 31) {
+			return level * (5 * level - 81) / 2 + 360;
 		}
-		return (int) Math.min(exp, Integer.MAX_VALUE);
+		return level * (9 * level - 325) / 2 + 2220;
+	}
+
+	// The whole level that the points reach. Unlike (int) getLevelFromExp it can't be one short because of a rounding
+	// error in the floating point math (e.g. with exactly the points of a level).
+	public static int getLevelFloor(long points) {
+		if (points <= 0) {
+			return 0;
+		}
+		long level = (long) Math.floor(getLevelFromExp((double) points));
+		while (level > 0 && expAtLevel(level) > points) {
+			level--;
+		}
+		while (expAtLevel(level + 1) <= points) {
+			level++;
+		}
+		return (int) level;
 	}
 
 	public static Integer getExpToLevel(final Player player, int level) {

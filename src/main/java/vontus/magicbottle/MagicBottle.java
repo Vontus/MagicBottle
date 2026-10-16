@@ -8,6 +8,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -42,7 +43,11 @@ public final class MagicBottle {
 	private static NamespacedKey keyExp;
 	@SuppressWarnings("NullAway.Init")
 	private static NamespacedKey keyUpgrades;
+	@SuppressWarnings("NullAway.Init")
+	private static NamespacedKey keySize;
 	private ItemStack item;
+	// How many plain bottles this one is worth (see getSize); at least 1, as stored (getSize clamps it to the maximum)
+	private int size = 1;
 	private Integer exp;
 	// Ids, not Upgrade values: ids this version doesn't know (added by a newer one) are kept when the bottle is rewritten
 	private Set<String> upgrades = new LinkedHashSet<>();
@@ -51,6 +56,7 @@ public final class MagicBottle {
 		keyBottle = new NamespacedKey(plugin, "bottle");
 		keyExp = new NamespacedKey(plugin, "exp");
 		keyUpgrades = new NamespacedKey(plugin, "upgrades");
+		keySize = new NamespacedKey(plugin, "size");
 	}
 
 	public MagicBottle(int exp) {
@@ -69,12 +75,22 @@ public final class MagicBottle {
 		item = expContainer;
 		exp = calculateExp(expContainer);
 		upgrades = readUpgrades(expContainer);
+		size = readSize(expContainer);
 	}
 
 	private MagicBottle(ItemStack expContainer, int exp) {
 		item = expContainer;
 		this.exp = exp;
 		upgrades = readUpgrades(expContainer);
+		size = readSize(expContainer);
+		recreate();
+	}
+
+	// A bottle of the given size, exp and upgrades (see merge)
+	private MagicBottle(int size, int exp, Set<String> upgrades) {
+		this.exp = exp;
+		this.size = size;
+		this.upgrades = upgrades;
 		recreate();
 	}
 
@@ -99,6 +115,16 @@ public final class MagicBottle {
 		print();
 	}
 
+	// Rewrites the single bottles of the inventory that were made before bottles stopped stacking, so they get the limit.
+	// Stacks stay as they are (see print).
+	public static void limitStackSize(Inventory inv) {
+		for (ItemStack item : inv) {
+			if (isMagicBottle(item) && item.getAmount() == 1 && item.getMaxStackSize() != 1) {
+				new MagicBottle(item).recreate();
+			}
+		}
+	}
+
 	// A copy of a bottle without the bottle markers, so it can't be used as one: for display only
 	static ItemStack createDisplayItem(int exp, Upgrade... upgrades) {
 		MagicBottle bottle = new MagicBottle(exp, List.of(upgrades));
@@ -107,8 +133,77 @@ public final class MagicBottle {
 			meta.getPersistentDataContainer().remove(keyBottle);
 			meta.getPersistentDataContainer().remove(keyExp);
 			meta.getPersistentDataContainer().remove(keyUpgrades);
+			meta.getPersistentDataContainer().remove(keySize);
 		});
 		return item;
+	}
+
+	/**
+	 * The size of the bottle: how many plain bottles' worth of exp it can hold, 1 for a bottle that was never merged
+	 * (the key is missing). Never above {@link #getMaxSize()}, so a size edited into an item, or left over from a
+	 * higher base capacity in the config, can't go over the hard cap.
+	 */
+	public int getSize() {
+		return Math.clamp(size, 1, getMaxSize());
+	}
+
+	/**
+	 * The largest size that fits under the hard cap ({@link Config#maxLevel} levels) with the current base capacity.
+	 * A merge that would go over it has no result, so no exp is consumed for capacity that would be thrown away.
+	 */
+	public static int getMaxSize() {
+		return (int) ((Exp.getExpAtLevel(Config.maxLevel + 1) - 1) / getBasePoints());
+	}
+
+	/**
+	 * The most exp this bottle takes in deposits: the points of {@code size} plain bottles (the base capacity in
+	 * {@code config.yml}) rounded down to a whole level, so a bottle never has a fractional maximum level. It is
+	 * calculated from the size every time, never stored, so the rounding doesn't accumulate across merges and changing
+	 * the base capacity rescales every bottle. It needs no player or permission, so it works for any bottle, e.g. one
+	 * in a placed block. A bottle can hold more than this (see {@link #isFull()}): that exp is never taken away.
+	 */
+	public int getCapacity() {
+		return Exp.getExpAtLevel(getCapacityLevel());
+	}
+
+	/** {@link #getCapacity()} as a whole level. */
+	public int getCapacityLevel() {
+		return Math.min(Exp.getLevelFloor(getSize() * getBasePoints()), Config.maxLevel);
+	}
+
+	/** Whether it holds its capacity or more. */
+	public boolean isFull() {
+		return exp >= getCapacity();
+	}
+
+	private static long getBasePoints() {
+		return Exp.getExpAtLevel(Math.clamp(Config.settings.capacity, 1, Config.maxLevel));
+	}
+
+	/**
+	 * The bottle that merging the two gives: the sizes added and the union of the upgrades (the ids this version
+	 * doesn't know too). Null if either isn't full, the size would go over {@link #getMaxSize()} or the exp left over
+	 * wouldn't fit in a bottle. The merge takes only the capacity of each bottle ({@link #getMergeCost}); what a bottle
+	 * holds above its capacity (an older bottle, a lowered {@code capacity}, {@code /mb give}) is not lost: it passes to the
+	 * new bottle, which then holds it even if it is above its own capacity.
+	 */
+	public static @Nullable MagicBottle merge(MagicBottle first, MagicBottle second) {
+		long size = (long) first.getSize() + second.getSize();
+		if (!first.isFull() || !second.isFull() || size > getMaxSize()) {
+			return null;
+		}
+		long excess = ((long) first.exp - first.getCapacity()) + ((long) second.exp - second.getCapacity());
+		if (excess > Exp.getExpAtLevel(Config.maxLevel + 1) - 1) {
+			return null;
+		}
+		Set<String> upgrades = new LinkedHashSet<>(first.upgrades);
+		upgrades.addAll(second.upgrades);
+		return new MagicBottle((int) size, (int) excess, upgrades);
+	}
+
+	/** The exp that {@link #merge} consumes: the capacity of each bottle. The rest of their exp goes to the new bottle. */
+	public static long getMergeCost(MagicBottle first, MagicBottle second) {
+		return (long) first.getCapacity() + second.getCapacity();
 	}
 
 	public boolean hasUpgrade(Upgrade upgrade) {
@@ -158,10 +253,9 @@ public final class MagicBottle {
 	 * Returns whether anything was deposited.
 	 */
 	public boolean deposit(Player player, int points) {
-		if (!hasRoom(player)) {
-			int maxLevels = Config.getMaxLevelsFor(player);
+		if (!hasRoom()) {
 			player.sendMessage(Messages.render(Messages.texts.messages.maxLevelReached,
-					Placeholder.unparsed("level", Integer.toString(maxLevels))));
+					Placeholder.unparsed("level", Integer.toString(getCapacityLevel()))));
 			SoundEffect.forbidden(player);
 			return false;
 		}
@@ -180,8 +274,8 @@ public final class MagicBottle {
 		return true;
 	}
 
-	public boolean hasRoom(Player player) {
-		return getRoom(player) > 0;
+	public boolean hasRoom() {
+		return getRoom() > 0;
 	}
 
 	// Whether a deposit can store anything for the player: never with a cost of 100%
@@ -196,7 +290,7 @@ public final class MagicBottle {
 	 * orb doesn't fit, the bottle is filled exactly and takes the fewest points that fill it, with the deterministic cost.
 	 */
 	public int collect(Player player, int points, IntConsumer gained) {
-		int room = getRoom(player);
+		int room = getRoom();
 		if (points <= 0 || room <= 0 || !canStore(player)) {
 			return points;
 		}
@@ -229,7 +323,7 @@ public final class MagicBottle {
 
 	// The exp this bottle would gain if the player deposited the given points: what the cost leaves, up to its room
 	public int getDepositGain(Player player, int points) {
-		return Math.clamp(getGainWithoutLimit(player, points), 0, Math.max(0, getRoom(player)));
+		return Math.clamp(getGainWithoutLimit(player, points), 0, getRoom());
 	}
 
 	// The fewest points, up to max, whose gain after the cost is at least the given one. The gain grows by 0 or 1 with
@@ -295,12 +389,10 @@ public final class MagicBottle {
 		return 0;
 	}
 
+	// The fill of the bottle (exp / capacity), rounded down: it is only complete when the bottle is full
 	private Component getXpBar() {
 		int barParts = 18; //To match Minecraft's xp bar parts
-		double level = getLevel();
-		long integerPart = (long) level;
-		double decimalPart = level - integerPart;
-		int filledParts = (int) (decimalPart * barParts);
+		int filledParts = isFull() ? barParts : (int) (Math.max(0, exp) * (long) barParts / getCapacity());
 
 		TextComponent.Builder bar = Component.text();
 		for (int i = 0; i < barParts; i++) {
@@ -314,6 +406,10 @@ public final class MagicBottle {
 		List<Component> lore = new ArrayList<>();
 		lore.add(Messages.renderItemText(Messages.texts.bottleText.experienceTitle, placeholders));
 		lore.add(Messages.renderItemText(Messages.texts.bottleText.experience, placeholders));
+		if (getSize() > 1) {
+			lore.add(Messages.renderItemText(Messages.texts.bottleText.capacityTitle, placeholders));
+			lore.add(Messages.renderItemText(Messages.texts.bottleText.capacity, placeholders));
+		}
 
 		// In the order of the enum, whatever the order they were applied in; unknown ids have no line
 		List<Upgrade> applied = Arrays.stream(Upgrade.values()).filter(this::hasUpgrade).toList();
@@ -329,12 +425,25 @@ public final class MagicBottle {
 		}
 
 		ItemMeta meta = item.getItemMeta();
-		meta.displayName(Messages.renderItemText(Messages.texts.bottleText.name, placeholders));
+		String name = isFull() ? Messages.texts.bottleText.nameFull : Messages.texts.bottleText.name;
+		meta.displayName(Messages.renderItemText(name, placeholders));
 		meta.lore(lore);
 		// null keeps dragon's breath's own model
 		meta.setItemModel(isEmpty() ? modelEmpty : null);
+		// Bottles don't stack (identical full ones would fit 64 in a slot, and merging frees slots). A stack that already
+		// exists keeps stacking: an item with more than its max stack size may fail validation. It gets the limit once
+		// split, whenever the bottle is rewritten (limitStackSize does it for the inventories of a joining player).
+		if (item.getAmount() == 1) {
+			meta.setMaxStackSize(1);
+		}
 		markAsBottle(meta);
 		meta.getPersistentDataContainer().set(keyExp, PersistentDataType.INTEGER, exp);
+		// A missing key means 1: bottles that were never merged are written as they always were
+		if (size > 1) {
+			meta.getPersistentDataContainer().set(keySize, PersistentDataType.INTEGER, size);
+		} else {
+			meta.getPersistentDataContainer().remove(keySize);
+		}
 		if (upgrades.isEmpty()) {
 			meta.getPersistentDataContainer().remove(keyUpgrades);
 		} else {
@@ -345,14 +454,17 @@ public final class MagicBottle {
 	
 	private TagResolver placeholders() {
 		return TagResolver.resolver(
-				Placeholder.unparsed("level", Utils.roundInt((int) getLevel())),
+				Placeholder.unparsed("level", Utils.roundInt(Exp.getLevelFloor(exp))),
+				Placeholder.unparsed("max_level", Utils.roundInt(getCapacityLevel())),
+				Placeholder.unparsed("size", Integer.toString(getSize())),
 				Placeholder.unparsed("points", Utils.roundDouble(getExp())),
+				Placeholder.unparsed("max_points", Utils.roundInt(getCapacity())),
 				Placeholder.component("xpbar", getXpBar()));
 	}
 	
-	// The exp the bottle can still take for the player; 0 or less if it's full or above the limit
-	private int getRoom(Player p) {
-		return Config.getMaxFillPointsFor(p) - exp;
+	// The exp the bottle can still take; 0 if it's full or above its capacity (it keeps what it has, see getCapacity)
+	private int getRoom() {
+		return Math.max(0, getCapacity() - exp);
 	}
 
 	private static void markAsBottle(ItemMeta meta) {
@@ -362,6 +474,10 @@ public final class MagicBottle {
 
 	private static int calculateExp(ItemStack item) {
 		return item.getItemMeta().getPersistentDataContainer().getOrDefault(keyExp, PersistentDataType.INTEGER, 0);
+	}
+
+	private static int readSize(ItemStack item) {
+		return Math.max(1, item.getItemMeta().getPersistentDataContainer().getOrDefault(keySize, PersistentDataType.INTEGER, 1));
 	}
 
 	private static Set<String> readUpgrades(ItemStack item) {
@@ -457,7 +573,7 @@ public final class MagicBottle {
 	 * {@link #find}) with room. Returns whether a bottle took them; if not, nothing changes.
 	 */
 	static boolean repay(Player player, int points, int slot) {
-		Predicate<MagicBottle> fits = mb -> mb.getRoom(player) >= points;
+		Predicate<MagicBottle> fits = mb -> mb.getRoom() >= points;
 		MagicBottle bottle = slot < 0 ? null : bottleAt(player, slot, fits);
 		if (bottle == null) {
 			bottle = find(player, true, fits);

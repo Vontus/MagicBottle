@@ -8,7 +8,8 @@ import org.jspecify.annotations.Nullable;
  */
 public enum Upgrade {
     AUTO_REPAIR("autorepair"),
-    COLLECT("collect");
+    COLLECT("collect"),
+    SOULBOUND("soulbound");
 
     private final String id;
 

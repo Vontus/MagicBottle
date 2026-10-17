@@ -53,7 +53,7 @@ all its exp, only refuses deposits (`getRoom()` is never negative) and counts as
 `max_stack_size` 1, set by `print()` on single bottles (a stack is left alone: it may fail validation above the component) and by
 `limitStackSize` for the inventories of a joining player. The old per-player limits (`max level`, `magicbottle.maxlevel.*`) don't exist.
 
-**Upgrades** (`Upgrade`): flags a bottle carries in `magicbottle:upgrades`, a PDC string list of lowercase ids (`autorepair`, `collect`;
+**Upgrades** (`Upgrade`): flags a bottle carries in `magicbottle:upgrades`, a PDC string list of lowercase ids (`autorepair`, `collect`, `soulbound`;
 the id is persisted, so never change it) treated as a set: a missing key means none, and ids this version doesn't know are
 kept when the bottle is rewritten. Only `MagicBottle` reads and writes it (`hasUpgrade`/`addUpgrade`), and `print()` adds a
 lore line per upgrade (`bottle text.upgrades`), in enum order. Features that need a bottle with an upgrade call
@@ -159,6 +159,10 @@ quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafter
   fewest points that give it, so a bottle fills exactly; a deposit whose cost leaves nothing to store is refused (always
   with 100%). The exp stored is reported to its channel of
   `DebouncedFeedback` (`messages.collect.stored`, `upgrades.collect.feedback`).
+- `SoulboundListener` — the `soulbound` upgrade: on `PlayerDeathEvent` (HIGH, after `LoanListener` has settled any loan) each bottle with
+  the upgrade in the player's inventory (main, hotbar, offhand and armor: protecting a bottle doesn't depend on where it is) that is in
+  `getDrops()` moves to `getItemsToKeep()`; one that isn't in the drops (`keepInventory`, another plugin) is left alone, or it would be duplicated.
+  Permanent, and off with `upgrades.soulbound.enabled` (reloadable). Cursor and crafting grid items aren't covered.
 - `onItemDamage` — auto-repair of tools/armor using the first non-empty bottle with the `autorepair` upgrade in the
   hotbar or offhand (`MagicBottle.findWithUpgrade`) if `Config.canRepair` accepts the item (it has the
   configured `repair.enchantment`, Mending by default, or any item if set to `ANY`; parsed by `EnchantParser`

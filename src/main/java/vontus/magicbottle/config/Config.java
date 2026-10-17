@@ -89,6 +89,7 @@ public class Config {
         return switch (upgrade) {
             case AUTO_REPAIR -> settings.upgrades.autoRepair;
             case COLLECT -> settings.upgrades.collect;
+            case SOULBOUND -> settings.upgrades.soulbound;
         };
     }
 

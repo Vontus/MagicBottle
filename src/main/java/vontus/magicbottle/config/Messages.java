@@ -120,10 +120,13 @@ public class Messages {
 
         public String collect = " <yellow>Collect: <gray>stores the XP orbs you pick up.";
 
+        public String soulbound = " <yellow>Soulbound: <gray>you keep the bottle when you die.";
+
         public String get(Upgrade upgrade) {
             return switch (upgrade) {
                 case AUTO_REPAIR -> autoRepair;
                 case COLLECT -> collect;
+                case SOULBOUND -> soulbound;
             };
         }
     }

@@ -1,5 +1,6 @@
 package vontus.magicbottle.config;
 
+import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,19 @@ public class Settings {
 			For an explanation of how .yml (YAML) files work, visit https://github.com/Animosity/CraftIRC/wiki/Complete-idiot%27s-introduction-to-yaml
 			I don't think you're an idiot.
 			------------------------------------------------------------------""";
+
+    @Comment("""
+			The language of the default messages: en (English) or es (Spanish). An invalid value falls back to en.
+			Bottles already made keep the language they had until they are rewritten (a deposit, a withdrawal...).
+			This option is applied with '/mb reload'.""")
+    public String language = "en";
+
+    @Setting("custom messages")
+    @Comment("""
+			true: messages.yml is created in the chosen language and used, so you can customize every message (the messages
+			that a new version adds are written into it in that language too). false: the messages of the chosen language are
+			used and messages.yml is ignored, so don't edit it. This option is applied with '/mb reload'.""")
+    public boolean customMessages = false;
 
     @Comment("Enable or disable sound and particle effects when a MagicBottle is used.")
     public Effect effect = new Effect();
@@ -128,10 +142,21 @@ public class Settings {
     }
 
     /**
-     * Brings a config.yml of an older version to the current structure, before it is mapped: 'max level.default' becomes
-     * 'capacity' (unless the file already has it) and the whole 'max level' node is removed, so no dead options stay.
+     * Brings a config.yml of an older version to the current structure, before it is mapped: 'custom messages' is true
+     * if messages.yml exists, 'max level.default' becomes 'capacity' (unless the file already has it) and the whole
+     * 'max level' node is removed, so no dead options stay.
      */
-    static void migrate(CommentedConfigurationNode root) throws ConfigurateException {
+    static void migrate(Plugin plugin, CommentedConfigurationNode root) throws ConfigurateException {
+        // Before 'custom messages' existed messages.yml was always used: keep it so no customization is lost
+        if (root.node("custom messages").virtual()
+                && Files.exists(plugin.getDataPath().resolve("messages.yml"))) {
+            root.node("custom messages").set(true);
+            Plugin.logger.info("config.yml: messages.yml exists, so 'custom messages' is true and it is still used.");
+        }
+        migrateMaxLevel(root);
+    }
+
+    private static void migrateMaxLevel(CommentedConfigurationNode root) throws ConfigurateException {
         ConfigurationNode old = root.node("max level");
         if (old.virtual()) {
             return;

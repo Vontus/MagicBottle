@@ -1,14 +1,20 @@
 package vontus.magicbottle.config;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 import vontus.magicbottle.Plugin;
@@ -64,6 +70,38 @@ final class ConfigFile {
             Plugin.logger.severe("Could not load " + fileName + ": " + e.getMessage() + ". Using the default values.");
             return newInstance(type);
         }
+    }
+
+    /** Loads a YAML file bundled in the jar as a node; null if the jar doesn't have it or it can't be read. */
+    static @Nullable CommentedConfigurationNode loadResource(Plugin plugin, String name) {
+        InputStream stream = plugin.getResource(name);
+        if (stream == null) {
+            return null;
+        }
+        try (stream) {
+            return YamlConfigurationLoader.builder()
+                    .source(() -> new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)))
+                    .build()
+                    .load();
+        } catch (IOException e) {
+            Plugin.logger.severe("Could not load " + name + ": " + e.getMessage());
+            return null;
+        }
+    }
+
+    /** Maps a node to {@code type}, whose field initializers fill what the node lacks; the defaults if it is wrong. */
+    static <T> T map(@Nullable ConfigurationNode node, Class<T> type) {
+        if (node != null) {
+            try {
+                T value = node.get(type);
+                if (value != null) {
+                    return value;
+                }
+            } catch (ConfigurateException e) {
+                Plugin.logger.severe("Wrong value in a bundled file: " + e.getMessage() + ". Using the defaults.");
+            }
+        }
+        return newInstance(type);
     }
 
     // The YAML loader keeps the comments in the nodes but doesn't write them, so they are added to the saved file:

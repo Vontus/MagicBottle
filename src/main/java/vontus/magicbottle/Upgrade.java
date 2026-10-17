@@ -7,30 +7,30 @@ import org.jspecify.annotations.Nullable;
  * permission and recipe), so it must never change. They are listed in the order their lore lines are shown.
  */
 public enum Upgrade {
-	AUTO_REPAIR("autorepair"),
-	COLLECT("collect");
+    AUTO_REPAIR("autorepair"),
+    COLLECT("collect");
 
-	private final String id;
+    private final String id;
 
-	Upgrade(String id) {
-		this.id = id;
-	}
+    Upgrade(String id) {
+        this.id = id;
+    }
 
-	public String id() {
-		return id;
-	}
+    public String id() {
+        return id;
+    }
 
-	/** The permission needed to apply it in the smithing table. */
-	public String permission() {
-		return "magicbottle.upgrade." + id();
-	}
+    /** The permission needed to apply it in the smithing table. */
+    public String permission() {
+        return "magicbottle.upgrade." + id();
+    }
 
-	public static @Nullable Upgrade fromId(String id) {
-		for (Upgrade upgrade : values()) {
-			if (upgrade.id().equals(id)) {
-				return upgrade;
-			}
-		}
-		return null;
-	}
+    public static @Nullable Upgrade fromId(String id) {
+        for (Upgrade upgrade : values()) {
+            if (upgrade.id().equals(id)) {
+                return upgrade;
+            }
+        }
+        return null;
+    }
 }

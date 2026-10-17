@@ -47,7 +47,8 @@ public class Config {
     public static final Map<Upgrade, RecipeChoice> upgradeIngredients = new EnumMap<>(Upgrade.class);
 
     public static void load(Plugin plugin) {
-        settings = ConfigFile.load(plugin, "config.yml", Settings.class, Settings.HEADER, Settings::migrate);
+        settings = ConfigFile.load(
+                plugin, "config.yml", Settings.class, Settings.HEADER, root -> Settings.migrate(plugin, root));
 
         recipeNewBottleEnabled = settings.recipe.bottle.enabled;
         if (recipeNewBottleEnabled) {

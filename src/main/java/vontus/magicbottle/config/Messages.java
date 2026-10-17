@@ -1,10 +1,18 @@
 package vontus.magicbottle.config;
 
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
@@ -28,10 +36,67 @@ public class Messages {
     @SuppressWarnings("NullAway.Init")
     public static Component bottleEmptyBar;
 
+    /** The languages bundled as {@code lang/<language>.yml}, besides English, which is the defaults of {@link Texts}. */
+    private static final List<String> TRANSLATIONS = List.of("es");
+
     public static void load(Plugin plugin) {
-        texts = ConfigFile.load(plugin, "messages.yml", Texts.class, Texts.HEADER);
+        String language = Config.settings.language;
+        if (!language.equals("en") && !TRANSLATIONS.contains(language)) {
+            Plugin.logger.severe("Invalid 'language' in config.yml: '" + language + "'. Use en or "
+                    + String.join(", ", TRANSLATIONS) + ". Using en.");
+            language = "en";
+        }
+        // The translation fills what the admin's file lacks, and English (the field initializers) what the translation
+        // lacks
+        CommentedConfigurationNode translation =
+                language.equals("en") ? null : ConfigFile.loadResource(plugin, "lang/" + language + ".yml");
+        if (translation != null) {
+            logMissing(language, translation);
+        }
+
+        if (Config.settings.customMessages) {
+            texts = ConfigFile.load(plugin, "messages.yml", Texts.class, Texts.HEADER, root -> {
+                if (translation != null) {
+                    root.mergeFrom(translation);
+                }
+            });
+        } else {
+            if (Files.exists(plugin.getDataPath().resolve("messages.yml"))) {
+                Plugin.logger.info("messages.yml is ignored: 'custom messages' is false in config.yml.");
+            }
+            texts = ConfigFile.map(translation, Texts.class);
+        }
         bottleFilledBar = render(texts.bottleText.filledBar);
         bottleEmptyBar = render(texts.bottleText.emptyBar);
+    }
+
+    // A message a translation lacks is English; the admin is told so it can be reported
+    private static void logMissing(String language, CommentedConfigurationNode translation) {
+        try {
+            CommentedConfigurationNode reference = CommentedConfigurationNode.root();
+            reference.set(Texts.class, new Texts());
+            List<String> missing = new ArrayList<>();
+            collectMissing(reference, translation, missing);
+            if (!missing.isEmpty()) {
+                Plugin.logger.warning("lang/" + language + ".yml lacks " + missing + ", which are in English.");
+            }
+        } catch (ConfigurateException e) {
+            Plugin.logger.severe("Could not check lang/" + language + ".yml: " + e.getMessage());
+        }
+    }
+
+    private static void collectMissing(ConfigurationNode reference, ConfigurationNode translation, List<String> out) {
+        for (Map.Entry<Object, ? extends ConfigurationNode> child :
+                reference.childrenMap().entrySet()) {
+            ConfigurationNode other = translation.node(child.getKey());
+            if (other.virtual()) {
+                out.add(Arrays.stream(child.getValue().path().array())
+                        .map(Object::toString)
+                        .collect(Collectors.joining(".")));
+            } else {
+                collectMissing(child.getValue(), other, out);
+            }
+        }
     }
 
     public static Component render(String message, TagResolver... placeholders) {
@@ -47,6 +112,8 @@ public class Messages {
     public static class Texts {
         static final String HEADER = """
 				--------------------- MagicBottle Messages ---------------------
+				This file is only used if 'custom messages' is true in config.yml; otherwise it is ignored.
+				It starts in the language set by 'language' in config.yml (the comments stay in English).
 				Customize texts and colors MagicBottle uses when messaging players
 				Messages use MiniMessage, e.g. '<gold>Level <level></gold>'. To see how to use it visit
 				https://docs.advntr.dev/minimessage/format.html

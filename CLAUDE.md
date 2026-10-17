@@ -237,6 +237,14 @@ sent as Adventure components. The texts stay raw strings in `Messages.texts` and
 Placeholder names are written as literals where they're resolved. Bottle name and lore use
 `Messages.renderItemText`, which turns italics off unless the message asks for them (vanilla shows custom item text
 italic).
+The language comes from `language` in `Settings` (`en`, `es`; invalid = logged, `en`) and `custom messages` (whether
+`messages.yml` is used). English is the field initializers of `Messages.Texts` (the reference, with the `@Comment`s); every
+other language is the resource `lang/<language>.yml` (same keys as `messages.yml`, listed in `Messages.TRANSLATIONS`), loaded
+by `ConfigFile.loadResource`. Layers: the admin's file (only if `custom messages`) ← the translation (`mergeFrom` in the load
+migration, so a new `messages.yml` is created in that language) ← English. Keys a translation lacks are logged at load
+(`logMissing`) and are English. With `custom messages` false the file is ignored (said in its header and in the log).
+`Settings.migrate` sets `custom messages` to true if `messages.yml` exists and the option doesn't, so no customization is lost.
+A new message is added to `Texts` and to every `lang/*.yml`. Bottles keep the language they were written in until rewritten.
 
 **XP math** (`util/Exp.java`): ported from EssentialsX. Bukkit's built-in level/exp handling only tracks the
 in-progress level, so this class recomputes true total XP points and implements the get/set/give/take API

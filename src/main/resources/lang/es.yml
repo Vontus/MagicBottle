@@ -1,0 +1,53 @@
+bottle text:
+  name: "<dark_purple><bold>MagicBottle</bold> <gray>| <yellow>Nivel <level>/<max_level> <gray>| <xpbar>"
+  name full: "<dark_purple><bold>MagicBottle</bold> <gray>| <gold>Nivel <level> ✦ <gray>| <xpbar>"
+  experience text: "<dark_purple>Puntos de experiencia:"
+  experience: " <yellow><points><gray>/<max_points>"
+  capacity text: "<dark_purple>Capacidad:"
+  capacity: " <yellow>Nivel <max_level> <gray>(×<size>)"
+  filled bar: "<dark_purple>|"
+  empty bar: "<yellow>|"
+  upgrades title: "<dark_purple>Mejoras <gray>(barra rápida/mano secundaria)<dark_purple>:"
+  upgrade preview: "<green>+</green><upgrade>"
+  upgrades:
+    autorepair: " <yellow>Auto-reparación: <gray>repara tus objetos mientras los usas."
+    collect: " <yellow>Recolección: <gray>guarda los orbes de experiencia que recoges."
+    soulbound: " <yellow>Ligada al alma: <gray>conservas la botella cuando mueres."
+  lore:
+    - "<dark_purple>Instrucciones:"
+    - " <yellow>Guardar XP: <gray>Clic izquierdo (+ Shift)."
+    - " <yellow>Sacar XP: <gray>Clic derecho (+ Shift)."
+    - " <yellow>También puedes poner la botella en una cuadrícula"
+    - " <yellow>de crafteo para guardar o sacar toda la experiencia."
+messages:
+  max level reached: "<red>El nivel máximo que puede contener esta MagicBottle es <level>."
+  nothing to store: "<red>Es muy poca experiencia para guardar algo tras el coste del depósito."
+  feedback separator: " <gray>| "
+  unauthorized:
+    deposit: "<red>No tienes permiso para guardar experiencia."
+    withdraw: "<red>No tienes permiso para sacar experiencia."
+  commands:
+    reload completed: "<yellow>Configuración recargada."
+    given bottle: "<yellow>Se dieron <amount> MagicBottle(s) a <player> con <level> niveles."
+    given bottles: "<yellow>Se dieron <amount> MagicBottle(s) a <players> jugadores con <level> niveles."
+    upgrade no bottle: "<red>Sostén una MagicBottle en la mano principal."
+    upgrade stack: "<red>Sostén una sola MagicBottle, no una pila."
+    upgrades changed: "<yellow>Botella mejorada. Ahora tiene: <upgrades>"
+    upgrades unchanged: "<yellow>No cambió nada. La botella tiene: <upgrades>"
+    upgrades none: "ninguna"
+  recipe:
+    title: "<dark_purple>Recetas de MagicBottle"
+    disabled: "<red>No hay recetas de MagicBottle que puedas usar."
+    crafting: "<gray>Fabrica una nueva MagicBottle"
+    smithing: "<gray>Añade mejoras a una MagicBottle"
+    anvil: "<gray>Repara objetos con la experiencia de una MagicBottle"
+  collect:
+    stored: "<yellow>Recolectado <dark_purple>+<xp></dark_purple> XP"
+  repair:
+    auto spent: "<yellow>Reparación <dark_purple>-<xp></dark_purple> XP"
+    anvil cost: "<gray>Usa <yellow><xp></yellow> XP de la botella (quedan <yellow><xp_left></yellow> XP)"
+  spend:
+    from bottle: "<gray>Tu MagicBottle cubrió el yunque: <yellow>-<xp> XP</yellow>"
+    enchant: "<gray>Tu MagicBottle cubrió el encantamiento: <yellow>-<xp> XP</yellow>"
+  merge:
+    anvil: "<red>Consume <yellow><xp></yellow> XP de las dos botellas"

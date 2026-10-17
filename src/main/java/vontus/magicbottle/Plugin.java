@@ -65,8 +65,7 @@ public final class Plugin extends JavaPlugin {
         this.getLifecycleManager()
                 .registerEventHandler(
                         LifecycleEvents.COMMANDS,
-                        event -> event.registrar()
-                                .register(commands.build(), "Main plugin command", List.of("mb", "magicb", "mbottle")));
+                        event -> event.registrar().register(commands.build(), "Main plugin command", List.of("mb")));
         new Metrics(this, BSTATS_ID);
     }
 

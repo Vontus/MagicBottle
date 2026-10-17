@@ -42,5 +42,5 @@ The first time it runs, the plugin creates `config.yml` and `messages.yml` in it
 	- A player that has this permission is allowed to save up to 20,000 levels in a MagicBottle.
 ## Commands
 - **/magicbottle**
-	- Aliases: mb, magicb, mbottle
+	- Aliases: mb
 	

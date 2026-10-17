@@ -12,34 +12,34 @@ import vontus.magicbottle.Plugin;
 
 // Per-player state: bottle migrations (legacy format, stack size) on join and cleanup on leave
 public class PlayerListener implements Listener {
-	private final Plugin plugin;
-	private final ClickCooldown cooldown;
+    private final Plugin plugin;
+    private final ClickCooldown cooldown;
 
-	public PlayerListener(Plugin plugin, ClickCooldown cooldown) {
-		this.plugin = plugin;
-		this.cooldown = cooldown;
-	}
+    public PlayerListener(Plugin plugin, ClickCooldown cooldown) {
+        this.plugin = plugin;
+        this.cooldown = cooldown;
+    }
 
-	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent e) {
-		LegacyBottle.migrateInventory(e.getPlayer().getInventory());
-		LegacyBottle.migrateInventory(e.getPlayer().getEnderChest());
-		MagicBottle.limitStackSize(e.getPlayer().getInventory());
-		MagicBottle.limitStackSize(e.getPlayer().getEnderChest());
-	}
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        LegacyBottle.migrateInventory(e.getPlayer().getInventory());
+        LegacyBottle.migrateInventory(e.getPlayer().getEnderChest());
+        MagicBottle.limitStackSize(e.getPlayer().getInventory());
+        MagicBottle.limitStackSize(e.getPlayer().getEnderChest());
+    }
 
-	@EventHandler
-	public void onPlayerLeave(PlayerQuitEvent e) {
-		forget(e.getPlayer());
-	}
+    @EventHandler
+    public void onPlayerLeave(PlayerQuitEvent e) {
+        forget(e.getPlayer());
+    }
 
-	@EventHandler
-	public void onPlayerKicked(PlayerKickEvent e) {
-		forget(e.getPlayer());
-	}
+    @EventHandler
+    public void onPlayerKicked(PlayerKickEvent e) {
+        forget(e.getPlayer());
+    }
 
-	private void forget(Player p) {
-		cooldown.clear(p);
-		plugin.feedback.clear(p);
-	}
+    private void forget(Player p) {
+        cooldown.clear(p);
+        plugin.feedback.clear(p);
+    }
 }

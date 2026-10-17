@@ -51,7 +51,8 @@ public class Settings {
 			Upgrades are applied to a MagicBottle in the smithing table: the bottle goes in the base slot and the ingredient in the
 			addition slot (the template slot stays empty). The bottle keeps its experience. Each upgrade has an 'enabled' option and
 			its 'ingredient', an item ID or an item tag like the ones of the bottle recipe. Applying an upgrade needs the permission
-			'magicbottle.upgrade.<upgrade>'. You must restart your server after changing an 'ingredient' or enabling an upgrade.""")
+			'magicbottle.upgrade.<upgrade>'. You must restart your server after changing an 'ingredient' or enabling an upgrade.
+			Disabling an upgrade makes it stop working on the bottles that have it, but doesn't remove it from them: enabling it again brings it back.""")
     public Upgrades upgrades = new Upgrades();
 
     @Comment("Here you can configure what percentage of experience will be charged when transferring experience.")
@@ -188,15 +189,22 @@ public class Settings {
 				Auto-repair: with the bottle in the hotbar or the offhand, tools and armor repair themselves with its experience
 				as they take damage (which items can be repaired is set in 'repair').""")
         @Setting("autorepair")
-        public UpgradeOption autoRepair = new UpgradeOption("totem_of_undying");
+        public UpgradeOption autoRepair = new UpgradeOption("nether_star");
 
         @Comment("""
 				Collect: with the bottle in the hotbar or the offhand, the experience orbs you pick up are stored in it instead of going to
 				your experience bar. Mending takes its share first, and what doesn't fit in the bottle (it is full)
 				goes to you. The deposit cost in 'costs' applies, rounded randomly orb by orb so small orbs
 				aren't free (on average, you pay exactly the percentage). Take the bottle out of the hotbar to stop collecting.
-				Note that without keepInventory the bottle drops when you die.""")
+				Note that without keepInventory the bottle drops when you die, unless it is soulbound.""")
         public CollectOption collect = new CollectOption("heart_of_the_sea");
+
+        @Comment("""
+				Soulbound: you keep the bottle, with all its experience and upgrades, when you die (without keepInventory it
+				would drop). It works anywhere in your inventory, armor slots and offhand included, and the upgrade isn't
+				consumed. It only protects against death drops: a bottle you throw, burn or clear, or one in your cursor or an
+				open crafting grid when you die, is lost like any item.""")
+        public UpgradeOption soulbound = new UpgradeOption("totem_of_undying");
     }
 
     @ConfigSerializable

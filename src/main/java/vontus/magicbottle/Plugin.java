@@ -22,6 +22,7 @@ import vontus.magicbottle.listeners.PlayerListener;
 import vontus.magicbottle.listeners.RecipeMenuListener;
 import vontus.magicbottle.listeners.RepairListener;
 import vontus.magicbottle.listeners.SmithingListener;
+import vontus.magicbottle.listeners.SoulboundListener;
 
 public final class Plugin extends JavaPlugin {
     private static final int BSTATS_ID = 1183;
@@ -60,6 +61,7 @@ public final class Plugin extends JavaPlugin {
         pm.registerEvents(new RecipeMenuListener(), this);
         pm.registerEvents(new RepairListener(this), this);
         pm.registerEvents(new SmithingListener(this), this);
+        pm.registerEvents(new SoulboundListener(), this);
         pm.registerEvents(new PlayerListener(this, cooldown), this);
         Commands commands = new Commands(this);
         this.getLifecycleManager()

@@ -33,6 +33,9 @@ permissions:
   magicbottle.upgrade.collect:
     description: 'Allows a player to apply the collect upgrade (stores picked up XP orbs) to a MagicBottle in the smithing table'
     default: true
+  magicbottle.upgrade.soulbound:
+    description: 'Allows a player to apply the soulbound upgrade (keeps the bottle on death) to a MagicBottle in the smithing table'
+    default: true
   magicbottle.command.recipes:
     description: 'Allows a player to open /mb recipes, which shows the recipes the player can use'
     default: true

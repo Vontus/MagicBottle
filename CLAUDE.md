@@ -176,7 +176,7 @@ key (`Recipes.getKey`), never by grid positions, and refuses it when a MagicBott
 withdrawing are not recipes (see `CraftingGridListener`).
 The upgrades have one smithing recipe each, registered by the same class when enabled.
 
-**Commands** (`commands` package, `Commands.java` is the tree; `BottleArgument`, `UpgradeList` and `UpgradeListArgument` are its arguments): the single `/magicbottle` command (aliases `mb`, `magicb`, `mbottle`) is a Brigadier
+**Commands** (`commands` package, `Commands.java` is the tree; `BottleArgument`, `UpgradeList` and `UpgradeListArgument` are its arguments): the single `/magicbottle` command (alias `mb`) is a Brigadier
 tree (`Commands#build`) registered from `Plugin.onEnable` through `LifecycleEvents.COMMANDS`; it is not in
 `plugin.yml`. Subcommands (`about`, `reload`, `give <targets> <bottle> [count]`, `upgrade <add|remove> <upgrades>`, `recipes`) are
 literal nodes gated with `.requires(...)` on their permission in `Config` (`recipes` also requires a

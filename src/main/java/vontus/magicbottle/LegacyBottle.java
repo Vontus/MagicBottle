@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -34,14 +33,6 @@ public class LegacyBottle {
             meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
             item.setItemMeta(meta);
             MagicBottle.rewrite(item, exp);
-        }
-    }
-
-    public static void migrateInventory(Inventory inv) {
-        for (ItemStack item : inv) {
-            if (MagicBottle.isMagicBottle(item)) {
-                migrateIfLegacy(item);
-            }
         }
     }
 

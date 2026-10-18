@@ -65,7 +65,7 @@ public class Settings {
 			Upgrades are applied to a MagicBottle in the smithing table: the bottle goes in the base slot and the ingredient in the
 			addition slot (the template slot stays empty). The bottle keeps its experience. Each upgrade has an 'enabled' option and
 			its 'ingredient', an item ID or an item tag like the ones of the bottle recipe. Applying an upgrade needs the permission
-			'magicbottle.upgrade.<upgrade>'. You must restart your server after changing an 'ingredient' or enabling an upgrade.
+			'magicbottle.upgrade.<upgrade>'.
 			Disabling an upgrade makes it stop working on the bottles that have it, but doesn't remove it from them: enabling it again brings it back.""")
     public Upgrades upgrades = new Upgrades();
 
@@ -87,7 +87,7 @@ public class Settings {
         public boolean withdraw = true;
 
         @Comment(
-                "Enable the ability to craft new MagicBottles.\nIf you disable this, players won't be able to craft new bottles but existing ones will remain usable.\nYou must restart your server after changing 'enabled', 'shape' or 'ingredients'.")
+                "Enable the ability to craft new MagicBottles.\nIf you disable this, players won't be able to craft new bottles but existing ones will remain usable.")
         public Bottle bottle = new Bottle();
     }
 

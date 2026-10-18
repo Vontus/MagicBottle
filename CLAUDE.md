@@ -178,7 +178,10 @@ quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafter
   from an enchantment registry key). It checks the cheap conditions first, has no cooldown (it must not interfere
   with clicks) and only repairs when the item's damage is odd, since 1 exp repairs 2 durability points. The exp it spends is reported to its channel of `DebouncedFeedback` (`messages.repair.auto spent`, disabled by `repair.auto feedback`, reloadable). That class debounces one action bar message shared by the channels (auto-repair and collect happen together when mining, and the action bar shows one message): it is sent once the player has gone 3 seconds without any, with the channels that have something to report joined by `messages.feedback separator`.
 
-**Recipes** (`Recipes.java`): registers the recipes on enable. The shaped
+**Recipes** (`Recipes.java`, `Plugin.recipes`): `register` adds the recipes from `Config` on enable and again on `/mb reload`,
+removing the ones it added before (it keeps their keys) and resending the recipes to the online players once at the end, so
+every recipe option (and `RecipeMenu`, which reads `Config`) agrees with what can be crafted without a restart. An invalid
+upgrade ingredient on reload only leaves that upgrade without a recipe (the sender is told); on enable it disables the plugin. The shaped
 "new bottle" recipe (`magicbottle:bottle`, result `MagicBottle(0)`) whose datapack-style `shape`/`ingredients`
 (item IDs or `#` item tags) come from config. `Config.loadNewBottleRecipe` validates them into
 `recipeNewBottleShape`/`recipeNewBottleIngredients`; if they're invalid it logs the problem and disables the

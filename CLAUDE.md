@@ -37,8 +37,13 @@ is nearly inert (in no recipe or item tag; brewing is blocked), unlike a glass b
 fill with water or honey; an empty bottle only looks like a glass bottle through the `item_model` component.
 Everything about the 1.5.x format (hidden Efficiency enchantment, XP parsed from lore line 1, empty bottles as
 `GLASS_BOTTLE`) lives in `LegacyBottle`: those bottles are recognized by `isMagicBottle` and rewritten in the current
-format when a `MagicBottle` is built from them or when their owner joins (inventory and ender chest), so no other
-code has to know about it. Any code creating/mutating a bottle must go through `MagicBottle` so the item's
+format when a `MagicBottle` is built from them or by `MagicBottle.refresh`, so no other code has to know about it.
+`refresh(Inventory)` brings the bottles of an inventory up to date (legacy format, stack size and any change in how `print()`
+writes a bottle, from a new version or from the config: capacity, language, messages, disabled upgrades). It runs for the
+inventory and ender chest of a player on join and of every online player on `/mb reload`; bottles in containers and offline
+players are only reached when their owner joins or the bottle is used. There is no format version: a bottle is outdated if
+printing it again would change the item (compared on a copy), so an up to date one is not touched. A new step in the format
+needs no special case, `print()` is the step. Any code creating/mutating a bottle must go through `MagicBottle` so the item's
 PDC/lore/name/material stay in sync (`recreate()`/`print()`). The keys are created in `MagicBottle.init`, which
 `onEnable` must call before anything else touches bottles.
 
@@ -51,7 +56,7 @@ all its exp, only refuses deposits (`getRoom()` is never negative) and counts as
 (only if size > 1, a title `capacity text` and a line `capacity`, like the experience) and `<xpbar>` (fill = exp/capacity, rounded down, complete only when full) come from it; placeholders `<level>`
 (whole level held), `<max_level>`, `<size>`, `<points>`, `<max_points>` (the capacity in points, shown by `experience` as `points/max`). `MagicBottle.merge` joins two full bottles (sizes added, union of upgrade ids) and consumes only the capacity of each (`getMergeCost`): what a bottle holds above its capacity (older bottles, a lowered `capacity`, `/mb give`) passes to the new one, which keeps it above its own capacity if need be; no result if it would not fit in a bottle (never lose exp). Bottles have
 `max_stack_size` 1, set by `print()` on single bottles (a stack is left alone: it may fail validation above the component) and by
-`limitStackSize` for the inventories of a joining player. The old per-player limits (`max level`, `magicbottle.maxlevel.*`) don't exist.
+`refresh` for the inventories of a joining player. The old per-player limits (`max level`, `magicbottle.maxlevel.*`) don't exist.
 
 **Upgrades** (`Upgrade`): flags a bottle carries in `magicbottle:upgrades`, a PDC string list of lowercase ids (`autorepair`, `collect`, `soulbound`;
 the id is persisted, so never change it) treated as a set: a missing key means none, and ids this version doesn't know are

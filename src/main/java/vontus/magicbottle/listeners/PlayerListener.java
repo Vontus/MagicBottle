@@ -6,11 +6,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import vontus.magicbottle.LegacyBottle;
 import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Plugin;
 
-// Per-player state: bottle migrations (legacy format, stack size) on join and cleanup on leave
+// Per-player state: bottles brought up to date on join and cleanup on leave
 public class PlayerListener implements Listener {
     private final Plugin plugin;
     private final ClickCooldown cooldown;
@@ -22,10 +21,8 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        LegacyBottle.migrateInventory(e.getPlayer().getInventory());
-        LegacyBottle.migrateInventory(e.getPlayer().getEnderChest());
-        MagicBottle.limitStackSize(e.getPlayer().getInventory());
-        MagicBottle.limitStackSize(e.getPlayer().getEnderChest());
+        MagicBottle.refresh(e.getPlayer().getInventory());
+        MagicBottle.refresh(e.getPlayer().getEnderChest());
     }
 
     @EventHandler

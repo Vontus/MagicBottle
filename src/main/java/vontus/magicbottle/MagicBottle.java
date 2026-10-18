@@ -107,7 +107,7 @@ public final class MagicBottle {
 
     // ItemStack#setType is deprecated in favor of withType, which returns a copy. The conversion has to mutate the
     // stack
-    // in place: it is the one that lives in the player's inventory (see LegacyBottle.migrateInventory).
+    // in place: it is the one that lives in the player's inventory (see refresh).
     // TODO: once 2.0.0 is installed on the only server that uses the plugin and its bottles are migrated, remove
     // LegacyBottle and the setType branch below; then this suppression is no longer needed.
     @SuppressWarnings("deprecation")
@@ -122,14 +122,27 @@ public final class MagicBottle {
         print();
     }
 
-    // Rewrites the single bottles of the inventory that were made before bottles stopped stacking, so they get the
-    // limit.
-    // Stacks stay as they are (see print).
-    public static void limitStackSize(Inventory inv) {
+    /**
+     * Brings the bottles of the inventory up to date: the 1.5.x format ({@link LegacyBottle}), the stack size limit and
+     * whatever a newer version or the config (capacity, language, messages, disabled upgrades) changes in how a bottle
+     * is printed. A new step in the format goes in the printing or here, not in a special case elsewhere. The exp and
+     * the PDC are kept, and a bottle that is already up to date is not touched.
+     */
+    public static void refresh(Inventory inv) {
         for (ItemStack item : inv) {
-            if (isMagicBottle(item) && item.getAmount() == 1 && item.getMaxStackSize() != 1) {
-                new MagicBottle(item).recreate();
+            if (item != null && isMagicBottle(item)) {
+                refresh(item);
             }
+        }
+    }
+
+    // Rewrites the bottle only if printing it would change it. The check is done on a copy; a stack keeps its size
+    // (see print).
+    private static void refresh(ItemStack item) {
+        ItemStack current = item.clone();
+        new MagicBottle(current).recreate();
+        if (!current.equals(item)) {
+            new MagicBottle(item).recreate();
         }
     }
 
@@ -453,7 +466,7 @@ public final class MagicBottle {
         // Bottles don't stack (identical full ones would fit 64 in a slot, and merging frees slots). A stack that
         // already
         // exists keeps stacking: an item with more than its max stack size may fail validation. It gets the limit once
-        // split, whenever the bottle is rewritten (limitStackSize does it for the inventories of a joining player).
+        // split, whenever the bottle is rewritten (refresh does it for the inventories of a joining player).
         if (item.getAmount() == 1) {
             meta.setMaxStackSize(1);
         }

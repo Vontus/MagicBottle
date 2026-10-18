@@ -399,7 +399,9 @@ public final class MagicBottle {
             if (Config.canRepair(i)) {
                 int usedDurability = Utils.getDamage(i);
                 if (usedDurability >= DURABILITY_POINTS_PER_XP || fullRepair) {
-                    int repairable = Math.min(exp * DURABILITY_POINTS_PER_XP, usedDurability);
+                    // In long: exp * 2 overflows an int above level ~15,465. The result fits, it is capped by the
+                    // damage
+                    int repairable = (int) Math.min((long) exp * DURABILITY_POINTS_PER_XP, usedDurability);
                     int remainder = fullRepair ? repairable % 2 : 0;
                     int xpToUse = repairable / 2 + remainder;
                     exp -= xpToUse;

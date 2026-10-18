@@ -164,6 +164,11 @@ public class Messages {
         @Setting("upgrades title")
         public String upgradesTitle = "<dark_purple>Upgrades <gray>(hotbar/offhand)<dark_purple>:";
 
+        @Setting("upgrade disabled")
+        @Comment(
+                "The line of an upgrade the bottle has but that is disabled in config.yml (the bottle keeps it, and it works again if enabled). Placeholders: <upgrade> (its line above)")
+        public String upgradeDisabled = "<dark_gray><st><upgrade></st>";
+
         @Setting("upgrade preview")
         @Comment(
                 "The line of the upgrade that is being applied, while previewing it in the smithing table. Placeholders: <upgrade> (its line above)")

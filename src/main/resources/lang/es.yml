@@ -8,6 +8,7 @@ bottle text:
   filled bar: "<dark_purple>|"
   empty bar: "<yellow>|"
   upgrades title: "<dark_purple>Mejoras <gray>(barra rápida/mano secundaria)<dark_purple>:"
+  upgrade disabled: "<dark_gray><st><upgrade></st>"
   upgrade preview: "<green>+</green><upgrade>"
   upgrades:
     autorepair: " <yellow>Auto-reparación: <gray>repara tus objetos mientras los usas."

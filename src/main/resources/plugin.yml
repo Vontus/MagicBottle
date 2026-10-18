@@ -36,8 +36,11 @@ permissions:
   magicbottle.upgrade.soulbound:
     description: 'Allows a player to apply the soulbound upgrade (keeps the bottle on death) to a MagicBottle in the smithing table'
     default: true
-  magicbottle.command.recipes:
-    description: 'Allows a player to open /mb recipes, which shows the recipes the player can use'
+  magicbottle.command.guide:
+    description: 'Allows a player to open /mb guide, which explains how to use a MagicBottle'
+    default: true
+  magicbottle.command.recipe:
+    description: 'Allows a player to open /mb recipe, which shows the new bottle recipe'
     default: true
   magicbottle.command.give:
     description: 'Admin command. Gives players a number of bottles of a certain level, optionally with upgrades'

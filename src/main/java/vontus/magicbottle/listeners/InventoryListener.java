@@ -11,7 +11,8 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.PlayerInventory;
 import vontus.magicbottle.MagicBottle;
 
-// Inventories where bottles must not go: the brewing stand (the recipe menu has its own RecipeMenuListener)
+// Inventories where bottles must not go: the brewing stand (the recipe menu has its own RecipeMenuListener in the guide
+// package)
 public class InventoryListener implements Listener {
     // Bottles can't be used as brewing stand items (dragon's breath is a brewing ingredient and its exp would be lost),
     // so every route into it is blocked: shift-clicking a bottle (moving them around the player's own inventory is

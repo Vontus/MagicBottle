@@ -176,12 +176,9 @@ public class Messages {
 
         public Upgrades upgrades = new Upgrades();
 
-        public List<String> lore = List.of(
-                "<dark_purple>Instructions:",
-                " <yellow>Save XP: <gray>(Shift +) Left Click.",
-                " <yellow>Take XP: <gray>(Shift +) Right Click.",
-                " <yellow>You can also put the bottle in a crafting grid",
-                " <yellow>to save or take all the experience.");
+        @Comment(
+                "Lines at the end of the bottle (the empty one separates them from the rest). The command is fixed to /magicbottle: /mb may belong to another plugin.")
+        public List<String> lore = List.of("", "<light_purple>How to use: /magicbottle guide");
     }
 
     // The lore line of each upgrade
@@ -222,6 +219,7 @@ public class Messages {
         public Unauthorized unauthorized = new Unauthorized();
         public Commands commands = new Commands();
         public Recipe recipe = new Recipe();
+        public Guide guide = new Guide();
         public Collect collect = new Collect();
         public Repair repair = new Repair();
         public Spend spend = new Spend();
@@ -267,16 +265,93 @@ public class Messages {
 
     @ConfigSerializable
     public static class Recipe {
-        public String title = "<dark_purple>MagicBottle recipes";
+        public String title = "<dark_purple>MagicBottle recipe";
 
-        @Comment("When /mb recipes has nothing to show the player.")
-        public String disabled = "<red>There are no MagicBottle recipes you can use.";
+        @Comment("When /mb recipe has no recipe to show the player.")
+        public String disabled = "<red>There is no MagicBottle recipe you can use.";
 
-        @Comment("Lines on the tab buttons of /mb recipes, under the name of the workstation.")
-        public String crafting = "<gray>Craft a new MagicBottle";
+        @Comment("The name of the arrow between the ingredients and the result in /mb recipe.")
+        public String arrow = "<gray>Makes";
+    }
 
-        public String smithing = "<gray>Add upgrades to a MagicBottle";
-        public String anvil = "<gray>Repair items with the experience of a MagicBottle";
+    /** A page of the guide: its title (also the name of its button) and its paragraphs. */
+    @ConfigSerializable
+    public static class Page {
+        public String title;
+        public List<String> text;
+
+        // Used by Configurate before it sets the fields
+        Page() {
+            this("");
+        }
+
+        Page(String title, String... text) {
+            this.title = title;
+            this.text = List.of(text);
+        }
+    }
+
+    @ConfigSerializable
+    public static class Guide {
+        public String title = "<gold>MagicBottle guide";
+        public String intro = "<gray>Choose a topic.";
+        public String back = "<gray>« Back";
+
+        @Comment("The first button of the guide: opens the recipe menu (/mb recipe), only if the player has a recipe.")
+        public String recipe = "Recipe";
+
+        @Comment("The button of the About page that opens the plugin page.")
+        public String link = "Open the plugin page";
+
+        @Comment("The pages of /mb guide. The Upgrades page lists the upgrades the player can apply after its text.")
+        public Page hand = new Page(
+                "In hand",
+                "Hold the bottle: <yellow>left click</yellow> saves your levels in it and <yellow>right click</yellow> takes them out. A click moves 1 level, <yellow>Shift</yellow> moves 10. A full bottle accepts no more.");
+
+        @Setting("hand cost")
+        @Comment(
+                "Added to the In hand page only if saving costs something for the player (costs.deposit.exp-percentage in config.yml, 0 for who is exempt). Placeholders: <percent>")
+        public String handCost = "Saving costs <yellow><percent>%</yellow>: the bottle keeps less than you lose.";
+
+        @Setting("hand grid")
+        @Comment(
+                "Added to the In hand page only if saving or taking everything in a crafting grid is enabled in config.yml (recipe.deposit and recipe.withdraw).")
+        public String handGrid =
+                "To move <yellow>all</yellow> the experience at once, put the bottle alone in a crafting grid (the 2x2 one of your inventory works) and take the result.";
+
+        public Page upgrades = new Page(
+                "Upgrades",
+                "Upgrades are applied in the <yellow>smithing table</yellow>, with no template: the bottle goes in the base slot and the ingredient shown below in the addition slot. The bottle keeps its experience.",
+                "An upgrade only works while the bottle is in your <yellow>hotbar</yellow> or <yellow>offhand</yellow>. Move it out of there to turn it off.");
+
+        @Comment(
+                "Placeholders: <level> (the level a plain bottle holds), <merged_level> (the level two of them make when merged)")
+        public Page capacity = new Page(
+                "Capacity and merging",
+                "A bottle holds <yellow>Level <level></yellow> when it is full. A bigger bottle shows <yellow>(×2)</yellow> in its lore: it is worth two bottles and holds <yellow>Level <merged_level></yellow>.",
+                "In the <yellow>anvil</yellow>, two <yellow>full</yellow> bottles merge into one with their sizes added and the upgrades of both.");
+
+        public Page costs = new Page(
+                "Paying costs",
+                "When something in the <yellow>anvil</yellow> or the <yellow>enchanting table</yellow> costs more levels than you have, a bottle in your inventory pays the rest. Your own experience goes first.",
+                "Only what is spent is taken from the bottle.");
+
+        public Page repair = new Page(
+                "Repair",
+                "In the <yellow>anvil</yellow>, put a damaged item in the first slot and a bottle with experience in the second to repair it with the bottle's experience, with no level cost. 1 experience repairs 2 durability points, like Mending.",
+                "The <yellow>auto-repair</yellow> upgrade repairs the items you use while the bottle is in your hotbar or offhand.");
+
+        @Setting("repair enchantment")
+        @Comment(
+                "Added to the Repair page only if repair.enchantment in config.yml is an enchantment and not ANY. Placeholders: <enchantment>")
+        public String repairEnchantment = "Only items with <yellow><enchantment></yellow> can be repaired.";
+
+        @Comment(
+                "Also sent by /mb about, one line each. Placeholders: <name> (the plugin name and version). The About page of the guide shows these lines.")
+        public Page about = new Page(
+                "About",
+                "<gold><name> by Vontus",
+                "<yellow><click:open_url:'https://github.com/Vontus/MagicBottle'>https://github.com/Vontus/MagicBottle</click>");
     }
 
     @ConfigSerializable

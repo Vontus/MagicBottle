@@ -15,11 +15,8 @@ bottle text:
     collect: " <yellow>Recolección: <gray>guarda los orbes de experiencia que recoges."
     soulbound: " <yellow>Ligada al alma: <gray>conservas la botella cuando mueres."
   lore:
-    - "<dark_purple>Instrucciones:"
-    - " <yellow>Guardar XP: <gray>Clic izquierdo (+ Shift)."
-    - " <yellow>Sacar XP: <gray>Clic derecho (+ Shift)."
-    - " <yellow>También puedes poner la botella en una cuadrícula"
-    - " <yellow>de crafteo para guardar o sacar toda la experiencia."
+    - ""
+    - "<light_purple>Cómo se usa: /magicbottle guide"
 messages:
   max level reached: "<red>El nivel máximo que puede contener esta MagicBottle es <level>."
   nothing to store: "<red>Es muy poca experiencia para guardar algo tras el coste del depósito."
@@ -37,11 +34,47 @@ messages:
     upgrades unchanged: "<yellow>No cambió nada. La botella tiene: <upgrades>"
     upgrades none: "ninguna"
   recipe:
-    title: "<dark_purple>Recetas de MagicBottle"
-    disabled: "<red>No hay recetas de MagicBottle que puedas usar."
-    crafting: "<gray>Fabrica una nueva MagicBottle"
-    smithing: "<gray>Añade mejoras a una MagicBottle"
-    anvil: "<gray>Repara objetos con la experiencia de una MagicBottle"
+    title: "<dark_purple>Receta de MagicBottle"
+    disabled: "<red>No hay ninguna receta de MagicBottle que puedas usar."
+    arrow: "<gray>Hace"
+  guide:
+    title: "<gold>Guía de MagicBottle"
+    intro: "<gray>Elige un tema."
+    back: "<gray>« Volver"
+    recipe: "Receta"
+    link: "Abrir la página del plugin"
+    hand:
+      title: "En la mano"
+      text:
+        - "Con la botella en la mano, el <yellow>clic izquierdo</yellow> guarda tus niveles en ella y el <yellow>clic derecho</yellow> los saca. Cada clic mueve 1 nivel; con <yellow>Shift</yellow>, 10. Una botella llena no admite más."
+    hand cost: "Guardar cuesta un <yellow><percent>%</yellow>: la botella se queda con menos de lo que pierdes."
+    hand grid: "Para mover <yellow>toda</yellow> la experiencia de golpe, pon la botella sola en una cuadrícula de crafteo (vale la de 2x2 del inventario) y coge el resultado."
+    upgrades:
+      title: "Mejoras"
+      text:
+        - "Las mejoras se aplican en la <yellow>mesa de herrería</yellow>, sin plantilla: la botella en la casilla base y el ingrediente de abajo en la de adición. La botella conserva su experiencia."
+        - "Una mejora solo funciona mientras la botella está en tu <yellow>barra de acceso rápido</yellow> o en la <yellow>mano secundaria</yellow>. Sácala de ahí para apagarla."
+    capacity:
+      title: "Capacidad y fusión"
+      text:
+        - "Una botella llena guarda hasta el <yellow>Nivel <level></yellow>. Una botella más grande muestra <yellow>(×2)</yellow> en su descripción: equivale a dos botellas y guarda hasta el <yellow>Nivel <merged_level></yellow>."
+        - "En el <yellow>yunque</yellow>, dos botellas <yellow>llenas</yellow> se fusionan en una con sus tamaños sumados y las mejoras de ambas."
+    costs:
+      title: "Pagar costes"
+      text:
+        - "Cuando algo en el <yellow>yunque</yellow> o en la <yellow>mesa de encantamientos</yellow> cuesta más niveles de los que tienes, una botella de tu inventario paga el resto. Tu propia experiencia se gasta primero."
+        - "Solo se le quita a la botella lo que se gasta."
+    repair:
+      title: "Reparar"
+      text:
+        - "En el <yellow>yunque</yellow>, pon un objeto dañado en la primera casilla y una botella con experiencia en la segunda para repararlo con la experiencia de la botella, sin coste de niveles. 1 de experiencia repara 2 puntos de durabilidad, como Reparación."
+        - "La mejora de <yellow>auto-reparación</yellow> repara los objetos que usas mientras la botella está en tu barra de acceso rápido o en la mano secundaria."
+    repair enchantment: "Solo se pueden reparar objetos con <yellow><enchantment></yellow>."
+    about:
+      title: "Acerca de"
+      text:
+        - "<gold><name> de Vontus"
+        - "<yellow><click:open_url:'https://github.com/Vontus/MagicBottle'>https://github.com/Vontus/MagicBottle</click>"
   collect:
     stored: "<yellow>Recolectado <dark_purple>+<xp></dark_purple> XP"
   repair:

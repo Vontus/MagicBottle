@@ -36,6 +36,7 @@ public final class Plugin extends JavaPlugin {
     public final DebouncedFeedback.Channel collectFeedback = feedback.channel(
             () -> Messages.texts.messages.collect.stored, () -> Config.settings.upgrades.collect.feedback);
     public final XpLoan loan = new XpLoan(this);
+    public final Recipes recipes = new Recipes(this);
 
     @Override
     public void onEnable() {
@@ -48,7 +49,7 @@ public final class Plugin extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
-        new Recipes(this);
+        recipes.register(false);
         ClickCooldown cooldown = new ClickCooldown(this);
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new AnvilListener(this), this);

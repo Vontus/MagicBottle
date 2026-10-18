@@ -121,13 +121,14 @@ public class Commands {
 
     private void reload(CommandSender sender) {
         plugin.loadConfig();
+        plugin.recipes.register(true);
         for (Player p : plugin.getServer().getOnlinePlayers()) {
             MagicBottle.refresh(p.getInventory());
             MagicBottle.refresh(p.getEnderChest());
         }
         if (Config.invalidUpgrade) {
             sender.sendMessage(text(
-                    "An upgrade ingredient in config.yml is invalid (see the console); fix it and restart the server.",
+                    "An upgrade ingredient in config.yml is invalid (see the console): that upgrade can't be applied until you fix it and reload.",
                     RED));
         }
         sender.sendMessage(Messages.render(Messages.texts.messages.commands.reloadCompleted));

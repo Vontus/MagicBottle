@@ -56,7 +56,11 @@ all its exp, only refuses deposits (`getRoom()` is never negative) and counts as
 **Upgrades** (`Upgrade`): flags a bottle carries in `magicbottle:upgrades`, a PDC string list of lowercase ids (`autorepair`, `collect`, `soulbound`;
 the id is persisted, so never change it) treated as a set: a missing key means none, and ids this version doesn't know are
 kept when the bottle is rewritten. Only `MagicBottle` reads and writes it (`hasUpgrade`/`addUpgrade`), and `print()` adds a
-lore line per upgrade (`bottle text.upgrades`), in enum order. Features that need a bottle with an upgrade call
+lore line per known upgrade (`bottle text.upgrades`; ids this version doesn't know have none): the enabled ones first, then the
+disabled ones (`Config.isUpgradeEnabled`), each group in enum order. A disabled upgrade stays on the bottle (PDC untouched, it
+works again if re-enabled) and its line is wrapped in `bottle text.upgrade disabled` (struck through by default), so the lore is a
+function of PDC + config; it only changes when the bottle is printed again. The `upgrades title` is shown if the bottle has any
+known upgrade, even if all are disabled. Features that need a bottle with an upgrade call
 `MagicBottle.findWithUpgrade`, which only looks in the hotbar and the offhand (moving the bottle out is the off switch).
 Both go through `MagicBottle.find`, which decides which bottle a feature uses: the selected slot, then the offhand, then the
 rest of the hotbar and, if asked (`wholeInventory`), the rest of the inventory. Upgrades never ask for the whole inventory;

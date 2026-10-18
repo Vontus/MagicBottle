@@ -3,6 +3,7 @@ package vontus.magicbottle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -419,13 +420,23 @@ public final class MagicBottle {
             lore.add(Messages.renderItemText(Messages.texts.bottleText.capacity, placeholders));
         }
 
-        // In the order of the enum, whatever the order they were applied in; unknown ids have no line
-        List<Upgrade> applied =
-                Arrays.stream(Upgrade.values()).filter(this::hasUpgrade).toList();
+        // Enabled upgrades first, then the disabled ones (they stay on the bottle but do nothing); each group in the
+        // order of the enum, whatever the order they were applied in. Unknown ids have no line. The lore depends on
+        // the config, so a reprint is what shows a change in it.
+        List<Upgrade> applied = Arrays.stream(Upgrade.values())
+                .filter(this::hasUpgrade)
+                .sorted(Comparator.comparing((Upgrade upgrade) -> !Config.isUpgradeEnabled(upgrade)))
+                .toList();
         if (!applied.isEmpty()) {
             lore.add(Messages.renderItemText(Messages.texts.bottleText.upgradesTitle, placeholders));
             for (Upgrade upgrade : applied) {
-                lore.add(getUpgradeLine(upgrade));
+                Component line = getUpgradeLine(upgrade);
+                lore.add(
+                        Config.isUpgradeEnabled(upgrade)
+                                ? line
+                                : Messages.renderItemText(
+                                        Messages.texts.bottleText.upgradeDisabled,
+                                        Placeholder.component("upgrade", line)));
             }
         }
 

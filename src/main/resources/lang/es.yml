@@ -1,25 +1,24 @@
 bottle text:
   name: "<dark_purple><bold>MagicBottle</bold> <gray>| <yellow>Nivel <level>/<max_level> <gray>| <xpbar>"
   name full: "<dark_purple><bold>MagicBottle</bold> <gray>| <gold>Nivel <level> ✦ <gray>| <xpbar>"
+  filled bar: "<dark_purple>|"
+  empty bar: "<yellow>|"
   experience text: "<dark_purple>Puntos de experiencia:"
   experience: " <yellow><points><gray>/<max_points>"
   capacity text: "<dark_purple>Capacidad:"
   capacity: " <yellow>Nivel <max_level> <gray>(×<size>)"
-  filled bar: "<dark_purple>|"
-  empty bar: "<yellow>|"
   upgrades title: "<dark_purple>Mejoras <gray>(barra rápida/mano secundaria)<dark_purple>:"
-  upgrade disabled: "<dark_gray><st><upgrade></st>"
-  upgrade preview: "<green>+</green><upgrade>"
   upgrades:
     autorepair: " <yellow>Auto-reparación: <gray>repara tus objetos mientras los usas."
     collect: " <yellow>Recolección: <gray>guarda los orbes de experiencia que recoges."
     soulbound: " <yellow>Ligada al alma: <gray>conservas la botella cuando mueres."
+  upgrade disabled: "<dark_gray><st><upgrade></st>"
+  upgrade preview: "<green>+</green><upgrade>"
   lore:
     - "<light_purple>Cómo se usa: /magicbottle guide"
 messages:
   max level reached: "<red>El nivel máximo que puede contener esta MagicBottle es <level>."
   nothing to store: "<red>Es muy poca experiencia para guardar algo tras el coste del depósito."
-  feedback separator: " <gray>| "
   unauthorized:
     deposit: "<red>No tienes permiso para guardar experiencia."
     withdraw: "<red>No tienes permiso para sacar experiencia."
@@ -74,13 +73,14 @@ messages:
       text:
         - "<gold><name> de Vontus"
         - "<yellow><click:open_url:'https://github.com/Vontus/MagicBottle'>https://github.com/Vontus/MagicBottle</click>"
-  collect:
-    stored: "<yellow>Recolectado <dark_purple>+<xp></dark_purple> XP"
   repair:
     auto spent: "<yellow>Reparación <dark_purple>-<xp></dark_purple> XP"
     anvil cost: "<gray>Usa <yellow><xp></yellow> XP de la botella (quedan <yellow><xp_left></yellow> XP)"
+  merge:
+    anvil: "<red>Consume <yellow><xp></yellow> XP de las dos botellas"
   spend:
     from bottle: "<gray>Tu MagicBottle cubrió el yunque: <yellow>-<xp> XP</yellow>"
     enchant: "<gray>Tu MagicBottle cubrió el encantamiento: <yellow>-<xp> XP</yellow>"
-  merge:
-    anvil: "<red>Consume <yellow><xp></yellow> XP de las dos botellas"
+  collect:
+    stored: "<yellow>Recolectado <dark_purple>+<xp></dark_purple> XP"
+  feedback separator: " <gray>| "

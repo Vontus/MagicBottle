@@ -32,8 +32,8 @@ public final class Plugin extends JavaPlugin {
     public static Logger logger;
 
     public final DebouncedFeedback feedback = new DebouncedFeedback(this);
-    public final DebouncedFeedback.Channel autoRepairFeedback =
-            feedback.channel(() -> Messages.texts.messages.repair.autoSpent, () -> Config.settings.repair.autoFeedback);
+    public final DebouncedFeedback.Channel autoRepairFeedback = feedback.channel(
+            () -> Messages.texts.messages.repair.autoSpent, () -> Config.settings.upgrades.autoRepair.feedback);
     public final DebouncedFeedback.Channel collectFeedback = feedback.channel(
             () -> Messages.texts.messages.collect.stored, () -> Config.settings.upgrades.collect.feedback);
     public final XpLoan loan = new XpLoan(this);

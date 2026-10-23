@@ -140,6 +140,13 @@ public class Messages {
                 "The name when the bottle is full (it holds its capacity or more). Placeholders: the ones above, <level> is the level it holds.")
         public String nameFull = "<dark_purple><bold>MagicBottle</bold> <gray>| <gold>Level <level> ✦ <gray>| <xpbar>";
 
+        // <xpbar> is made of 18 parts, each one is the filled or the empty bar
+        @Setting("filled bar")
+        public String filledBar = "<dark_purple>|";
+
+        @Setting("empty bar")
+        public String emptyBar = "<yellow>|";
+
         @Setting("experience text")
         public String experienceTitle = "<dark_purple>Experience points:";
 
@@ -153,16 +160,11 @@ public class Messages {
         @Comment("The line under the title of the capacity.")
         public String capacity = " <yellow>Level <max_level> <gray>(×<size>)";
 
-        // <xpbar> is made of 18 parts, each one is the filled or the empty bar
-        @Setting("filled bar")
-        public String filledBar = "<dark_purple>|";
-
-        @Setting("empty bar")
-        public String emptyBar = "<yellow>|";
-
         // The title and the lines are only shown on bottles that have upgrades, one line per upgrade
         @Setting("upgrades title")
         public String upgradesTitle = "<dark_purple>Upgrades <gray>(hotbar/offhand)<dark_purple>:";
+
+        public Upgrades upgrades = new Upgrades();
 
         @Setting("upgrade disabled")
         @Comment(
@@ -173,8 +175,6 @@ public class Messages {
         @Comment(
                 "The line of the upgrade that is being applied, while previewing it in the smithing table. Placeholders: <upgrade> (its line above)")
         public String upgradePreview = "<green>+</green><upgrade>";
-
-        public Upgrades upgrades = new Upgrades();
 
         @Comment(
                 "Lines at the end of the bottle. The command is fixed to /magicbottle: /mb may belong to another plugin.")
@@ -211,19 +211,19 @@ public class Messages {
         @Comment("When the deposit cost would leave no experience to save in the bottle, so nothing is taken.")
         public String nothingToStore = "<red>That is too little experience to save anything after the deposit cost.";
 
-        @Setting("feedback separator")
-        @Comment(
-                "Goes between the action bar messages of auto-repair and collect when they are shown together (they share one message, sent once you stop for 3 seconds).")
-        public String feedbackSeparator = " <gray>| ";
-
         public Unauthorized unauthorized = new Unauthorized();
         public Commands commands = new Commands();
         public Recipe recipe = new Recipe();
         public Guide guide = new Guide();
-        public Collect collect = new Collect();
         public Repair repair = new Repair();
-        public Spend spend = new Spend();
         public Merge merge = new Merge();
+        public Spend spend = new Spend();
+        public Collect collect = new Collect();
+
+        @Setting("feedback separator")
+        @Comment(
+                "Goes between the action bar messages of auto-repair and collect when they are shown together (they share one message, sent once you stop for 3 seconds).")
+        public String feedbackSeparator = " <gray>| ";
     }
 
     @ConfigSerializable

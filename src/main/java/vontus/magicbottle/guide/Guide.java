@@ -10,6 +10,7 @@ import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -176,12 +177,12 @@ public final class Guide {
     // The ingredient that applies each upgrade, described by the lore line of the upgrade
     private static void addUpgradeRows(Player player, List<DialogBody> body) {
         for (Upgrade upgrade : upgradesFor(player)) {
-            // An ingredient that accepts several items (a tag) is shown with the first
-            if (Config.upgradeIngredients.get(upgrade) instanceof RecipeChoice.MaterialChoice choice) {
-                body.add(item(
-                        new ItemStack(choice.getChoices().getFirst()),
-                        Messages.render(Messages.texts.bottleText.upgrades.get(upgrade))));
-            }
+            // upgradesFor only returns upgrades with an ingredient. One that accepts several items (a tag) is shown
+            // with the first
+            RecipeChoice.MaterialChoice choice = Objects.requireNonNull(Config.upgradeIngredients.get(upgrade));
+            body.add(item(
+                    new ItemStack(choice.getChoices().getFirst()),
+                    Messages.render(Messages.texts.bottleText.upgrades.get(upgrade))));
         }
     }
 }

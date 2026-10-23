@@ -30,7 +30,26 @@ Download it from [Hangar](https://hangar.papermc.io/Vontus/MagicBottle). It requ
 1. Put the plugin jar in the `plugins` folder of a Paper server.
 2. Start the server.
 
-Bottles from 1.5.x are converted automatically when their owner joins or uses them, keeping all their XP.
+## Upgrading from 1.5.x
+
+2.0.0 is a rewrite for Paper: it no longer runs on Spigot.
+
+1. Back up `config.yml` and `messages.yml`, delete them and start the server, so the plugin writes new ones with every
+   option documented. The 1.5.x files have options that no longer exist and `&` color codes, while messages are now
+   MiniMessage.
+2. Copy your values back: the deposit cost, the new bottle recipe (now a `shape` with item IDs or tags) and the repair
+   enchantment. The old `max level.default` is now `capacity`, the levels a bottle holds: it defaults to 30 (it was
+   200), and a bottle holding more than the capacity keeps all its XP but accepts no more until it goes below it.
+3. Existing bottles are converted when their owner joins or uses them, keeping all their XP.
+
+What was removed:
+
+- The money cost of crafting a bottle (Vault) and `magicbottle.action.craft.cost.exempt`.
+- The max level permissions (`magicbottle.maxlevel.*`): the capacity belongs to the bottle, and two full bottles merge
+  into a bigger one.
+- `/mb repair` and its automatic mode (`magicbottle.command.repair`, `magicbottle.command.repair.auto`): repair in the
+  anvil, or with the auto-repair upgrade.
+- The `/magicb` and `/mbottle` aliases.
 
 ## Configuration
 

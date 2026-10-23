@@ -177,8 +177,8 @@ public class Messages {
         public Upgrades upgrades = new Upgrades();
 
         @Comment(
-                "Lines at the end of the bottle (the empty one separates them from the rest). The command is fixed to /magicbottle: /mb may belong to another plugin.")
-        public List<String> lore = List.of("", "<light_purple>How to use: /magicbottle guide");
+                "Lines at the end of the bottle. The command is fixed to /magicbottle: /mb may belong to another plugin.")
+        public List<String> lore = List.of("<light_purple>How to use: /magicbottle guide");
     }
 
     // The lore line of each upgrade

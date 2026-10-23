@@ -15,7 +15,6 @@ bottle text:
     collect: " <yellow>Recolección: <gray>guarda los orbes de experiencia que recoges."
     soulbound: " <yellow>Ligada al alma: <gray>conservas la botella cuando mueres."
   lore:
-    - ""
     - "<light_purple>Cómo se usa: /magicbottle guide"
 messages:
   max level reached: "<red>El nivel máximo que puede contener esta MagicBottle es <level>."

@@ -64,6 +64,16 @@ final class Ingredient {
         return new Ingredient(text, new RecipeChoice.MaterialChoice(m), null);
     }
 
+    /** The text lowercased and without the default namespace, so the spellings of an item compare equal. */
+    @Nullable
+    String normalizedText() {
+        if (text == null) {
+            return null;
+        }
+        String normalized = text.toLowerCase(Locale.ROOT);
+        return normalized.startsWith("minecraft:") ? normalized.substring("minecraft:".length()) : normalized;
+    }
+
     private static Ingredient invalid(@Nullable String text, String error) {
         return new Ingredient(text, null, error);
     }

@@ -70,6 +70,11 @@ Bottles live in player inventories for years.
   Code that such a guarantee makes unreachable fails loudly (throws) instead of returning quietly.
 - Reuse what exists (`Exp`, `ResultSlot.destination`, `MagicBottle.findWithUpgrade`, `UpgradeList`...) instead of
   reimplementing it, and write code like the code around it: naming, idioms, comments that say why.
+- A new feature, option or upgrade considers whether it is worth a bStats chart (a bar in `features`/`upgrades`, a new
+  chart, or a stat of the bottles of online players, see #123). When an agent is asked to write the issue of a feature,
+  it reminds the user of this so the issue says which chart it adds, or says explicitly that bStats isn't worth it for
+  that feature. When an agent develops a feature whose issue doesn't mention bStats, it asks before finishing. A new
+  chart is also created on the bStats website with the same id.
 - A change to the architecture or to a rule updates CLAUDE.md or this file in the same PR.
 
 ## Testing

@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import vontus.magicbottle.Plugin;
@@ -109,6 +110,24 @@ public class Config {
                 && settings.repair.enchantment.canRepair(is)
                 && is.getType().getMaxDurability() > 0
                 && Utils.getDamage(is) > 0;
+    }
+
+    /** Whether the shape and the ingredients of the new bottle recipe are the defaults, as the file says. */
+    public static boolean isDefaultNewBottleRecipe() {
+        Settings.Bottle current = settings.recipe.bottle;
+        Settings.Bottle defaults = new Settings.Bottle();
+        if (!current.shape.equals(defaults.shape) || current.ingredients.size() != defaults.ingredients.size()) {
+            return false;
+        }
+        for (Map.Entry<String, Ingredient> entry : defaults.ingredients.entrySet()) {
+            Ingredient ingredient = current.ingredients.get(entry.getKey());
+            if (ingredient == null
+                    || !Objects.equals(
+                            ingredient.normalizedText(), entry.getValue().normalizedText())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // Validates the shape against the ingredients. If anything is wrong, the recipe is disabled instead of failing to

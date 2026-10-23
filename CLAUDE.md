@@ -260,6 +260,16 @@ A new message is added to `Texts` and to every `lang/*.yml`. Bottles keep the la
 in-progress level, so this class recomputes true total XP points and implements the get/set/give/take API
 plus the level↔exp conversion formulas (`getLevelFromExp`, `getExpAtLevel`) that vanilla Minecraft uses.
 
+**Metrics** (`MetricsCharts`, registered from `onEnable` on the bStats `Metrics`): custom charts with the configuration of each
+server, only enums, booleans and buckets (no free text such as the recipe, nothing about players). Each chart id must also exist on
+the bStats website or its data is dropped. The callbacks run on every submission and read `Config.settings` then, so a reload
+needs no code. Every server sends one value per chart, so they count servers: `language` (drilldown: language → `custom messages`),
+`capacity` and `deposit_cost` (drilldown: bucket → exact value, so the buckets can change later), `repair_enchantment`
+(`MENDING`/`ANY`/`other`), `new_bottle_recipe` (`default`/`custom`, `Config.isDefaultNewBottleRecipe`) and two bar charts,
+`features` and `upgrades`: a server sends 1 for each thing it has enabled plus `total`, so the gap between a bar and `total` is
+the servers that disabled it (a pie would show shares of the sum, which says nothing when everyone enables everything). A new
+`Upgrade` adds its bar by itself; a new feature adds a line in `MetricsCharts.features`.
+
 **Effects** (`effects/SoundEffect`): sounds and particles (Bukkit `spawnParticle`) for deposit/withdraw/craft
 actions.
 

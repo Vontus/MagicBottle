@@ -39,11 +39,6 @@ public class Settings {
 			used and messages.yml is ignored, so don't edit it. This option is applied with '/mb reload'.""")
     public boolean customMessages = false;
 
-    @Comment("Enable or disable sound and particle effects when a MagicBottle is used.")
-    public Effect effect = new Effect();
-
-    public Recipe recipe = new Recipe();
-
     @Comment("""
 			The level a plain MagicBottle holds. Every bottle has a size (1 unless it was made by merging bottles) and holds the
 			experience of 'size' bottles of this level, rounded down to a whole level: with 30, size 2 holds level 39 and size 4
@@ -54,10 +49,15 @@ public class Settings {
 			'magicbottle.maxlevel.*' no longer exist (the capacity is a property of the bottle, not of who holds it).""")
     public int capacity = 30;
 
-    @Comment("Merging two full bottles in the anvil gives an empty bottle with the capacity of both.")
-    public Merge merge = new Merge();
+    @Comment("Here you can configure what percentage of experience will be charged when transferring experience.")
+    public Costs costs = new Costs();
+
+    public Recipe recipe = new Recipe();
 
     public Repair repair = new Repair();
+
+    @Comment("Merging two full bottles in the anvil gives an empty bottle with the capacity of both.")
+    public Merge merge = new Merge();
 
     public Spend spend = new Spend();
 
@@ -69,8 +69,8 @@ public class Settings {
 			Disabling an upgrade makes it stop working on the bottles that have it, but doesn't remove it from them: enabling it again brings it back.""")
     public Upgrades upgrades = new Upgrades();
 
-    @Comment("Here you can configure what percentage of experience will be charged when transferring experience.")
-    public Costs costs = new Costs();
+    @Comment("Enable or disable sound and particle effects when a MagicBottle is used.")
+    public Effect effect = new Effect();
 
     @ConfigSerializable
     public static class Effect {
@@ -181,11 +181,6 @@ public class Settings {
 				like Mending) instead of the player's levels, which a vanilla anvil would charge.""")
         public boolean enabled = true;
 
-        @Setting("auto feedback")
-        @Comment(
-                "Show an action bar message with the experience spent by auto-repair (sent once you stop repairing for 3 seconds)")
-        public boolean autoFeedback = true;
-
         @Comment("""
 				Tools and armor will need this enchantment in order to be able to repair them (its Minecraft ID, e.g. MENDING or minecraft:mending)
 				Set this to ANY if you want MagicBottle to repair any repairable tool (unenchanted tools will be repaired too)""")
@@ -214,7 +209,7 @@ public class Settings {
 				Auto-repair: with the bottle in the hotbar or the offhand, tools and armor repair themselves with its experience
 				as they take damage (which items can be repaired is set in 'repair').""")
         @Setting("autorepair")
-        public UpgradeOption autoRepair = new UpgradeOption("nether_star");
+        public AutoRepairOption autoRepair = new AutoRepairOption("nether_star");
 
         @Comment("""
 				Collect: with the bottle in the hotbar or the offhand, the experience orbs you pick up are stored in it instead of going to
@@ -242,6 +237,19 @@ public class Settings {
 
         UpgradeOption(String ingredient) {
             this.ingredient = Ingredient.parse(ingredient);
+        }
+    }
+
+    @ConfigSerializable
+    public static class AutoRepairOption extends UpgradeOption {
+        @Comment(
+                "Show an action bar message with the experience spent by auto-repair (sent once you stop repairing for 3 seconds)")
+        public boolean feedback = true;
+
+        public AutoRepairOption() {}
+
+        AutoRepairOption(String ingredient) {
+            super(ingredient);
         }
     }
 

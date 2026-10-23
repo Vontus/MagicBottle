@@ -219,7 +219,8 @@ New subcommands are added as nodes in `build`, with their line in `USAGES`.
 buttons) with the new bottle recipe: the configured shape (any shape up to 3x3), a named arrow and the empty bottle; it needs
 `recipe.bottle.enabled` and `magicbottle.action.craft`, else it sends `messages.recipe.disabled`. It is the first button of the
 guide. The other workstations (smithing, anvil) are only explained in the guide. Ingredients that accept several items, i.e. tags,
-cycle through them every second. It must stay strictly read-only: the inventory has a custom `InventoryHolder` (`RecipeMenu`),
+cycle through them every second and carry a gray lore line with the tag as written in the config (`Config.recipeNewBottleTags`, an id,
+so nothing to translate) to say that any item of it works. It must stay strictly read-only: the inventory has a custom `InventoryHolder` (`RecipeMenu`),
 `RecipeMenuListener` cancels every `InventoryClickEvent`/`InventoryDragEvent` while it is the *top* inventory of the view (which
 also covers shift-clicks, number keys, offhand swaps and double clicks from the inventory of the player) and clears it on
 `InventoryCloseEvent`; `Plugin.onDisable` closes it for whoever has it open. The bottle shown is `MagicBottle.createDisplayItem`,

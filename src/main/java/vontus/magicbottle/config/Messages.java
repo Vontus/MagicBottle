@@ -39,12 +39,17 @@ public class Messages {
     /** The languages bundled as {@code lang/<language>.yml}, besides English, which is the defaults of {@link Texts}. */
     private static final List<String> TRANSLATIONS = List.of("es");
 
-    public static void load(Plugin plugin) {
+    /** The language in use: {@code language} from config.yml, or en if it is not one of the bundled ones. */
+    public static String language() {
         String language = Config.settings.language;
-        if (!language.equals("en") && !TRANSLATIONS.contains(language)) {
-            Plugin.logger.severe("Invalid 'language' in config.yml: '" + language + "'. Use en or "
+        return language.equals("en") || TRANSLATIONS.contains(language) ? language : "en";
+    }
+
+    public static void load(Plugin plugin) {
+        String language = language();
+        if (!language.equals(Config.settings.language)) {
+            Plugin.logger.severe("Invalid 'language' in config.yml: '" + Config.settings.language + "'. Use en or "
                     + String.join(", ", TRANSLATIONS) + ". Using en.");
-            language = "en";
         }
         // The translation fills what the admin's file lacks, and English (the field initializers) what the translation
         // lacks

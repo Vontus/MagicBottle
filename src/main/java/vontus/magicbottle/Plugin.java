@@ -70,7 +70,7 @@ public final class Plugin extends JavaPlugin {
                 .registerEventHandler(
                         LifecycleEvents.COMMANDS,
                         event -> event.registrar().register(commands.build(), "Main plugin command", List.of("mb")));
-        new Metrics(this, BSTATS_ID);
+        MetricsCharts.register(new Metrics(this, BSTATS_ID));
     }
 
     @Override

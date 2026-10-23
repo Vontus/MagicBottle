@@ -66,6 +66,11 @@ public class EnchantParser {
         return ench;
     }
 
+    /** Whether any repairable item is accepted, not only the ones with an enchantment. */
+    public boolean isAny() {
+        return anyEnchant;
+    }
+
     public boolean canRepair(ItemStack item) {
         return anyEnchant || (ench != null && item.containsEnchantment(ench));
     }

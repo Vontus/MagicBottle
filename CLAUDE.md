@@ -71,7 +71,7 @@ Both go through `MagicBottle.find`, which decides which bottle a feature uses: t
 rest of the hotbar and, if asked (`wholeInventory`), the rest of the inventory. Upgrades never ask for the whole inventory;
 loans (`XpLoan`) do.
 Each upgrade has `upgrades.<id>` in `Settings` (`enabled`, `ingredient`, parsed by `Ingredient`; validated in
-`Config.loadUpgrades` into `Config.upgradeIngredients`; a wrong ingredient of an enabled upgrade sets `Config.invalidUpgrade` and `onEnable` disables the plugin, so the admin notices) and the permissions `magicbottle.upgrade.apply.<id>` (apply it) and `magicbottle.upgrade.use.<id>` (get its effect; checked last in `findWithUpgrade` and in `SoulboundListener`; `/mb give` and `/mb upgrade` ignore only the apply one). They are
+`Config.loadUpgrades` into `Config.upgradeIngredients`; a wrong ingredient of an enabled upgrade sets `Config.invalidUpgrade` and `onEnable` disables the plugin, so the admin notices; so does an ingredient sharing any item, tags included, with another enabled upgrade, since the smithing table would match only one of the recipes: on reload both are left without a recipe) and the permissions `magicbottle.upgrade.apply.<id>` (apply it) and `magicbottle.upgrade.use.<id>` (get its effect; checked last in `findWithUpgrade` and in `SoulboundListener`; `/mb give` and `/mb upgrade` ignore only the apply one). They are
 applied in the smithing table (see `SmithingListener`). A new upgrade is an `Upgrade` value plus its settings, lore message
 and permission (the switches over `Upgrade` in `Config` and `Messages` don't compile until they are added).
 

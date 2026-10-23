@@ -2,9 +2,12 @@ package vontus.magicbottle.config;
 
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import vontus.magicbottle.Plugin;
@@ -74,7 +77,8 @@ public class Config {
         loadUpgrades();
     }
 
-    // An enabled upgrade needs a valid ingredient; Plugin refuses to enable with a wrong one (see invalidUpgrade)
+    // An enabled upgrade needs a valid ingredient, different from the one of every other enabled upgrade (the smithing
+    // table would match only one of their recipes); Plugin refuses to enable with a wrong one (see invalidUpgrade)
     private static void loadUpgrades() {
         upgradeIngredients.clear();
         invalidUpgrade = false;
@@ -91,6 +95,36 @@ public class Config {
                 upgradeIngredients.put(upgrade, option.ingredient.choice);
             }
         }
+        removeClashingUpgrades();
+    }
+
+    // Two upgrades clash if any item is accepted by both (tags included); both are left without a recipe
+    private static void removeClashingUpgrades() {
+        List<Map.Entry<Upgrade, RecipeChoice>> entries = List.copyOf(upgradeIngredients.entrySet());
+        Set<Upgrade> clashing = new LinkedHashSet<>();
+        for (int i = 0; i < entries.size(); i++) {
+            for (int j = i + 1; j < entries.size(); j++) {
+                Upgrade a = entries.get(i).getKey();
+                Upgrade b = entries.get(j).getKey();
+                Set<Material> shared =
+                        new LinkedHashSet<>(materials(entries.get(i).getValue()));
+                shared.retainAll(materials(entries.get(j).getValue()));
+                if (!shared.isEmpty()) {
+                    Plugin.logger.severe(
+                            "The upgrades '" + a.id() + "' and '" + b.id()
+                                    + "' in config.yml accept the same item(s) as ingredient (" + shared
+                                    + "): the smithing table could apply only one of them. Every enabled upgrade needs a different ingredient.");
+                    clashing.add(a);
+                    clashing.add(b);
+                    invalidUpgrade = true;
+                }
+            }
+        }
+        upgradeIngredients.keySet().removeAll(clashing);
+    }
+
+    private static List<Material> materials(RecipeChoice choice) {
+        return choice instanceof RecipeChoice.MaterialChoice materialChoice ? materialChoice.getChoices() : List.of();
     }
 
     private static Settings.UpgradeOption upgradeSettings(Upgrade upgrade) {

@@ -1,6 +1,9 @@
 package vontus.magicbottle.guide;
 
 import java.util.List;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -102,17 +105,25 @@ public class RecipeMenu implements InventoryHolder {
                 int shapeRow = row - rowOffset;
                 int shapeColumn = column - columnOffset;
                 if (shapeRow >= 0 && shapeRow < shape.length && shapeColumn >= 0 && shapeColumn < shape[0].length()) {
-                    item = displayItem(Config.recipeNewBottleIngredients.get(shape[shapeRow].charAt(shapeColumn)));
+                    item = displayItem(shape[shapeRow].charAt(shapeColumn));
                 }
                 inventory.setItem(row * ROW + GRID_COLUMN + column, item);
             }
         }
     }
 
-    private @Nullable ItemStack displayItem(@Nullable RecipeChoice choice) {
-        if (choice instanceof RecipeChoice.MaterialChoice materialChoice) {
+    private @Nullable ItemStack displayItem(char ingredient) {
+        if (Config.recipeNewBottleIngredients.get(ingredient) instanceof RecipeChoice.MaterialChoice materialChoice) {
             List<Material> materials = materialChoice.getChoices();
-            return new ItemStack(materials.get(step % materials.size()));
+            ItemStack item = new ItemStack(materials.get(step % materials.size()));
+            String tag = Config.recipeNewBottleTags.get(ingredient);
+            if (tag != null) {
+                // The tag as the admin wrote it says it is any item of it: it is an id, so there is nothing to
+                // translate
+                item.editMeta(meta -> meta.lore(
+                        List.of(Component.text(tag, NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false))));
+            }
+            return item;
         }
         return null;
     }

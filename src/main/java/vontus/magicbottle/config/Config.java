@@ -40,6 +40,11 @@ public class Config {
     @SuppressWarnings("NullAway.Init")
     public static Map<Character, RecipeChoice> recipeNewBottleIngredients;
 
+    // The ingredients that are an item tag, with the tag as written in the config (#minecraft:wool), set with the
+    // ingredients
+    @SuppressWarnings("NullAway.Init")
+    public static Map<Character, String> recipeNewBottleTags;
+
     public static boolean repairEnabled;
     public static boolean repairAutoEnabled;
     // Whether an enabled upgrade has a wrong ingredient, which the admin must fix: the plugin doesn't enable like that
@@ -111,7 +116,9 @@ public class Config {
     private static void loadNewBottleRecipe(Settings.Bottle bottle) {
         try {
             recipeNewBottleShape = parseRecipeShape(bottle.shape);
-            recipeNewBottleIngredients = parseRecipeIngredients(recipeNewBottleShape, bottle.ingredients);
+            Map<Character, String> tags = new HashMap<>();
+            recipeNewBottleIngredients = parseRecipeIngredients(recipeNewBottleShape, bottle.ingredients, tags);
+            recipeNewBottleTags = tags;
         } catch (IllegalArgumentException e) {
             recipeNewBottleEnabled = false;
             Plugin.logger.severe(
@@ -140,7 +147,7 @@ public class Config {
     }
 
     private static Map<Character, RecipeChoice> parseRecipeIngredients(
-            String[] shape, Map<String, Ingredient> section) {
+            String[] shape, Map<String, Ingredient> section, Map<Character, String> tags) {
         Map<Character, RecipeChoice> ingredients = new HashMap<>();
         for (String row : shape) {
             for (int i = 0; i < row.length(); i++) {
@@ -154,6 +161,9 @@ public class Config {
                         throw new IllegalArgumentException("ingredient '" + c + "': " + ingredient.error);
                     }
                     ingredients.put(c, ingredient.choice);
+                    if (ingredient.text != null && ingredient.text.startsWith("#")) {
+                        tags.put(c, ingredient.text);
+                    }
                 }
             }
         }

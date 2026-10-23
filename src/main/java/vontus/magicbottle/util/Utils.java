@@ -3,7 +3,6 @@ package vontus.magicbottle.util;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import java.text.NumberFormat;
 import java.util.Locale;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public class Utils {
@@ -15,11 +14,6 @@ public class Utils {
 
     public static String roundInt(int number) {
         return NumberFormat.getNumberInstance(Locale.US).format(number);
-    }
-
-    public static Material getMaterial(ItemStack is) {
-        if (is == null) return Material.AIR;
-        else return is.getType();
     }
 
     // Damage points of a tool or armor piece (0 if undamaged). Read from the data component, which doesn't clone the

@@ -1,5 +1,6 @@
 package vontus.magicbottle.listeners;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -18,7 +19,11 @@ public class SoulboundListener implements Listener {
         if (!Config.isUpgradeEnabled(Upgrade.SOULBOUND)) {
             return;
         }
-        for (ItemStack item : e.getEntity().getInventory().getContents()) {
+        Player player = e.getEntity();
+        if (!player.hasPermission(Upgrade.SOULBOUND.usePermission())) {
+            return;
+        }
+        for (ItemStack item : player.getInventory().getContents()) {
             if (item != null
                     && MagicBottle.isMagicBottle(item)
                     && new MagicBottle(item).hasUpgrade(Upgrade.SOULBOUND)

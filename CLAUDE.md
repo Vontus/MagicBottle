@@ -71,7 +71,7 @@ Both go through `MagicBottle.find`, which decides which bottle a feature uses: t
 rest of the hotbar and, if asked (`wholeInventory`), the rest of the inventory. Upgrades never ask for the whole inventory;
 loans (`XpLoan`) do.
 Each upgrade has `upgrades.<id>` in `Settings` (`enabled`, `ingredient`, parsed by `Ingredient`; validated in
-`Config.loadUpgrades` into `Config.upgradeIngredients`; a wrong ingredient of an enabled upgrade sets `Config.invalidUpgrade` and `onEnable` disables the plugin, so the admin notices) and the permission `magicbottle.upgrade.<id>` to apply it. They are
+`Config.loadUpgrades` into `Config.upgradeIngredients`; a wrong ingredient of an enabled upgrade sets `Config.invalidUpgrade` and `onEnable` disables the plugin, so the admin notices) and the permissions `magicbottle.upgrade.apply.<id>` (apply it) and `magicbottle.upgrade.use.<id>` (get its effect; checked last in `findWithUpgrade` and in `SoulboundListener`; `/mb give` and `/mb upgrade` ignore only the apply one). They are
 applied in the smithing table (see `SmithingListener`). A new upgrade is an `Upgrade` value plus its settings, lore message
 and permission (the switches over `Upgrade` in `Config` and `Messages` don't compile until they are added).
 
@@ -156,7 +156,7 @@ quit/kick), `CraftingGridListener` (deposit/withdraw, new bottle recipe, crafter
   `Recipes.getUpgrade`; no template, any dragon's breath as base, the configured ingredient as addition) so the slots
   accept the items. `onPrepareSmithing` rebuilds the result from the bottle in the base slot (keeping its exp and upgrades,
   adding the new one) and clears it if the base isn't a MagicBottle, already has the upgrade, the upgrade is disabled or the
-  player lacks `magicbottle.upgrade.<id>`. Crafters can't apply upgrades.
+  player lacks `magicbottle.upgrade.apply.<id>`. Crafters can't apply upgrades.
 - `CollectListener` — the `collect` upgrade: `onExpChange` (`PlayerExpChangeEvent`, once per orb unit, after Mending, so it only
   takes what Mending leaves) ignores events whose source isn't an `ExperienceOrb` and, if `upgrades.collect` is on, stores
   the amount in the first bottle with `collect` and room in the hotbar/offhand (`MagicBottle.findWithUpgrade`, then the next
@@ -204,11 +204,11 @@ nodes the source can use.
 there, so the count after the space is parsed by the argument itself): the level (0..`Config.maxLevel`) optionally
 followed by the upgrades in brackets (`30`, `30[collect,autorepair]`), then the count. The upgrade list (parsing, where unknown or
 repeated ids are a parse error, and suggestions after each comma) is shared with `upgrade` through `UpgradeList`. `give` is an
-admin command: it ignores `magicbottle.upgrade.<id>` and `upgrades.<id>.enabled`.
+admin command: it ignores `magicbottle.upgrade.apply.<id>` and `upgrades.<id>.enabled`.
 `upgrade <add|remove> <upgrades>` (`magicbottle.command.upgrade`, player executor so `/execute as` works; it is not named
 `magicbottle.upgrade.manage` because that namespace is one node per upgrade id) changes the upgrades of the single MagicBottle in the
 executor's main hand with `MagicBottle#addUpgrade`/`removeUpgrade` (the XP and the upgrade ids this version doesn't know are kept). It is an admin
-command like `give`: it ignores `magicbottle.upgrade.<id>` and `upgrades.<id>.enabled`. `<upgrades>` is `UpgradeListArgument`, a greedy
+command like `give`: it ignores `magicbottle.upgrade.apply.<id>` and `upgrades.<id>.enabled`. `<upgrades>` is `UpgradeListArgument`, a greedy
 string (the client paints commas red in a word) that suggests what the bottle in hand lacks (`add`) or has (`remove`); adding what is present
 or removing what is absent changes nothing and says so.
 New subcommands are added as nodes in `build`, with their line in `USAGES`.

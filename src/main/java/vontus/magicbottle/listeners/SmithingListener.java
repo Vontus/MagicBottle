@@ -62,7 +62,7 @@ public class SmithingListener implements Listener {
         if (upgrade == null
                 || !MagicBottle.isMagicBottle(base)
                 || !Config.isUpgradeEnabled(upgrade)
-                || !player.hasPermission(upgrade.permission())) {
+                || !player.hasPermission(upgrade.applyPermission())) {
             return null;
         }
         MagicBottle bottle = new MagicBottle(base.clone());

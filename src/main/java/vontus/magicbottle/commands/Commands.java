@@ -134,7 +134,7 @@ public class Commands {
         }
         if (Config.invalidUpgrade) {
             sender.sendMessage(text(
-                    "An upgrade ingredient in config.yml is invalid (see the console): that upgrade can't be applied until you fix it and reload.",
+                    "An upgrade ingredient in config.yml is invalid or shared by two upgrades (see the console): that upgrade can't be applied until you fix it and reload.",
                     RED));
         }
         sender.sendMessage(Messages.render(Messages.texts.messages.commands.reloadCompleted));

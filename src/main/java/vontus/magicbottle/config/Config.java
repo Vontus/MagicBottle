@@ -1,10 +1,14 @@
 package vontus.magicbottle.config;
 
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import vontus.magicbottle.Plugin;
@@ -51,7 +55,7 @@ public class Config {
     // Whether an enabled upgrade has a wrong ingredient, which the admin must fix: the plugin doesn't enable like that
     public static boolean invalidUpgrade;
     // The ingredient of each upgrade that is enabled and valid; the others have no recipe
-    public static final Map<Upgrade, RecipeChoice> upgradeIngredients = new EnumMap<>(Upgrade.class);
+    public static final Map<Upgrade, RecipeChoice.MaterialChoice> upgradeIngredients = new EnumMap<>(Upgrade.class);
 
     public static void load(Plugin plugin) {
         settings = ConfigFile.load(
@@ -74,23 +78,41 @@ public class Config {
         loadUpgrades();
     }
 
-    // An enabled upgrade needs a valid ingredient; Plugin refuses to enable with a wrong one (see invalidUpgrade)
+    // An enabled upgrade needs a valid ingredient, different from the one of every other enabled upgrade (the smithing
+    // table would match only one of their recipes); Plugin refuses to enable with a wrong one (see invalidUpgrade)
     private static void loadUpgrades() {
         upgradeIngredients.clear();
         invalidUpgrade = false;
+        Set<Upgrade> clashing = EnumSet.noneOf(Upgrade.class);
         for (Upgrade upgrade : Upgrade.values()) {
             Settings.UpgradeOption option = upgradeSettings(upgrade);
             if (!option.enabled) {
                 continue;
             }
-            if (option.ingredient.error != null) {
+            RecipeChoice.MaterialChoice choice = option.ingredient.choice;
+            if (choice == null) {
                 Plugin.logger.severe("Invalid 'upgrades." + upgrade.id() + ".ingredient' in config.yml: "
                         + option.ingredient.error + ".");
                 invalidUpgrade = true;
-            } else {
-                upgradeIngredients.put(upgrade, option.ingredient.choice);
+                continue;
             }
+            // Two upgrades clash if any item is accepted by both (tags included); both are left without a recipe
+            upgradeIngredients.forEach((other, otherChoice) -> {
+                Set<Material> shared = new LinkedHashSet<>(otherChoice.getChoices());
+                shared.retainAll(choice.getChoices());
+                if (!shared.isEmpty()) {
+                    Plugin.logger.severe(
+                            "The upgrades '" + other.id() + "' and '" + upgrade.id()
+                                    + "' in config.yml accept the same item(s) as ingredient (" + shared
+                                    + "): the smithing table could apply only one of them. Every enabled upgrade needs a different ingredient.");
+                    clashing.add(other);
+                    clashing.add(upgrade);
+                }
+            });
+            upgradeIngredients.put(upgrade, choice);
         }
+        upgradeIngredients.keySet().removeAll(clashing);
+        invalidUpgrade |= !clashing.isEmpty();
     }
 
     private static Settings.UpgradeOption upgradeSettings(Upgrade upgrade) {

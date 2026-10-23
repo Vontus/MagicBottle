@@ -31,11 +31,11 @@ final class Ingredient {
 
     final @Nullable String text;
     // null if the text is invalid
-    final @Nullable RecipeChoice choice;
+    final RecipeChoice.@Nullable MaterialChoice choice;
     // null if the text is valid
     final @Nullable String error;
 
-    private Ingredient(@Nullable String text, @Nullable RecipeChoice choice, @Nullable String error) {
+    private Ingredient(@Nullable String text, RecipeChoice.@Nullable MaterialChoice choice, @Nullable String error) {
         this.text = text;
         this.choice = choice;
         this.error = error;

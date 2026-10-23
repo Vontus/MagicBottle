@@ -50,7 +50,7 @@ public class Recipes {
             add(server, craftBottle);
         }
 
-        for (Map.Entry<Upgrade, RecipeChoice> ingredient : Config.upgradeIngredients.entrySet()) {
+        for (Map.Entry<Upgrade, RecipeChoice.MaterialChoice> ingredient : Config.upgradeIngredients.entrySet()) {
             add(server, getUpgradeRecipe(ingredient.getKey(), ingredient.getValue()));
         }
 

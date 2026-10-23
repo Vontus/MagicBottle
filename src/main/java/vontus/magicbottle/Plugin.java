@@ -46,7 +46,7 @@ public final class Plugin extends JavaPlugin {
         loadConfig();
         if (Config.invalidUpgrade) {
             logger.severe(
-                    "Disabling MagicBottle: fix the invalid upgrade ingredient in config.yml (see the error above) and restart the server.");
+                    "Disabling MagicBottle: fix the invalid or repeated upgrade ingredient in config.yml (see the error above) and restart the server.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }

@@ -64,7 +64,9 @@ public class Settings {
     @Comment("""
 			Upgrades are applied to a MagicBottle in the smithing table: the bottle goes in the base slot and the ingredient in the
 			addition slot (the template slot stays empty). The bottle keeps its experience. Each upgrade has an 'enabled' option and
-			its 'ingredient', an item ID or an item tag like the ones of the bottle recipe. Applying an upgrade needs the permission
+			its 'ingredient', an item ID or an item tag like the ones of the bottle recipe. Every enabled upgrade needs a different
+			ingredient, and items shared through tags count too (#minecraft:planks and oak_planks clash). With a clash the plugin doesn't
+			enable, and '/mb reload' leaves those upgrades without a recipe until you fix it. Applying an upgrade needs the permission
 			'magicbottle.upgrade.apply.<upgrade>', and getting its effect from a bottle that has it, 'magicbottle.upgrade.use.<upgrade>'.
 			Disabling an upgrade makes it stop working on the bottles that have it, but doesn't remove it from them: enabling it again brings it back.""")
     public Upgrades upgrades = new Upgrades();

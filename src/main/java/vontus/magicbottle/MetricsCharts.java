@@ -3,9 +3,11 @@ package vontus.magicbottle;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.AdvancedPie;
 import org.bstats.charts.DrilldownPie;
 import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
+import org.bstats.charts.SingleLineChart;
 import org.bukkit.enchantments.Enchantment;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
@@ -28,6 +30,10 @@ final class MetricsCharts {
         metrics.addCustomChart(new SimplePie("repair_enchantment", MetricsCharts::repairEnchantment));
         metrics.addCustomChart(new DrilldownPie("deposit_cost", MetricsCharts::depositCost));
         metrics.addCustomChart(new SimplePie("new_bottle_recipe", MetricsCharts::newBottleRecipe));
+        metrics.addCustomChart(new SingleLineChart("online_bottled_xp", MetricsCharts::onlineBottledXp));
+        metrics.addCustomChart(new SimpleBarChart("online_bottle_upgrades", MetricsCharts::onlineBottleUpgrades));
+        metrics.addCustomChart(new AdvancedPie("online_players_with_bottle", MetricsCharts::onlinePlayersWithBottle));
+        metrics.addCustomChart(new DrilldownPie("online_bottle_sizes", MetricsCharts::onlineBottleSizes));
     }
 
     // language -> whether messages.yml is used
@@ -90,5 +96,42 @@ final class MetricsCharts {
 
     private static String newBottleRecipe() {
         return Config.isDefaultNewBottleRecipe() ? "default" : "custom";
+    }
+
+    // The charts below count the bottles of the online players (see OnlineBottleStats); bStats adds the values of all
+    // servers
+
+    // In thousands of points: a bottle at the hard cap holds about 1.8 billion, so a few would overflow an int
+    private static int onlineBottledXp() {
+        return (int) Math.min(OnlineBottleStats.current().points / 1000, Integer.MAX_VALUE);
+    }
+
+    // Disabled upgrades count too (they stay on the bottle); total is every bottle
+    private static Map<String, Integer> onlineBottleUpgrades() {
+        OnlineBottleStats stats = OnlineBottleStats.current();
+        Map<String, Integer> bars = new LinkedHashMap<>();
+        for (Upgrade upgrade : Upgrade.values()) {
+            bars.put(upgrade.id(), stats.upgrades.getOrDefault(upgrade, 0));
+        }
+        bars.put("total", stats.bottles);
+        return bars;
+    }
+
+    private static Map<String, Integer> onlinePlayersWithBottle() {
+        OnlineBottleStats stats = OnlineBottleStats.current();
+        Map<String, Integer> pie = new LinkedHashMap<>();
+        pie.put("With bottle", stats.playersWithBottle);
+        pie.put("Without bottle", stats.players - stats.playersWithBottle);
+        return pie;
+    }
+
+    // Bucket -> exact size -> bottles, so the buckets can change later without losing data
+    private static Map<String, Map<String, Integer>> onlineBottleSizes() {
+        Map<String, Map<String, Integer>> sizes = new LinkedHashMap<>();
+        OnlineBottleStats.current().sizes.forEach((size, bottles) -> {
+            String bucket = size <= 2 ? String.valueOf(size) : size <= 4 ? "3-4" : "5+";
+            sizes.computeIfAbsent(bucket, k -> new LinkedHashMap<>()).put(String.valueOf(size), bottles);
+        });
+        return sizes;
     }
 }

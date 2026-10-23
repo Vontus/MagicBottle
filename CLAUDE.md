@@ -269,6 +269,13 @@ needs no code. Every server sends one value per chart, so they count servers: `l
 `features` and `upgrades`: a server sends 1 for each thing it has enabled plus `total`, so the gap between a bar and `total` is
 the servers that disabled it (a pie would show shares of the sum, which says nothing when everyone enables everything). A new
 `Upgrade` adds its bar by itself; a new feature adds a line in `MetricsCharts.features`.
+Four more charts say what is used, not what is enabled: `OnlineBottleStats` goes over the inventory and ender chest of the
+online players when a submission asks (the callbacks run on the main thread, and the charts of a submission share one pass per
+tick; no counters in game events, nothing persisted) and counts the bottles, stacks by amount, on a clone so a 1.5.x bottle isn't
+rewritten. `online_bottled_xp` (single line, thousands of points summed in `long` and clamped: a bottle at the cap would overflow
+an int), `online_bottle_upgrades` (bar per `Upgrade`, disabled ones included, plus `total` bottles), `online_players_with_bottle`
+(advanced pie) and `online_bottle_sizes` (drilldown: bucket `1`/`2`/`3-4`/`5+` → exact size). They are counts, since bStats adds
+the values of all servers. Only online players are seen, so the values follow the time of day.
 
 **Effects** (`effects/SoundEffect`): sounds and particles (Bukkit `spawnParticle`) for deposit/withdraw/craft
 actions.

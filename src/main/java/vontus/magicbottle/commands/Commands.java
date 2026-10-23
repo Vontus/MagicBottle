@@ -29,13 +29,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import vontus.magicbottle.MagicBottle;
 import vontus.magicbottle.Plugin;
-import vontus.magicbottle.RecipeMenu;
 import vontus.magicbottle.Upgrade;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.config.Messages;
+import vontus.magicbottle.guide.Guide;
+import vontus.magicbottle.guide.RecipeMenu;
 
 public class Commands {
     private final Plugin plugin;
+    private final Guide guide;
 
     @SuppressWarnings("NullAway.Init") // set by build(), which Plugin calls before the command can run
     private LiteralCommandNode<CommandSourceStack> root;
@@ -46,10 +48,12 @@ public class Commands {
             "reload", "/magicbottle reload",
             "give", "/magicbottle give <targets> <level>[upgrades] [count]",
             "upgrade", "/magicbottle upgrade <add|remove> <upgrades>",
-            "recipes", "/magicbottle recipes");
+            "guide", "/magicbottle guide",
+            "recipe", "/magicbottle recipe");
 
     public Commands(Plugin plugin) {
         this.plugin = plugin;
+        this.guide = new Guide(plugin);
     }
 
     /**
@@ -78,9 +82,12 @@ public class Commands {
                         .then(literal("remove")
                                 .then(argument("upgrades", new UpgradeListArgument(false))
                                         .executes(ctx -> changeUpgrades(ctx, false)))))
-                .then(literal("recipes")
-                        .requires(perm(Config.permRecipes).and(Commands::isPlayer))
-                        .executes(asPlayer(this::recipes)))
+                .then(literal("guide")
+                        .requires(perm(Config.permGuide).and(Commands::isPlayer))
+                        .executes(asPlayer(guide::open)))
+                .then(literal("recipe")
+                        .requires(perm(Config.permRecipe).and(Commands::isPlayer))
+                        .executes(asPlayer(this::recipe)))
                 .build();
         return root;
     }
@@ -108,15 +115,14 @@ public class Commands {
         return source.getExecutor() instanceof Player;
     }
 
-    private void recipes(Player p) {
+    private void recipe(Player p) {
         if (!RecipeMenu.open(plugin, p)) {
             p.sendMessage(Messages.render(Messages.texts.messages.recipe.disabled));
         }
     }
 
     private void about(CommandSender sender) {
-        sender.sendMessage(text(plugin.getPluginMeta().getDisplayName() + " by Vontus", GOLD));
-        sender.sendMessage(text("https://www.spigotmc.org/resources/magicbottle.40039/", YELLOW));
+        Guide.aboutLines(plugin).forEach(sender::sendMessage);
     }
 
     private void reload(CommandSender sender) {

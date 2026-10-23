@@ -147,7 +147,7 @@ public final class MagicBottle {
     }
 
     // A copy of a bottle without the bottle markers, so it can't be used as one: for display only
-    static ItemStack createDisplayItem(int exp, Upgrade... upgrades) {
+    public static ItemStack createDisplayItem(int exp, Upgrade... upgrades) {
         MagicBottle bottle = new MagicBottle(exp, List.of(upgrades));
         ItemStack item = bottle.getItem();
         item.editMeta(meta -> {
@@ -157,6 +157,11 @@ public final class MagicBottle {
             meta.getPersistentDataContainer().remove(keySize);
         });
         return item;
+    }
+
+    /** A plain bottle holding exactly its capacity, to show how bottles merge. */
+    public static MagicBottle createFull() {
+        return new MagicBottle(new MagicBottle(0).getCapacity());
     }
 
     /**
@@ -369,7 +374,8 @@ public final class MagicBottle {
         return points - ((long) points * getCostPercentage(player) + 50) / 100;
     }
 
-    private static int getCostPercentage(Player player) {
+    /** The percentage of what the player saves that the bottle keeps out (0 if the player is exempt). */
+    public static int getCostPercentage(Player player) {
         if (player.hasPermission(Config.permDepositCostExempt)) {
             return 0;
         }

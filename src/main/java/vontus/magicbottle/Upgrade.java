@@ -22,8 +22,13 @@ public enum Upgrade {
     }
 
     /** The permission needed to apply it in the smithing table. */
-    public String permission() {
-        return "magicbottle.upgrade." + id();
+    public String applyPermission() {
+        return "magicbottle.upgrade.apply." + id();
+    }
+
+    /** The permission needed to get its effect from a bottle that has it. */
+    public String usePermission() {
+        return "magicbottle.upgrade.use." + id();
     }
 
     public static @Nullable Upgrade fromId(String id) {

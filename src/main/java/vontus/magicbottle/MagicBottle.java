@@ -591,10 +591,14 @@ public final class MagicBottle {
 
     /**
      * The first bottle with the upgrade and accepted by the filter, looking only at the hotbar and the offhand: moving
-     * a bottle out of them switches its upgrades off.
+     * a bottle out of them switches its upgrades off. Nothing is found if the player lacks the permission to use the
+     * upgrade, which is checked last since this runs on hot events.
      */
     public static @Nullable MagicBottle findWithUpgrade(Player player, Upgrade upgrade, Predicate<MagicBottle> filter) {
-        return find(player, false, mb -> mb.hasUpgrade(upgrade) && filter.test(mb));
+        return find(
+                player,
+                false,
+                mb -> mb.hasUpgrade(upgrade) && filter.test(mb) && player.hasPermission(upgrade.usePermission()));
     }
 
     /**

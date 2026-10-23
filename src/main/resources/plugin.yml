@@ -27,14 +27,23 @@ permissions:
   magicbottle.action.merge:
     description: 'Allows a player to merge two full MagicBottles in the anvil into a bigger one'
     default: true
-  magicbottle.upgrade.autorepair:
+  magicbottle.upgrade.apply.autorepair:
     description: 'Allows a player to apply the repair (auto-repair) upgrade to a MagicBottle in the smithing table'
     default: true
-  magicbottle.upgrade.collect:
+  magicbottle.upgrade.apply.collect:
     description: 'Allows a player to apply the collect upgrade (stores picked up XP orbs) to a MagicBottle in the smithing table'
     default: true
-  magicbottle.upgrade.soulbound:
+  magicbottle.upgrade.apply.soulbound:
     description: 'Allows a player to apply the soulbound upgrade (keeps the bottle on death) to a MagicBottle in the smithing table'
+    default: true
+  magicbottle.upgrade.use.autorepair:
+    description: 'Allows a player to get the effect of the repair (auto-repair) upgrade from a MagicBottle'
+    default: true
+  magicbottle.upgrade.use.collect:
+    description: 'Allows a player to get the effect of the collect upgrade (stores picked up XP orbs) from a MagicBottle'
+    default: true
+  magicbottle.upgrade.use.soulbound:
+    description: 'Allows a player to get the effect of the soulbound upgrade (keeps the bottle on death) from a MagicBottle'
     default: true
   magicbottle.command.guide:
     description: 'Allows a player to open /mb guide, which explains how to use a MagicBottle'

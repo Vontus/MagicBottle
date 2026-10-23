@@ -160,8 +160,8 @@ public final class Guide {
     // The enabled upgrades the player may apply
     private static List<Upgrade> upgradesFor(Player player) {
         return Arrays.stream(Upgrade.values())
-                .filter(upgrade ->
-                        Config.upgradeIngredients.containsKey(upgrade) && player.hasPermission(upgrade.permission()))
+                .filter(upgrade -> Config.upgradeIngredients.containsKey(upgrade)
+                        && player.hasPermission(upgrade.applyPermission()))
                 .toList();
     }
 

@@ -1,13 +1,11 @@
 package vontus.magicbottle.listeners;
 
 import java.util.function.Consumer;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jspecify.annotations.Nullable;
-import vontus.magicbottle.util.Utils;
 
 // Clicks on a result slot that the plugin takes by hand (crafting grid, anvil), because vanilla would consume the
 // bottle
@@ -32,7 +30,7 @@ final class ResultSlot {
         };
     }
 
-    static boolean isAir(ItemStack item) {
-        return Utils.getMaterial(item) == Material.AIR;
+    static boolean isAir(@Nullable ItemStack item) {
+        return item == null || item.isEmpty();
     }
 }

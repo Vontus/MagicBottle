@@ -15,10 +15,6 @@ public class Exp {
         player.setLevel(0);
         player.setTotalExperience(0);
 
-        // This following code is technically redundant now, as bukkit now
-        // calculates levels more or less correctly
-        // At larger numbers however... player.getExp(3000), only seems to give
-        // 2999, putting the below calculations off.
         int amount = exp;
         while (amount > 0) {
             final int expToLevel = getExpAtLevel(player);
@@ -72,10 +68,6 @@ public class Exp {
     public static void givePoints(final Player player, final int points) {
         // long, since the sum can exceed the int range
         setPoints(player, (int) Math.min((long) getPoints(player) + points, Integer.MAX_VALUE));
-    }
-
-    public static void takePoints(final Player player, final int points) {
-        setPoints(player, getPoints(player) - points);
     }
 
     private static Integer getExpAtLevel(final Player player) {

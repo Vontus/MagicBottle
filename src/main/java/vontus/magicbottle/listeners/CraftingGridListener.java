@@ -2,7 +2,6 @@ package vontus.magicbottle.listeners;
 
 import java.util.function.Consumer;
 import org.bukkit.Keyed;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Crafter;
 import org.bukkit.entity.Player;
@@ -25,7 +24,6 @@ import vontus.magicbottle.Recipes;
 import vontus.magicbottle.config.Config;
 import vontus.magicbottle.effects.SoundEffect;
 import vontus.magicbottle.util.Exp;
-import vontus.magicbottle.util.Utils;
 
 // Everything that happens in crafting grids and crafters: depositing/withdrawing with a lone bottle and the new bottle
 // recipe
@@ -127,7 +125,7 @@ public class CraftingGridListener implements Listener {
         if (MagicBottle.isMagicBottle(e.getRecipe().getResult())) {
             if (!isEmptyBottleRecipe(e.getRecipe(), e.getInventory())) {
                 e.setCancelled(true);
-            } else if (Utils.getMaterial(e.getCurrentItem()) != Material.AIR) {
+            } else if (!ResultSlot.isAir(e.getCurrentItem())) {
                 SoundEffect.newBottle((Player) e.getView().getPlayer());
             }
         }
@@ -162,7 +160,7 @@ public class CraftingGridListener implements Listener {
     private @Nullable ItemStack getLoneBottle(CraftingInventory inv) {
         ItemStack lone = null;
         for (ItemStack i : inv.getMatrix()) {
-            if (Utils.getMaterial(i) != Material.AIR) {
+            if (!ResultSlot.isAir(i)) {
                 if (lone != null) {
                     return null;
                 }

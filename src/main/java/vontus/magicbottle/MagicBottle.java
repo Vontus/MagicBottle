@@ -401,7 +401,7 @@ public final class MagicBottle {
     }
 
     private int repairNoRecreate(ItemStack i, boolean fullRepair) {
-        if (Utils.getMaterial(i) != Material.AIR) {
+        if (!i.isEmpty()) {
             if (Config.canRepair(i)) {
                 int usedDurability = Utils.getDamage(i);
                 if (usedDurability >= DURABILITY_POINTS_PER_XP || fullRepair) {
